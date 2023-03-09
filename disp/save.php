@@ -134,7 +134,7 @@ function Call_edit($data)
     $queryuser = $DB->row("SELECT user_level, user_name, user_disppermission FROM lift_users WHERE user_id=$user_id LIMIT 1");
     $user_name=$queryuser['user_name'];
     if ($queryuser['user_disppermission'] != "1" && $queryuser['user_level'] !== "3") {
-        $log = " error edit permisssion   user id $user_id - " . print_r($queryuser);
+        $log = " error edit permisssion   user id $user_id - " . print_r($queryuser,true);
         logsave($log, "save_php_error");
         $response['status']  = 'error';
         $response['message'] = "Недостаточно прав для данного действия Edit-1  ";
@@ -252,7 +252,7 @@ function Call_new($data)
     global $user_id;
     $queryuser = $DB->row("SELECT user_add_call, user_level, user_name FROM lift_users WHERE user_id=$user_id LIMIT 1");
     if ($queryuser['user_add_call'] != "1" and $queryuser['user_level'] !== "3") {
-        $log = " error new permisssion   user id $user_id - " . print_r($queryuser);
+        $log = " error new permisssion   user id $user_id - ".print_r($queryuser,true);
         logsave($log, "save_php_error");
         $response['status']  = 'error';
         $response['message'] = "Недостаточно прав для данного действия  ";
@@ -261,7 +261,7 @@ function Call_new($data)
     $data_key = ["city", "street", "home", "object", "fullAdress", "group", "request", "repair_time", "department", "details"];
     foreach ($data_key as $key => $value) {
         if (!isset($data[$value])) {
-            $log = " error new call  no " . $value . " -" . print_r($data);
+            $log = " error new call  no " . $value . " -".print_r($data,true);
             logsave($log, "save_php_error");
             $response['status']  = 'error';
             $response['message'] = "Нарушена целостность данных  ";
