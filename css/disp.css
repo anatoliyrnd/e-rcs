@@ -1,0 +1,712 @@
+* {
+    box-sizing: border-box;
+}
+
+dialog {
+    box-sizing: border-box;
+}
+
+.ext-cross:before,
+.checkbox__checker:before,
+.checkbox__cross:before,
+.checkbox__ok:before,
+.ext-cross:after,
+.checkbox__checker:after,
+.checkbox__cross:after,
+.checkbox__ok:after {
+    content: "";
+    display: block;
+    position: absolute;
+    width: 14px;
+    height: 2px;
+    margin: 0 auto;
+    top: 20px;
+    left: 0;
+    right: 0;
+    background-color: #bf1e1e;
+    border-radius: 5px;
+    transition-duration: 0.3s;
+}
+
+.ext-cross:before,
+.checkbox__checker:before,
+.checkbox__cross:before,
+.checkbox__ok:before {
+    transform: rotateZ(45deg);
+}
+
+.ext-cross:after,
+.checkbox__checker:after,
+.checkbox__cross:after,
+.checkbox__ok:after {
+    transform: rotateZ(-45deg);
+}
+
+.ext-ok:before,
+.checkbox__toggle:checked+.checkbox__checker:before,
+.checkbox__ok:before,
+.ext-ok:after,
+.checkbox__toggle:checked+.checkbox__checker:after,
+.checkbox__ok:after {
+    background-color: #0cb018;
+}
+
+.ext-ok:before,
+.checkbox__toggle:checked+.checkbox__checker:before,
+.checkbox__ok:before {
+    width: 6px;
+    top: 23px;
+    left: -7px;
+}
+
+.ext-ok:after,
+.checkbox__toggle:checked+.checkbox__checker:after,
+.checkbox__ok:after {
+    width: 12px;
+    left: 5px;
+}
+
+/* для переключателя уведомления ответсвенного */
+.staff_checkbox {
+    width: 100px;
+    margin: 5px auto 0px auto;
+}
+
+.checkbox__container {
+    display: block;
+    position: relative;
+    height: 42px;
+    cursor: pointer;
+}
+
+.checkbox__toggle {
+    display: none;
+}
+
+.checkbox__toggle:checked+.checkbox__checker {
+    left: calc(100% - 43px);
+    transform: rotateZ(360deg);
+}
+
+.checkbox__checker,
+.checkbox__cross,
+.checkbox__ok {
+    display: block;
+    position: absolute;
+    height: 43px;
+    width: 43px;
+    top: -1px;
+    left: 0px;
+    z-index: 1;
+}
+
+.checkbox__checker {
+    border-radius: 50%;
+    background-color: #fff;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.5);
+    transition: 0.3s;
+    z-index: 2;
+}
+
+.checkbox__checker:before,
+.checkbox__checker:after {
+    transition-duration: 0.3s;
+}
+
+.checkbox__cross:before,
+.checkbox__ok:before,
+.checkbox__cross:after,
+.checkbox__ok:after {
+    background-color: #ddd;
+}
+
+.checkbox__ok {
+    left: calc(100% - 43px);
+}
+
+.checkbox__txt-left,
+.checkbox__txt-right {
+    display: block;
+    position: absolute;
+    width: 42px;
+    top: 15px;
+    text-align: center;
+    color: #fff;
+    font-size: 12px;
+    z-index: 1;
+}
+
+.checkbox__txt-right {
+    right: 0px;
+}
+
+.checkbox__bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    fill: #222222b5;
+    width: 100%;
+    height: 100%;
+}
+
+/* стили модального окна*/
+@media screen and (max-height: 400px) {
+    .confirm {
+        height: 360px;
+
+    }
+    .body_dialog {
+        height: 260px;
+    }
+
+}
+@media screen and ((min-height: 401px) and (max-height: 500px)) {
+    .confirm {
+        height: 370px;
+        
+    }
+    .body_dialog {
+        height: 270px;
+    }
+
+}
+@media screen and ((min-height: 501px) and (max-height: 600px)) {
+    .confirm {
+        height: 470px;
+    }
+    .body_dialog {
+        height: 370px;
+    }
+}
+@media screen and ((min-height: 601px) and (max-height: 700px)) {
+    .confirm {
+        height: 570px;
+    }
+    .body_dialog {
+        height: 470px;
+    }
+
+}@media screen and (min-height: 701px) {
+    .confirm {
+        height: 670px;
+    }
+    .body_dialog {
+        height: 570px;
+    }
+
+}
+
+.confirm {
+    overflow:hidden;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    min-width: 280px;
+    max-width: 900px;
+   
+    background-color: #adadadf0;
+    border-radius: 15px;
+    padding: 0;
+    margin: 0;
+    border: 0px solid #00000014;
+    animation: fade 1s ease 1 forwards;
+    -webkit-box-shadow: 0px 0px 80px 60px rgba(0, 0, 0, 0.46);
+    box-shadow: 0px 0px 80px 60px rgba(0, 0, 0, 0.6);
+}
+
+.confirm h1 {
+    text-align: center;
+    font-size: 1.2rem;
+    margin: 1.5rem 1rem 0.5rem;
+}
+
+.confirm p {
+    text-align: center;
+    font-size: 1rem;
+    margin: 0 2rem 0;
+}
+
+.confirm #close,
+#save {
+    background-color: #c2c2c2;
+    border: none;
+    color: #1678E5;
+    height: 3rem;
+    font-size: 1rem;
+    width: 50%;
+    position: absolute;
+    bottom: 0;
+    cursor: pointer;
+}
+
+.confirm #close:nth-of-type(1) {
+    border-top: 1px solid #B4B4B4;
+    border-right: 1px solid #8d8d8d;
+    left: 0;
+    border-radius: 0 0 0 10px;
+}
+
+.confirm #save:nth-of-type(2) {
+    border-top: 1px solid #B4B4B4;
+    right: 0;
+    border-radius: 0 0 10px 0;
+}
+
+.confirm button:hover {
+    font-weight: bold;
+    background: #EFEFEF;
+}
+
+.confirm button:disabled {
+    color: gray !important;
+
+    cursor: not-allowed !important;
+}
+
+.confirm button:active {
+    background: #D6D6D6;
+}
+
+.body_dialog {
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;
+
+
+}
+.modal_but{
+   overflow:hidden; 
+}
+/* стили карточек (окошек) с описанием к пунктам заявки в диалоговом окне */
+.card {
+    position: relative;
+    padding: 13px;
+    max-width: 300px;
+
+}
+
+.card-content {
+    background-color: #a9a9a9;
+    padding: 12px 10px 10px 10px;
+    min-height: 60px;
+    border: 1px solid #514b68;
+    -webkit-border-radius: 0px 17px 17px 17px;
+    -moz-border-radius: 0px 17px 17px 17px;
+    border-radius: 0px 17px 17px 17px;
+
+}
+
+.card_label {
+    -webkit-box-shadow: 1px 2px 9px 0px rgba(153, 140, 63, 0.66);
+    box-shadow: 1px 2px 9px 0px rgba(153, 140, 63, 0.66);
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    padding: 4px;
+    background: #DFEBFF none no-repeat scroll 0 0;
+    position: absolute;
+    left: 15px;
+    top: 0px;
+    font-size: 14px;
+
+}
+
+/* анимация появлления */
+@keyframes myAnim {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.but_add {
+    padding-left: 25px;
+    text-align: center;
+    display: grid;
+    margin: 10px 10px 10px 100px;
+}
+
+.top-nav {
+    background-color: #c2c2c2;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    height: 50px;
+    padding: 13px;
+    margin: 0px auto 0px auto;
+    color: #070930;
+    border-top: 0px;
+    border-left: 0px;
+    border-right: 0px;
+    border-bottom: 2px;
+    border-color: #737373;
+    border-style: solid;
+}
+
+.grid-container {
+    display: grid;
+    grid-gap: 2px;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+
+    padding: 2px;
+}
+
+.grid-item {
+
+    padding: 2px;
+    font-size: 15px;
+    text-align: center;
+}
+
+/* меню в диалоговом окне */
+.menu_dialog {
+    display: flex;
+    list-style-type: none;
+    padding: 0;
+    position: absolute;
+    top: 0;
+    margin-top: 50px;
+    left: 0;
+    flex-direction: column;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.menu_dialog>li {
+    margin: 0 1rem;
+    overflow: hidden;
+}
+
+.menu_dialog-button-container {
+    display: none;
+    height: 100%;
+    width: 30px;
+    cursor: pointer;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#menu_dialog-modal {
+    display: none;
+}
+
+.menu_dialog-button,
+.menu_dialog-button::before,
+.menu_dialog-button::after {
+    display: block;
+    background-color: #0d0080;
+    position: absolute;
+    height: 4px;
+    width: 30px;
+    transition: transform 400ms cubic-bezier(0.23, 1, 0.32, 1);
+    border-radius: 2px;
+}
+
+.menu_dialog-button::before {
+    content: '';
+    margin-top: -8px;
+}
+
+.menu_dialog-button::after {
+    content: '';
+    margin-top: 8px;
+}
+
+#menu_dialog-modal:checked+.menu_dialog-button-container .menu_dialog-button::before {
+    margin-top: 0px;
+    transform: rotate(405deg);
+}
+
+#menu_dialog-modal:checked+.menu_dialog-button-container .menu_dialog-button {
+    background: rgba(255, 255, 255, 0);
+}
+
+#menu_dialog-modal:checked+.menu_dialog-button-container .menu_dialog-button::after {
+    margin-top: 0px;
+    transform: rotate(-405deg);
+}
+
+
+.menu_dialog-button-container {
+    display: flex;
+}
+
+#menu_dialog-modal~.menu_dialog li {
+    z-index: 999;
+    height: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    transition: height 400ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+#menu_dialog-modal:checked~.menu_dialog li {
+    border: 1px solid #333;
+    height: 2.5em;
+    padding: 0.5em;
+    transition: height 400ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.menu_dialog>li {
+    display: flex;
+    justify-content: center;
+    margin: 0;
+    padding: 0.5em 0;
+    width: 100%;
+    color: white;
+    background-color: #222;
+}
+
+.menu_dialog>li:not(:last-child) {
+    border-bottom: 1px solid #c92828;
+}
+
+/* заголовок диалогового окна */
+.title_dialog {
+
+    opacity: 0;
+    animation: myAnim 2s ease-in 50ms 1 normal forwards;
+    text-align: center;
+}
+
+.textarea {
+
+    min-width: 250px;
+    min-height: 100px;
+    font-size: 24px;
+
+}
+
+.grid_close {
+    position: relative;
+    display: grid;
+    grid-auto-columns: auto auto;
+    grid-auto-rows: auto auto;
+    grid-template-columns: 1fr;
+    gap: 5px 5px;
+    align-content: space-evenly;
+    align-items: start;
+    padding: 27px 10px 10px 10px;
+}
+/* стили для поля ввода при закрытии заявки */
+.textarea_close {
+    padding: 15px;
+    font-size: 30px;
+    border: 2px solid rgba(29, 27, 43, 1);
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+    -webkit-box-shadow: 0 0 7px 0 rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 7px 0 rgba(0, 0, 0, 0.3);
+    width: 100%;
+    height: 300px;
+    background-color: #EFEFEF;
+}
+
+.label_close {
+    position: absolute;
+    z-index: 50;
+    top: 1px;
+    left: 25px;
+    background-color: #EFEFEF;
+    border: 2px solid rgba(29, 27, 43, 1);
+    -webkit-border-radius: 10px 10px 0 0;
+    border-radius: 10px 10px 10px 10px;
+    padding: 4px;
+    border-bottom-color: #eeeeee;
+    border-bottom-width: 5px;
+}
+/* изменение стандартного поля ввода */
+textarea {
+    overflow: auto;
+    overflow-x: hidden;
+    cursor: url(ico/pen.cur) 6 6, pointer;
+    resize: none;
+}
+/* стили полосы прокрутки для поля ввода изменения опиания заявки */
+.textarea::-webkit-scrollbar-track {
+
+    background-color: rgba(255, 255, 255, 0);
+    border-bottom-right-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+.textarea::-webkit-scrollbar {
+    margin-right: 5px;
+    width: 15px;
+    background-color: #f5f5f598;
+    border-bottom-right-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+.textarea::-webkit-scrollbar-thumb {
+    border-radius: 100px;
+    box-shadow: 3px 0px 3px 4px grey;
+    background-color: rgba(25, 71, 0, 0.81);
+}
+/* стиль для полей типа select */
+select {
+    /* Reset Select */
+
+    appearance: none;
+    outline: 0;
+    border: 0;
+    box-shadow: none;
+    /* Personalize */
+    flex: 1;
+    padding: 0 10px;
+    color: #000;
+    background-color: #a9a9a9;
+    background-image: none;
+    cursor: pointer;
+    transition: all 150ms ease;
+
+
+
+}
+
+/* Remove IE arrow */
+select::-ms-expand {
+    display: none;
+}
+
+/* Custom Select wrapper */
+.select {
+    border: 1px solid #636363;
+    position: relative;
+    display: flex;
+    min-width: 250px;
+    height: 40px;
+    border-radius: 10px 10px 0px 0px;
+    overflow: hidden;
+    margin-top: 7px;
+    -webkit-appearance: button;
+    appearance: button;
+    outline: none;
+}
+
+.select::before {
+    content: "\f13a";
+    font-family: FontAwesome;
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 20%;
+    height: 100%;
+    text-align: center;
+    font-size: 28px;
+    line-height: 45px;
+    color: rgba(255, 255, 255, 0.5);
+    background-color: rgb(87, 175, 36);
+    pointer-events: none;
+}
+
+.select::after {
+    content: '\25BC';
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 1em;
+    background-color: #34495e;
+    transition: .25s all ease;
+    pointer-events: none;
+}
+
+/* Transition */
+.select:hover::after {
+    color: #f39c12;
+}
+
+.change_select {
+    border: 2px solid #008316 !important;
+}
+/* стиль для полей типа datalist */
+datalist {
+    position: absolute;
+    max-height: 20em;
+    border: 2 none #888;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+datalist option {
+    font-size: 0.8em;
+    padding: 0.3em 1em;
+    background-color: #d458c4;
+    cursor: pointer;
+}
+
+/* option active styles */
+datalist option:hover,
+datalist option:focus {
+    color: #5ec54a;
+    background-color: #036;
+    outline: 0 none;
+}
+
+.drop-down__list {
+    position: absolute;
+    list-style-type: none;
+    padding: 0;
+    margin: 5px 0 0 0;
+    max-height: 400px;
+    overflow: auto;
+}
+
+.drop-down__item {
+    padding: 7px;
+    background: #000;
+    color: #fff;
+    margin-bottom: 2px;
+    transition: all .2s;
+}
+
+.drop-down__item:focus,
+.drop-down__item:hover {
+    background: grey;
+}
+
+.drop-down__item:active {
+    transition: none;
+    background: orange;
+}
+/* spiner для диалогового окна */
+.lds-dual-ring {
+    position: absolute;
+    top: 0px;
+    right: 50%;
+    width: 20px;
+    height: 20px;
+  }
+  .lds-dual-ring:after {
+    content: " ";
+    display: block;
+    width: 14px;
+    height: 14px;
+    margin: 8px;
+    border-radius: 50%;
+    border: 6px solid #6f6;
+    border-color: #6f6 transparent #6f6 transparent;
+    animation: lds-dual-ring 1.2s linear infinite;
+  }
+  @keyframes lds-dual-ring {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  
+
+.hidden {
+    display: none !important;
+}
