@@ -1,0 +1,7 @@
+2023-03-11 20:03:37 - 127.0.0.1 -  error new permisssion   user id 3 - Array
+(
+    [user_add_call] => 0
+    [user_level] => 2
+    [user_name] => Иванов Иван
+)
+
