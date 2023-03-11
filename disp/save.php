@@ -281,7 +281,7 @@ function Call_new($data)
         }
     }
 
-
+global $repair_time_unix;
     $call_department = (int) $data['department'];
     $user_name       = $queryuser['user_name'];
     $call_request    = (int) $data['request'];
@@ -290,11 +290,13 @@ function Call_new($data)
     $street          = (int) $data['street'];
     $home            = (int) $data['home'];
     $lift            = (int) $data['object'];
+    $repair_time_save = $repair_time_unix[$data['repair_time']];
     $bindarray       = array(
         "adress" => $data['fullAdress'],
         "details" => $data['details'],
     );
-    $query_add_call .= "call_date=$date_call, call_status=0, call_solution=' ',call_first_name='$user_name', call_department=$call_department, call_request=$call_request, call_group=$call_group, call_adres=:adress, call_details=:details, address_city=$city, address_street=$street, address_home=$home, address_lift=$lift";
+  
+    $query_add_call .= "expected_repair_time=$repair_time_save, call_date=$date_call, call_status=0, call_solution=' ',call_first_name='$user_name', call_department=$call_department, call_request=$call_request, call_group=$call_group, call_adres=:adress, call_details=:details, address_city=$city, address_street=$street, address_home=$home, address_lift=$lift";
     $query_add_call  = "INSERT INTO lift_calls SET " . $query_add_call;
     $add_sql_result  = $DB->query($query_add_call, $bindarray);
     if ($add_sql_result) {

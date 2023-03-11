@@ -110,7 +110,7 @@ foreach ($calls_DB as $key => $value) {
   foreach ($noteList as $key => $note_query) {
     $query_user_note = "SELECT user_name FROM lift_users WHERE user_id=" . $note_query['note_post_user']; //получим имя ответсвенного по его id
     $user_name_note  = $DB->single($query_user_note);
-    $note            = ['user' => $user, 'body' => $note_query['note_body'], 'date' =>
+    $note            = ['user' => $user_name_note, 'body' => $note_query['note_body'], 'date' =>
       date("d.m.Y H:i", ($note_query['note_post_date']))];
     $num++;
     $call['note'][$num] = $note;

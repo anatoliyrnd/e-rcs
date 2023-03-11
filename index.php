@@ -1,4 +1,5 @@
 <?php
+//(C)Замотаев Анатолий Николаевич
 include("include/session.php");
 $_SESSION['auth'] = md5(uniqid(microtime()));
 ?>
@@ -715,5 +716,5 @@ Animation Keyframes
     }
   </script>
 </body>
-
+<!-- (c) Zamotaev Anatoliy Nikolaevich -->
 </html>

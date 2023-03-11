@@ -40,7 +40,11 @@ for (const list of menu.querySelectorAll("li")) {
   console.log(list);
   list.addEventListener("click", clickMenu);
 }
-
+setInterval(() => {
+  //обновляем данные с сервера
+  tableOpen.replaceData();
+    tableClose.replaceData();
+}, 60000);
 saveDialog.addEventListener("click", savecall, false);
 closeDialog.addEventListener("click", modalClose);
 dialog.addEventListener("cancel", modalClose);
