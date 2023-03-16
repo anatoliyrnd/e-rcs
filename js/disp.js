@@ -761,7 +761,7 @@ tableOpen.on("rowTap", function (e, row) {
 tableOpen.on("dataLoaded", function (data) {
   //data has been loaded
   let actualtime =
-    "Данные актуальны по состоянию на - " + new Date().toLocaleString();
+  user_name+"  ->  Данные актуальны по состоянию на - " + new Date().toLocaleString() ;
   info.innerHTML = actualtime;
 });
 tableOpen.on("rowContext", function (e, row) {

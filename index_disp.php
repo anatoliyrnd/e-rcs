@@ -15,17 +15,7 @@ include("include/function.php");
    echo "invalid id";
   exit;
  }
-/* try {
-$dbh = new PDO(db_PDO, db_user, db_password);
-$dbh->exec("set names utf8");
-} catch (PDOException $e) {
-echo "Error PDO SQL";
-$new_str=$e->getMessage();
-$filename ="/logs/pdo_error".date("m_y").".txt";
-$text = file_get_contents($filename);
-file_put_contents($filename, $new_str . PHP_EOL . $text);
-die();
-} */
+
 
 DB::$dsn           = db_PDO;
 DB::$user          = db_user;
@@ -38,8 +28,7 @@ $addcallpermission = false;
 if (isset($user_id)) {
   $checkusr = (int) $user_id;
   $q        = "SELECT `user_add_call`, `user_localadmin`,`user_edit_obj`, `user_edit_user`, `user_level`, `user_disppermission` FROM `lift_users` WHERE `user_id`=$checkusr LIMIT 1";
-  // $stuser=$dbh->query($q);
-  //$userdata=$stuser->fetch(PDO::FETCH_ASSOC);
+
   $userdata = DB::getRow($q);
   
   
@@ -71,7 +60,7 @@ if (isset($user_id)) {
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=.8">
   <meta name="csrf-token" content="fz39nNuPLyVKzX2hFqOZOQp69sksn2UWrQsBgqmR">
-  <title>Диспетчер. Журнал заявок.</title>
+  <title>Диспетчер. Журнал заявок. - <?php echo $user_name; ?> </title>
   <meta name="description"
     content="Электронный журнал заявок по ремнту лифтов ->Интерфейс диспетчера -><?php echo $user_name; ?>">
   <meta name="author" content="Zamotaev Anatoliy">
@@ -89,16 +78,9 @@ if (isset($user_id)) {
     
   </style>
   <script>
-
-
-   
-    const nacl = "<?php echo $nacl; ?>";
-    const user_name = "<?php echo $user_name; ?>";
-    const user_id = "<?php echo $user_id; ?>";
-    const city = (<?php echo queryarr("4"); ?>);
-    
-
-   
+   const nacl = "<?php echo $nacl; ?>";
+  const user_name = "<?php echo $user_name; ?>";
+  const user_id = "<?php echo $user_id; ?>";
   </script>
 </head>
 
