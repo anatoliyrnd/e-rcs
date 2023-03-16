@@ -383,10 +383,10 @@ class PDODB
 
     /**
      * @param $query
-     * @param null $params
+     * @param "" $params
      * @return mixed
      */
-	public function single($query, $params = null)
+	public function single($query, $params = '')
 	{
 		$this->Init($query, $params);
 		return $this->sQuery->fetchColumn();
