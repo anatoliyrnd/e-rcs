@@ -6,7 +6,6 @@ if (strcasecmp($_SERVER['REQUEST_METHOD'], 'POST') != 0) {
   //  header($_SERVER["SERVER_PROTOCOL"] . " 405 Method Not Allowed", true, 405);
   //  exit;
 }
-
 include("./include/ldisp_config.php");
 include("./include/function.php");
 include("./include/static_data.php");
@@ -15,21 +14,16 @@ require_once("./include/PDO.class.php");
 //This raw data should contain XML.
 $postData = trim(file_get_contents('php://input'));
 $file     = 'somefile.txt';
-
 //$city_id_default = 1;// id города по умолчанию, если не указан в названии улицы в spult
-//Используйте внутренние ошибки для лучшей обработки ошибок.
+// внутренние ошибки для лучшей обработки ошибок.
 libxml_use_internal_errors(true);
-
-
-//Проанализируйте данные POST в формате XML.
+// данные POST в формате XML.
 $xml = simplexml_load_string($postData);
-
-
 //Если XML не удалось проанализировать должным образом.
 if ($xml === false) {
-    //Отправьте 400 Bad Request error.
+    // 400 Bad Request error.
     header($_SERVER["SERVER_PROTOCOL"] . " 400 Bad Request", true, 400);
-    //Распечатайте подробную информацию об ошибке и завершите работу скрипта.
+    // подробную информацию об ошибке и завершим работу скрипта.
     foreach (libxml_get_errors() as $xmlError) {
         $log .= $xmlError->message . "\n";
     }
@@ -37,17 +31,14 @@ if ($xml === false) {
     logsave($log, "XML parser error");
     exit;
 }
-
 $reader = new XMLReader();
 
 $doc = new DOMDocument;
-
 //
 if (!$reader->xml($postData)) {
     logsave("Failed to open xml", "XML parser error");
     exit();
 }
-
 // reading xml data...
 while ($reader->read()) {
     if ($reader->nodeType == XMLReader::ELEMENT && $reader->name == 'PULT') {
@@ -60,7 +51,6 @@ while ($reader->read()) {
         }
 
     }
-
     if ($reader->nodeType == XMLReader::ELEMENT && $reader->name == 'STREET') {
         $node = simplexml_import_dom($doc->importNode($reader->expand(), true));
         $street = $reader->getAttribute('Name');
@@ -94,7 +84,7 @@ if ($position) {
     $city   = substr($street, $position + 1);
     $street = substr($street, 0, $position);
 }
-$address = $city . ", " . $street . ", " . $home . ", " . $lift;
+$address = $city . " - " . $street . ", " . $home . " -  " . $lift;
 $city_name = str_replace([' ', '.'], '', $city);
 file_put_contents($file, "<" . $city . ">" . $city_name);
 $qcheck  = "SELECT `id` FROM `lift_city` WHERE (REPLACE(REPLACE(`city_name`, ' ', ''),'.','') =?  ) LIMIT 1 ";
@@ -156,16 +146,16 @@ if ($home_id) {
 }
 //;ift
 $lift_name = str_replace([' ', '.'], '', $lift); //уберем   пробел из поискового запроса что бы они не влияли на результат
-$qcheck    = "SELECT `id` FROM `lift_object` WHERE (REPLACE(REPLACE(`object_name`, ' ', ''),'.','') =? AND `home_id`='$home_id') OR abbreviated_name=? "; // проерим есть данный lift в базу с привязкой к home
+$qcheck    = "SELECT `id` FROM `lift_object` WHERE (REPLACE(REPLACE(`object_name`, ' ', ''),'.','') =? AND `home_id`='$home_id')  "; // проерим есть данный lift в базу с привязкой к home
 if (DEBUG) {
     debug ("Запрос наличия lift - ".$qcheck);
 }
 $lift_id = $DB->single($qcheck,Array($lift_name,$lift_name));
 if ($lift_id) {
-    $lift_log = $lift . " уже есть в базе данных  ";
+    $lift_log = $lift . " уже есть в базе данных  ($lkds_name)";
 } else {
     $lift_id  = 0;
-    $lift_log = $lift . " не найден в базе ";
+    $lift_log = $lift . " не найден в базе ($lkds_name)";
     if (XML_ADD) {
         $q = ("INSERT INTO lift_object (`object_name`, `timestamp`,`home_id`,`abbreviated_name`) VALUES (?, CURRENT_TIMESTAMP,'$home_id',?)");
         $DB->query($q,Array($lift,$lkds_name));
@@ -174,15 +164,11 @@ if ($lift_id) {
     }
 }
 //Создаем заявку из spult
-
-
 // Внимание данная классификация сообщений из спульт для названия разделов по умолчанию. В планах вынести в админку возможность управления  у Вас может быть другое.
 // таблица бд type lift  столюец id соответсвие названию
-
 //call_request1- Срочная, 2- Обычная , 3- Не срочная
 // call_grup 4 застревание, 5- мелькая неисправность 6 - неисправность лифта, 7- доп работы 8 -длительный ремонт, 9- прочее, 24 неисправность дисп оборудования
 //call_department 22 -электромеханки 23 Аварийная
-
 $string1  = "Освобождение пассажира, заблокированного в лифте"; // отдел аварийная 23,уровень срочный, группа -застревание
 $string2  = "Устранение неисправностей лифта"; //отдел электромеханики , уровень обычный , группа 3. Неисправность лифта
 $string3  = "Устранение нештатных ситуаций на лифте"; // отдел электромеханики , уровень обычный , группа 3. Неисправность лифта
@@ -192,15 +178,10 @@ $string6  = "Отключение лифта из-за угрозы причин
 $string9  = "Отключение лифта для проведения внепланового ремонта капитального характера"; // отдел электромеханики, уровень не срочная, группа 5 длительный ремонт
 $string13 = "Устранение мелких (незначительных) неисправностей"; // // отдел электромеханики , уровень не срочная , группа 2.мелкие неисправности
 //все остальное  электромеханник , не срочная  прочее
-
-
-
 $call_department = 22;
 $call_group      = 9;
 $call_request    = 3;
 $call_status     = 0;
-
-
 if (stripos($note, $string1) !== false) {
     $DATE_REPAIR=1;//установим время ремонта в 30 мин.
     $call_department = 23;
@@ -242,8 +223,6 @@ $call_date       = strtotime(date('Y-m-d H:i:s '));
 $call_first_name = 'SPult ' . $user;
 $call_email      = 'Adres@company.name';
 $call_phone      = 'Phone ';
-
-
 $call_solution = 0;
 $call_staff    = 0;
 $call_adres    = $address;
@@ -255,13 +234,10 @@ if (DEBUG) {
 $DB->query($query_add_call,$query_data);
 //  /Создаем заявку из spult
 //file_put_contents($file, $q);
-
 $history_date = strtotime(date('Y-m-d H:i:s '));
 $call_id      = $DB->lastInsertId();;
-
 $sethistory = $call_first_name . " Добавил(а) заявку из SPult по адресу:" . $call_adres; //запись в журнал
 $DB->query("INSERT INTO lift_history (history_date,history_info, call_id) VALUES( $history_date, ?, $call_id );", Array($sethistory));
-
 //$db->query("UPDATE lift_options SET option_value = 'yes' WHERE  `option_name` = 'newdatacall'"); //утсанавливаем флог о
 /*внесении новых данных в базу
 $reader = new XMLReader();
@@ -274,12 +250,6 @@ if ($reader->nodeType == XMLReader::ELEMENT && $reader->name == 'STREET') {
 		}
 }
 $reader->close();
-
-
-
-
-
-
 var_dump  - структура которая будет представлять собой объект SimpleXMLElement .
 */
 //var_dump($xml);
@@ -287,16 +257,11 @@ if(DEBUG){
     debug($city_log.$street_log.$home_log.$lift_log);
 }
 header($_SERVER["SERVER_PROTOCOL"] . " 200 ok", true, 200);
-
 function debug($content){
-
 $time     = date('d.m.Y  -  H ч. i мин.  - ');
 $textsave=$time.$content.PHP_EOL;
 $fh       = fopen('xml_debug.txt', 'a');
 fwrite($fh, $textsave);
 fclose($fh); 
 }
-
-
-
 ?>

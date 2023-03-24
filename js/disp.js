@@ -29,15 +29,16 @@ const closeDialog = document.getElementById("close"); //кнопка закры�
 const saveDialog = document.getElementById("save"); //кнопка сохранить - модального окна
 const titleDialog = document.getElementById("title_dialog"); // заголовок модального окна
 const dialog = document.querySelector("dialog"); //модальное окно
-const menuListModal = document.getElementById("menu_madal"); // список меню для модального окна
 const bodyDialog = document.getElementById("body_dialog"); // тело модального окна
+const menuListModal = document.getElementById("menu_madal"); // список меню для модального окна
+
 const toggle_head = document.getElementById("toggle_head"); //кнопка главного меню
 const mainBody = document.getElementById("main_body"); // контент главнорго окна
 const spinerDialog = '<div class="lds-dual-ring" id="spinerDialog"></div>'; // спинер кнопки сохранить диалогового окна
 const menu = document.getElementById("menu").getElementsByTagName("ul")[0];
 let quantityCalls = { open: 0, close: 0 }; // массив количества заявок
 for (const list of menu.querySelectorAll("li")) {
-  console.log(list);
+  //console.log(list);
   list.addEventListener("click", clickMenu);
 }
 setInterval(() => {
@@ -53,7 +54,7 @@ function startstep2(rezult) {
   headLoader.hidden = true;
   if (rezult.status === "ok") {
     adressData = rezult.message;
-
+//console.log(adressData);
     document.getElementById("open_calls_table").hidden = false;
     headMessageEcho(
       `Сейчас Вы просматриваете открытые заявки<br>Открытых заявок - ${quantityCalls.open} . Закрытых за последние 24 час - ${quantityCalls.close}`
@@ -65,7 +66,7 @@ function startstep2(rezult) {
   }
 }
 function clickMenu() {
-  console.log(this.getAttribute("name"));
+  //console.log(this.getAttribute("name"));
   toggle_head.classList.remove("open");
   document.getElementById("menu").classList.remove("opened");
   switch (this.getAttribute("name")) {
@@ -90,7 +91,7 @@ function viewMainBody(type) {
   };
   let list = mainBody.querySelectorAll(".mainchild");
   list.forEach((element) => {
-    console.log(element.getAttribute("name"), type);
+    //console.log(element.getAttribute("name"), type);
     if (element.getAttribute("name") == type) {
       element.hidden = false;
     } else {
@@ -124,7 +125,7 @@ function callNew(data = { nodata: true }) {
   let title = "Создание новой заявки->Выбирите город";
   let adressDiv = document.createElement("div");
   let adressList = document.createElement("div");
-  console.log(data);
+  //console.log(data);
   if (data.nodata) {
   } else {
     let ul = generatemenu(data, 4);
@@ -201,6 +202,8 @@ function callNew(data = { nodata: true }) {
       " -> Выбирите лифт";
     home.divname = "";
     titleDialog.innerHTML = title;
+    //console.log(addNewCallData);
+    //console.log(home.id);
     lift.fullList(home.id);
     lift.generateTitle(liftclick);
   }
@@ -218,7 +221,7 @@ function callNew(data = { nodata: true }) {
     titleDialog.innerHTML = title;
     lift.divname = "";
     adressList.innerHTML = "";
-    console.log(addNewCallData);
+    //console.log(addNewCallData);
     changeCall.set("city", addNewCallData.city.id);
     changeCall.set("street", addNewCallData.street.id);
     changeCall.set("home", addNewCallData.home.id);
@@ -488,7 +491,7 @@ function cardTemplateNote(data) {
       }
     }
   }
-  console.log(data);
+  //console.log(data);
   bodyDialog.innerHTML = "";
   let body = document.createElement("div");
   body.classList.add("grid_close");
@@ -503,7 +506,7 @@ function cardTemplateNote(data) {
   return divreturn;
 }
 function cardtemplate(labelindex, data,type) {
-  console.log(data);
+  //console.log(data);
   let name={};
   //<div class="card"><div class="card-content"></div><label class="card_label animate__fadeIn" >label</label></div>
   if (type==="open"){
@@ -670,7 +673,7 @@ function checkTextarea(element) {
     audioCapslock.play();
   }
   let type = element.target.name;
-  console.log(type);
+  //console.log(type);
   if (element.target.value.length > 4) {
     element.target.classList.add("change_select");
     changeCall.set(type, element.target.value); //добавми в массив решение по заявке
@@ -689,11 +692,7 @@ function savecall(savedata) {
     JSON.stringify(Object.fromEntries(changeCall)),
     saveCallResult
   );
-  console.log(
-    changeCall,
-    changeCall.size,
-    savedata.target.getAttribute("action")
-  );
+  //console.log(changeCall,changeCall.size,savedata.target.getAttribute("action"));
 }
 function saveCallResult(getResponse) {
   //кэлбэк функция сохранения данных по заявке
@@ -779,13 +778,17 @@ async function fetchLoad(url, data, callback) {
       case 404:
         rez = " - Страница не найдена! ";
         break;
-      case value:
+      case 403:
+          rez = " - Доступ запрещен! ";  
         break;
-      case value:
+      case 500:
+          rez = " - Ошибка сервера! ";  
         break;
-      case value:
+      case 502:
+          rez = " - Ошибка шлюза! ";  
         break;
-      case value:
+      case 429:
+          rez = " - Слишком много запросов! ";  
         break;
     }
     return rez;

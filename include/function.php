@@ -1,4 +1,10 @@
 <?php
+function echojson($data)
+{
+    header('Content-type: application/json');
+    echo json_encode($data);
+    exit();
+}
 function logsave($text, $type="defaultlog"){
 $text=date('Y-m-d H:m:s')." - ". $_SERVER['REMOTE_ADDR']." - ".$text;
 $file = date('Y-m-d').$type;

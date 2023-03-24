@@ -388,13 +388,6 @@ function Chek_callId($data)
         echojson($response);
     }
 }
-function echojson($data)
-{
-    header('Content-type: application/json');
-    echo json_encode($data);
-    exit();
-
-}
 
 function note_to_arhiv_close($call_id)
 {

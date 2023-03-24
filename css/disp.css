@@ -202,9 +202,9 @@ dialog {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 80%;
+    width: 90%;
     min-width: 280px;
-    max-width: 900px;
+    max-width: 1100px;
    
     background-color: #adadadf0;
     border-radius: 15px;
@@ -288,7 +288,7 @@ dialog {
 }
 
 .card-content {
-    background-color: #a9a9a9;
+    background-color: #e3e3e3;
     padding: 12px 10px 10px 10px;
     min-height: 60px;
     border: 1px solid #514b68;
@@ -528,7 +528,7 @@ dialog {
 textarea {
     overflow: auto;
     overflow-x: hidden;
-    cursor: url(ico/pen.cur) 6 6, pointer;
+    cursor: url(../ico/pens43_43.cur) 2 32, pointer;
     resize: none;
 }
 /* стили полосы прокрутки для поля ввода изменения опиания заявки */

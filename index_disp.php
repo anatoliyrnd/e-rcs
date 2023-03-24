@@ -25,6 +25,7 @@ $editobjlink       = '';
 $edituserlink      = '';
 $disppermission    = "false";
 $addcallpermission = false;
+$setting= false;
 if (isset($user_id)) {
   $checkusr = (int) $user_id;
   $q        = "SELECT `user_add_call`, `user_localadmin`,`user_edit_obj`, `user_edit_user`, `user_level`, `user_disppermission` FROM `lift_users` WHERE `user_id`=$checkusr LIMIT 1";
@@ -48,6 +49,10 @@ if (isset($user_id)) {
     //если диспетчер  или пользователю разрешено создание заявок 
     $addcallpermission = true;
   }
+  if ($userdata['user_localadmin'] or !$userdata['user_level']) {
+    //если админ или пользователю разрешено редктирование 
+    $setting= true;
+  } 
   $stuser = null;
 }
 ?>
@@ -98,8 +103,8 @@ if (isset($user_id)) {
            <?php echo  $editobjlink;
            echo $edituserlink; ?>
             <hr>
-            <li><a href="#"><span>Настройки</span></a></li>
-            <li><a href="#"><span>Помощь</span></a></li>
+            <?php  if ($setting){echo "<li><a href='./setting.php'><span>Настройки</span></a></li>";} ?>
+               <li><a href="#"><span>Помощь</span></a></li>
             <hr>
             <li><a href="index.php?e=loggeout"><span>Выйти</span></a></li>
           </ul>

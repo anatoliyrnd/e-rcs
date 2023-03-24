@@ -10,7 +10,6 @@ export class createlist {
       this.parentType = parentType;
       this.parentList=parentList;
       this.parentTitle=parentTitle;
-      
     }
     get value(){
       return this.#inputSerch.value;
@@ -33,8 +32,7 @@ export class createlist {
       this.#buttonNext.classList.add("button_next");
       this.#buttonNext.innerText="Далее";
       this.#buttonNext.disabled=true;
-     
-      console.log(this.#inputSerch,this.#buttonNext);
+      //console.log(this.#inputSerch,this.#buttonNext);
       this.parentTitle.append(this.#divinput);
       this.#divinput.append(this.#inputSerch);
       this.#divinput.append(this.#buttonNext);
@@ -51,12 +49,14 @@ export class createlist {
          return;
       } 
          //генерируем полный список с филтром по родительскому элементу
+    
       this.#list = this.array.filter(
         (value) => value[this.parentType] == parentid
       );
+      //console.log(this.#list);
     }
     generateList(input=this.#inputSerch,button=this.#buttonNext) {
-      console.log(this.#list);
+      //console.log(this.#list);
       //создаем обекты исходя из введеное поискового запроса
       this.parentList.innerHTML = "";
       let serch= input.value;
@@ -69,13 +69,13 @@ button.after(top);
       }
       this.#list.forEach((element) => { 
         
-        console.log(  element[this.type + "_name"]);
+       //console.log(  element[this.type + "_name"]);
         if (
           element[this.type + "_name"]
             .toLowerCase()
             .indexOf(serch.toLowerCase()) !== -1
         ) {
-          console.log(element[this.type + "_name"]);
+         //console.log(element[this.type + "_name"]);
           let div = document.createElement("div");
           div.classList.add("adress_card");
           div.innerText = element[this.type + "_name"];
@@ -84,7 +84,7 @@ button.after(top);
         }
       });
       this.parentList.addEventListener("click", function (event) {
-        console.log("click->adresslist");
+        //console.log("click->adresslist");
       top.scrollIntoView({block: "center", behavior: "smooth"});
        input.value='';
        input.value=event.target.innerText;
