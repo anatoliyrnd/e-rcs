@@ -25,7 +25,7 @@ if (isset($user_id)) {
 }
 $DB                  = new PDODB(db_host, DBPort, db_name, db_user, db_password);
 $optimization_report='';    
-$child_arr=["home"=>"object","street"=>"home","city"=>"street"];
+$child_arr=["city"=>"street","street"=>"home","home"=>"object"];
 
 foreach ($child_arr as $key => $value) {
     optimization($key,$value);
@@ -38,8 +38,9 @@ global $DB,$optimization_report;
 $query="SELECT `id` FROM `lift_".$type."` WHERE `vis_".$type."`=0"; //пролучим список  у которых стоит флаг (показывать)
 $list_vis=$DB->column($query);
 foreach ($list_vis as $value) {
-    $child_check_query="SELECT `id` FROM `lift_".$child."` WHERE `".$type."_id`= $value  LIMIT 1"; //запрос на проверку есть ли хоть один дочерний объект не скрытый
+    $child_check_query="SELECT `id` FROM `lift_".$child."` WHERE `".$type."_id`= $value  AND `vis_".$child."`=0 LIMIT 1"; //запрос на проверку есть ли хоть один дочерний объект не скрытый
 if (!$DB->single($child_check_query)){
+    //если нет не скрытых элементов то скрываем дочерний элемент
     $vis_not_query   = "UPDATE `lift_".$type."` SET `vis_".$type."`=1 WHERE `id`=$value";
         $result_vis = $DB->query($vis_not_query); 
         if ($result_vis) {

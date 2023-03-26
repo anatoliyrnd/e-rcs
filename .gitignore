@@ -47,3 +47,6 @@ settings/logs/2023-03-17deliteObjControl_php_error.txt
 include/logs/
 settings/logs/
 .vscode/extensions.json
+editobj.php
+.gitignore
+object/

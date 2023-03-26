@@ -11,14 +11,14 @@ if (isset($user_id)) {
     $user_id = (int) $user_id;
     if ($nacl != $user_nacl) {
         $log = " (nacl)$nacl - (user-nacl) " . $user_nacl . " ";
-        logsave($log, "deleteObjControl_php_error");
+        logsave($log, "editObjControl_php_error");
         $response['status']  = 'error';
         $response['message'] .= "ошибка авторизации";
         echojson($response);
     }
 } else {
     $log = " user_id error ";
-    logsave($log, "deleteObjControl_php_error");
+    logsave($log, "editObjControl_php_error");
     $response['status']  = 'error';
     $response['message'] .= "Не получен User ID";
     echojson($response);
@@ -29,7 +29,7 @@ $user_level      = (int) $queryuser['user_level'];
 $user_localadmin = (int) $queryuser['user_localadmin'];
 if ($user_level and !$user_localadmin) {
     $log = " user_id доступ запрещен id $user_id  level $user_level admin $user_localadmin имя " . $queryuser['user_name'];
-    logsave($log, "deleteObjControl_php_error");
+    logsave($log, "editObjControl_php_error");
     $response['status']  = 'error';
     $response['message'] .= "Не достаточный уровень доступа";
     echojson($response);
@@ -58,9 +58,15 @@ if (isset($input['action'])) {
         case 'adressEdit':
             adressEdit();
             break;
+        case 'visableObject':
+            visableObject();
+            break;
+        case 'saveObject':
+            saveObject();
+            break;
         default:
             $log = " $user_id  - uncknow action -" . $input['action'];
-            logsave($log, "deleteObjControl_php_error");
+            logsave($log, "editObjControl_php_error");
             $response['status'] = 'error';
             $response['message'] = "Не известный идентификатор данных";
             echojson($response);
@@ -68,7 +74,7 @@ if (isset($input['action'])) {
     }
 } else {
     $log = " $user_id  - not action -";
-    logsave($log, "deleteObjControl_php_error");
+    logsave($log, "editObjControl_php_error");
     $response['status']  = 'error';
     $response['message'] = "Не получен идентификатор данных ";
     echojson($response);
@@ -81,7 +87,7 @@ function delete()
 
     if (!isset($input['type']) and !isset($input['id'])) {
         $log = " delete data error ";
-        logsave($log, "deleteObjControl_php_error");
+        logsave($log, "editObjControl_php_error");
         $response['status']  = 'error';
         $response['message'] .= "Недостаточно данных";
         echojson($response);
@@ -208,26 +214,151 @@ function adressEdit()
 {
 
     global $DB;
-    $city = $DB->query("SELECT id, city_name,vis_city  FROM lift_city   ");
-
-    $street = $DB->query("SELECT id,street_name,city_id,vis_street FROM lift_street   ");
-
-    $home = $DB->query("SELECT id,home_name,street_id, vis_home FROM lift_home   ");
-
-    $lift             = $DB->query("SELECT id,object_name,home_id,vis_object FROM lift_object  ");
+    $city             = $DB->query("SELECT id, city_name,vis_city  FROM lift_city  ORDER BY city_name ");
+    $street           = $DB->query("SELECT id,street_name,city_id,vis_street FROM lift_street   ORDER BY street_name  ");
+    $home             = $DB->query("SELECT id,home_name,street_id, vis_home FROM lift_home   ORDER BY  home_name ");
+    $lift             = $DB->query("SELECT id,object_name,home_id,vis_object FROM lift_object  ORDER BY object_name  ");
     $result['city']   = $city;
     $result['street'] = $street;
     $result["home"]   = $home;
-    $result['object']   = $lift;
+    $result['object'] = $lift;
     //SELECT `id``city_name``vis_city` FROM `lift_city` WHERE 1
     //SELECT `id``street_name``city_id``vis_street` FROM `lift_street` WHERE 1
     //SELECT `id``home_name``street_id``vis_home` FROM `lift_home` WHERE 1
     //SELECT `id``object_name``home_id``vis_object` FROM `lift_object` WHERE 1
-
     $data['status']  = 'ok';
     $data['message'] = $result;
     echojson($data);
     exit();
+}
+function visableObject()
+{
+    sleep(1);
+    global $DB;
+    global $input;
+    if (isset($input['type']) and isset($input['id']) and isset($input['hidden'])) {
+        $type = "lift_" . typeCheck($input['type']);
+        $id   = (int) $input['id'];
+        ((int) $input['hidden'] === 1) ? $hidden = 0 : $hidden = 1;
+        $vis_type = "vis_" . typeCheck($input['type']) . "=$hidden";
+        $query    = "UPDATE $type SET $vis_type WHERE id=$id ";
+        $update   = $DB->query($query);
+        if ($update) {
+            $data["status"] = "ok";
+            $data['hidden'] = $hidden;
 
+            echojson($data);
+            exit();
+        } else {
+            $data["status"]  = "error";
+            $data['message'] = "Ошибка базы данных";
+            echojson($data);
+            exit();
+        }
+    } else {
+        $data["status"]  = "error";
+        $data['message'] = "Получены не все данные";
+        echojson($data);
+        exit();
+    }
+}
+function saveObject()
+{
 
+    global $DB, $input;
+    $sql_parent = '';
+    $count_new  = 0;
+    $count_edit = 0;
+    $count_duplicate=0;
+    $parent_id  = '';
+    if (isset($input['type']) and isset($input['edit']) and isset($input['new'])) {
+        $table_name = "lift_" . typeCheck($input['type']);
+        $colum_name = typeCheck($input['type']) . "_name";
+
+        if ($input['type'] !== "city") {
+            if (isset($input['parentid'])) {
+                // если не город то обязательно наличие ID родительского объекта
+                $parent_id  = (int) $input['parentid'];
+                $sql_parent = " , " . parentArr($input['type']) . "=" . $parent_id;
+            } else {
+                $data["status"]  = "error";
+                $data['message'] = "Не получен ParentID";
+                echojson($data);
+                exit();
+            }
+        }
+        if (count($input['new'])) {
+            foreach ($input['new'] as $value) {
+                //проверим по названию
+                $check_text  = str_replace('.', '', $value); //уберем точки из поискового запроса что бы они не влияли на результат
+                $check_text  = str_replace(' ', '', $check_text);
+                $check_name=$DB->single("SELECT id FROM $table_name WHERE (REPLACE(REPLACE(`$colum_name`, ' ', ''),'.',''))=? $sql_parent", array($check_text));
+                if ($check_name){
+                    $count_duplicate++;
+                    continue;
+                }
+                $new_add_result = $DB->query("INSERT INTO $table_name SET $colum_name=? $sql_parent", array($value));
+                ($new_add_result) ? $count_new++ : null;
+            }
+        }
+        if (count($input['edit'])) {
+            foreach ($input['edit'] as $value) {
+                $check_text  = str_replace('.', '', $value['value']); //уберем точки из поискового запроса что бы они не влияли на результат
+                $check_text  = str_replace(' ', '', $check_text);
+                $check_name=$DB->single("SELECT id FROM $table_name WHERE (REPLACE(REPLACE(`$colum_name`, ' ', ''),'.',''))=? $sql_parent", array($check_text));
+                if ($check_name){
+                    $count_duplicate++;
+                    continue;
+                }
+                $edit_result = $DB->query("UPDATE $table_name SET $colum_name=?  WHERE id=?", array($value['value'], $value['id']));
+                ($edit_result) ? $count_edit++ : null;
+            }
+
+        }
+        $mes             = "error - $count_duplicate - новых -$count_new edit - $count_edit-" . count($input['new']) . "-" . count($input['edit']);
+        $data["status"]  = "ok";
+        $data['message'] = $mes;
+        echojson($data);
+        exit();
+
+    } else {
+        $data["status"]  = "error";
+        $data['message'] = "Получены не все данные";
+        echojson($data);
+        exit();
+    }
+}
+function typeCheck($type)
+{
+    switch ($type) {
+        case 'city':
+            return "city";
+        case 'street':
+            return "street";
+        case 'home':
+            return "home";
+        case 'object':
+            return "object";
+        default:
+            $data["status"] = "error";
+            $data['message'] = "Не известный тип данных";
+            echojson($data);
+            exit();
+
+    }
+}
+function parentArr($type)
+{
+    switch ($type) {
+        case 'object':
+            return "home_id";
+        case 'home':
+            return "street_id";
+        case 'street':
+            return "city_id";
+
+        default:
+            # code...
+            break;
+    }
 }

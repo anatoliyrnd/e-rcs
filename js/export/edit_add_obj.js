@@ -15,6 +15,7 @@ class InputField {
     const input = document.createElement("input");
     input.setAttribute("placeholder", placeholder);
     input.setAttribute("data-type", name);
+
     input.addEventListener("focus", function () {
       this.parentNode.classList.remove("tooltip");
     });
@@ -31,7 +32,7 @@ class InputField {
     this.container.append(div);
     this.#inputs.push(div);
   }
-  Button(parent, btnTxt, div, hiddenElement) {}
+
   removeDiv(divinput) {
     this.#inputs = this.#inputs.filter((i) => i !== divinput);
     divinput.remove();
@@ -43,10 +44,7 @@ class InputField {
 class listObject {
   spiner =
     '<svg class="spinner" viewBox="0 0 50 50"><circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle></svg>';
-  eye =
-    '<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" class="eyesvg" enable-background="new 0 0 512 512" version="1.1" xml:space="preserve"> <g class="layer">  <title>"Объект показывается"</title>  <g id="svg_1">   <path d="m19,9.26c-8.28,0 -15.48,4.82 -19,11.87c3.52,7.05 10.72,11.87 19,11.87c8.28,0 15.48,-4.82 19,-11.87c-3.52,-7.05 -10.72,-11.87 -19,-11.87zm9.37,6.3c2.23,1.43 4.13,3.33 5.54,5.58c-1.42,2.24 -3.32,4.15 -5.54,5.58c-2.8,1.8 -6.04,2.74 -9.37,2.74c-3.33,0 -6.56,-0.94 -9.37,-2.74c-2.23,-1.43 -4.13,-3.33 -5.54,-5.58c1.42,-2.24 3.32,-4.15 5.54,-5.58c0.14,-0.09 0.29,-0.18 0.45,-0.28c-0.37,1.01 -0.58,2.11 -0.58,3.25c0,5.24 4.26,9.5 9.5,9.5c5.24,0 9.5,-4.26 9.5,-9.5c0,-1.14 -0.2,-2.24 -0.58,-3.25c0.14,0.09 0.29,0.18 0.45,0.28zm-9.37,1.8c0,1.97 -1.6,3.56 -3.56,3.56s-3.56,-1.6 -3.56,-3.56s1.6,-3.56 3.56,-3.56s3.56,1.6 3.56,3.56z" id="svg_2"/>  </g>  <g id="svg_3"/> </g></svg>';
-  eyeBlock =
-    ' <svg class="eyesvg" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" version="1.1" xml:space="preserve"> <g class="layer">    <title>"Объект скрыт"</title>  <g id="svg_1">   <path class="path" d="m32.78,14.13c2.76,1.95 5.01,4.58 6.55,7.64c-3.37,6.74 -10.24,11.35 -18.16,11.35c-2.22,0 -4.36,-0.36 -6.36,-1.03l2.77,-2.77c1.17,0.26 2.37,0.4 3.59,0.4c3.18,0 6.27,-0.9 8.95,-2.62c2.13,-1.36 3.95,-3.18 5.3,-5.33c-1.32,-2.08 -3.05,-3.85 -5.09,-5.19l2.45,-2.45zm-11.62,14.25c-0.81,0 -1.59,-0.1 -2.33,-0.31l11.1,-11.1c0.19,0.74 0.31,1.53 0.31,2.33c0,5.01 -4.06,9.08 -9.08,9.08zm15.89,-24.76l-1.91,0l-7.8,7.8c-1.95,-0.64 -4.04,-0.97 -6.19,-0.97c-7.92,0 -14.78,4.62 -18.17,11.35c1.51,3.03 3.73,5.62 6.42,7.56l-6.42,6.42l0,1.91l1.91,0l32.14,-32.14l0,-1.91l0.01,-0.01l0.01,-0.01zm-19.3,11.14c1.71,0 3.12,1.26 3.37,2.88l-3.89,3.89c-1.63,-0.24 -2.88,-1.67 -2.88,-3.37c0,-1.88 1.53,-3.41 3.41,-3.41l-0.01,0.01zm-10.85,7.03c1.36,-2.14 3.17,-3.97 5.3,-5.33c0.14,-0.09 0.28,-0.18 0.42,-0.26c-0.36,0.97 -0.55,2.01 -0.55,3.1c0,2.08 0.69,3.99 1.87,5.51l-2.08,2.08c-1.99,-1.33 -3.68,-3.08 -4.96,-5.12l0,0.01l0,0.01z" id="svg_2"/>  </g>  <g id="svg_3"/> </g></svg>';
+
   constructor(container, classDiv) {
     this.container = container;
     this.classDiv = classDiv;
@@ -66,22 +64,23 @@ class listObject {
     div.classList.add(this.classDiv);
     const input = document.createElement("input");
     const btn = document.createElement("button");
-    const btnChild = document.createElement("button");
+    const btnChild = document.createElement("button"); //кнопка загрузки дочерних объектов
     btnChild.innerHTML = btnTxt;
     input.setAttribute("placeholder", placeholder);
-    input.setAttribute("name", name);
+    input.setAttribute("data-type", name);
     input.setAttribute("data-hidden", hiddenElement);
     input.addEventListener("focus", function () {
-      this.parentNode.classList.remove("tooltip");
+      this.parentNode.classList.remove("tooltip"); // для удаления сообщений которые появляются после проверки
     });
     input.addEventListener("input", () => {
       input.setAttribute("data-action", action);
-      console.log(input);
+      // если изменили поле то добавим атрибут для пометки этого поля.
     });
+    // все данные по объекту в атрибуты поля инпут
     input.value = value;
     input.setAttribute("data-name", value);
     input.setAttribute("data-id", id);
-    input.setAttribute("data_parentid", parentId);
+    input.setAttribute("data-parentid", parentId);
     btnChild.classList.add("btn_child");
     btnChild.classList.add("shadow");
     btnChild.setAttribute("data-id", id);
@@ -91,10 +90,7 @@ class listObject {
     hiddenElement == "1"
       ? btn.classList.add("oldButtonHidden")
       : btn.classList.add("oldButtonNotHidden");
-    hiddenElement == "1"
-      ? (btn.innerHTML = this.eyeBlock)
-      : (btn.innerHTML = this.eye);
-    this.Button(div, btnTxt, div);
+
     this.container.append(div);
     btn.addEventListener("click", () => this.toggle(btn));
     btnChild.addEventListener("click", clickChildBtn);
@@ -102,17 +98,36 @@ class listObject {
     name != "object" ? div.append(btnChild) : null;
   }
   //клас создания уже имеющихся объектов
-  Button(parent, btnTxt, div, hiddenObj, callback) {
-    //кнопка скрыть/показать
-  }
+
   toggle(btn) {
     btn.innerHTML = this.spiner;
+    if (btn.disabled) return;
+    btn.disabled = true;
+    setInterval(() => {
+      btn.disabled = false;
+    }, 5000);
+    let hidden = btn.dataset.hidden;
+    let type = btn.previousSibling.dataset.type;
+    let id = btn.previousSibling.dataset.id;
+    fetchLoad(
+      "../settings/edit_obj_control.php",
+      `{"action":"visableObject","type":"${type}","id":"${id}","hidden":"${hidden}"}`,
+      function (result) {
+        if (result.status === "ok") {
+          btn.classList.toggle("oldButtonNotHidden");
+          btn.classList.toggle("oldButtonHidden");
+          btn.innerHTML = "";
+        } else {
+          btn.innerHTML = "err";
+        }
+      }
+    );
   }
 }
 
 class bodyObject {
-  // список объектов
-  #adressData={};
+  // класс формировния список объектов в основное окно согласно выбранного уровня (город,улица,дом ...)
+  #adressData = {};
   constructor(titleDiv, bodyDiv) {
     this.titleDiv = titleDiv;
     this.bodyDiv = bodyDiv;
@@ -138,6 +153,7 @@ class bodyObject {
     backClickFunction = () => {}
   ) {
     //генерируем список объектов из общей базы.
+    //массивы данных для сообщений а дата атрибутов исходя из типа объекта
     const typeList = ["city", "street", "home", "object"];
     const typeId = typeList.indexOf(type);
     const nameList = [
@@ -168,7 +184,7 @@ class bodyObject {
     for (let i = typeId; i < 4; i++) {
       this.titleDiv.childNodes[i].classList.add("hidden");
     }
-
+    //хлебные крошки в заголовок диалогового окна
     if (type !== "city") {
       Go_Back ? null : (this.backId[typeId] = parentId);
       Go_Back ? null : (this.backName[typeId] = parentName);
@@ -226,16 +242,14 @@ class bodyObject {
     } else {
       list = this.#adressData[type];
     }
-
-    // this.titleDiv.append(divTitleContainer);
     butADD.innerText = BtnTxtAdd[typeId];
-    let inputNew = new InputField(divnew, "inputNewContainer");
+    let inputNew = new InputField(divnew, "inputNewContainer"); //  управление инпутами для добавления объекта
     butADD.addEventListener("click", () => {
       inputNew.createInput("new", type, parentId, placeholderList[typeId], "X");
     });
-    let inputOld = new listObject(divold, "inputOldContainer");
+    let inputOld = new listObject(divold, "inputOldContainer"); // управление инпутами уже существующего объекта
     list.forEach((element) => {
-      console.log(element);
+      // создадим список уже существующих объектов
       inputOld.createInput(
         "edit",
         type,
@@ -244,14 +258,12 @@ class bodyObject {
         element[type + "_name"],
         element.id,
         element[objList[typeId]],
-        element["vis_"+type],
+        element["vis_" + type],
         callback
       );
     });
- 
- 
-  } 
- 
+  }
+
   removeButtonBack(city = false, street = false, home = false) {
     console.log(
       this.backBut["street"],
@@ -263,10 +275,9 @@ class bodyObject {
     home ? this.backBut["object"]?.remove() : null;
   }
 
-  set adress(Adresslist) 
-  {
+  set adress(Adresslist) {
     this.#adressData = Adresslist;
-   }
+  }
 }
 class check {
   constructor(container) {
@@ -323,70 +334,93 @@ class check {
   }
 }
 
-
-
 export class startEditObj {
+  //основной класс для формирования списка адресов
   constructor(titleDialog, bodyDialog) {
     this.titleDialog = titleDialog;
     this.bodyDialog = bodyDialog;
   }
   start(url) {
+    fetchLoad(url, '{"action":"adressEdit"}', (result) => {
+      if (result.status === "ok") {
+        console.log(result.message);
 
-    fetchLoad(url,'{"action":"adressEdit"}',(result)=>{
-if (result.status==="ok"){
-  console.log(result.message);
- 
-this.echoAdres(result.message)
-}else{
-  this.bodyDialog.innerHTML=result.message;
-  this.titleDialog.innerHTML="Ошибка! При загрузки базы адресов";
-}
-
-    })
-    
+        this.echoAdres(result.message);
+      } else {
+        this.bodyDialog.innerHTML = result.message;
+        this.titleDialog.innerHTML = "Ошибка! При загрузки базы адресов";
+      }
+    });
   }
- echoAdres(data){
-  let objectList = new bodyObject(this.titleDialog, this.bodyDialog);
-objectList.adress=data;
-  const lift = function () {
-    const id = this.dataset.id;
-    const name = this.dataset.name;
-    let Go_Back = false;
-    this.dataset?.button === "Go_Back" ? (Go_Back = true) : null; // если пришли по кнопке возврата на родителский объект
-    objectList.generateList("object", Go_Back, name, id, () => {}, home);
-  };
-  const home = function () {
-    const id = this.dataset.id;
-    const name = this.dataset.name;
-    let Go_Back = false;
-    this.dataset?.button === "Go_Back" ? (Go_Back = true) : null;
-    objectList.generateList("home", Go_Back, name, id, lift, street);
-  };
-  const street = function () {
-    const id = this.dataset.id;
-    const name = this.dataset.name;
-    let Go_Back = false;
-    this.dataset?.button === "Go_Back" ? (Go_Back = true) : null;
-    objectList.generateList("street", Go_Back, name, id, home, city);
-  };
-  const city = function () {
-    let Go_Back = false;
-    this?.dataset?.button === "Go_Back" ? (Go_Back = true) : null;
-    objectList.generateList("city", Go_Back, "", 0, street);
-  };
-  city();
- }
+  echoAdres(data) {
+    //выводим список обектов по типу и предшественнику
+    let objectList = new bodyObject(this.titleDialog, this.bodyDialog);
+    objectList.adress = data;
+    const lift = function () {
+      const id = this.dataset.id;
+      const name = this.dataset.name;
+      let Go_Back = false;
+      this.dataset?.button === "Go_Back" ? (Go_Back = true) : null; // если пришли по кнопке возврата на родителский объект
+      objectList.generateList("object", Go_Back, name, id, () => {}, home);
+    };
+    const home = function () {
+      const id = this.dataset.id;
+      const name = this.dataset.name;
+      let Go_Back = false;
+      this.dataset?.button === "Go_Back" ? (Go_Back = true) : null;
+      objectList.generateList("home", Go_Back, name, id, lift, street);
+    };
+    const street = function () {
+      const id = this.dataset.id;
+      const name = this.dataset.name;
+      let Go_Back = false;
+      this.dataset?.button === "Go_Back" ? (Go_Back = true) : null;
+      objectList.generateList("street", Go_Back, name, id, home, city);
+    };
+    const city = function () {
+      let Go_Back = false;
+      this?.dataset?.button === "Go_Back" ? (Go_Back = true) : null;
+      objectList.generateList("city", Go_Back, "", 0, street);
+    };
+    city();
+  }
   inputCheck() {
+    //confirm inputs на пустоты и повторения
     let checkInputs = new check(this.bodyDialog);
     if (checkInputs.check()) {
-      return true
+      return true;
     } else {
-      return false
+      return false;
     }
+  }
+  getNewData(calback=()=>{}) {
+    //собираем ввденые данные с инпутов (только те поля в которых что-то вводили)
+    const list = this.bodyDialog.querySelectorAll(
+      "[data-action='edit'],[data-action='new']"
+    );
+    let newData = { action:"saveObject",parentid: 0, type: "", edit: [], new: [] };
+    const newobj = [];
+    const editobj = [];
+    if (!list.length) {
+      return false;
+    }
+    list.forEach((element) => {
+     
+      newData.type = element.dataset.type;
+      if(newData.type=="city") {newData.parentid = 0}else{newData.parentid = element.dataset.parentid}
+      if (element.dataset.action === "edit") {
+        editobj.push({ id: element.dataset.id, value: element.value });
+      } else if (element.dataset.action === "new") {
+        newobj.push(element.value);
+      }
+    });
+    newData.edit=editobj;
+    newData.new=newobj;
+    fetchLoad("../settings/edit_obj_control.php",JSON.stringify(newData),calback) 
   }
 }
 
-async function fetchLoad(url, data, callback) {
+export async function fetchLoad(url, data, callback) {
   //Функция сохранения изменений
   function translate(code) {
     let rez = "Не известная ошибка ";
@@ -409,28 +443,28 @@ async function fetchLoad(url, data, callback) {
     }
     return rez;
   }
- // brlabel: try {
-    const response = await fetch(url, {
-      //передаем через пост в теле json данных
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: data,
-    });
-    if (!response.ok) {
-      let text = translate(response.status);
-      callback({ status: "error", message: response.status + text });
-   //   break brlabel; // стандартные сетевые ошибки не будем передавать в catch
-    }
-    const json = await response.json();
-    if (json.status === "ok") {
-      callback(json);
-    } else {
-      callback({ status: "error", message: json.message });
-    }
- /*  } catch (err) {
+  // brlabel: try {
+  const response = await fetch(url, {
+    //передаем через пост в теле json данных
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: data,
+  });
+  if (!response.ok) {
+    let text = translate(response.status);
+    callback({ status: "error", message: response.status + text });
+    //   break brlabel; // стандартные сетевые ошибки не будем передавать в catch
+  }
+  const json = await response.json();
+  if (json.status === "ok") {
+    callback(json);
+  } else {
+    callback({ status: "error", message: json.message });
+  }
+  /*  } catch (err) {
     // перехватит любую ошибку в блоке try: и в fetch, и в response.json
     catcherrorfetch(err);
     callback({ status: "error", message: "Глобальная ошибка!" + err });

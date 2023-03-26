@@ -544,25 +544,30 @@ animation for optimization key
 
 .oldButtonHidden {
   color: #0a013d;
-  background-color: #747474;
+  background: #acacac url(../ico/eye-blocked.svg )no-repeat center ;
+  background-size: 30px 30px;
   transform: translateX(-10px);
 }
-
+.oldButtonHidden:hover{
+  animation: animObjEdit 2s cubic-bezier(0.55, 0, 1, 0.45) 0s infinite normal forwards;
+}
 .oldButtonNotHidden {
   color: #ffffff;
-  background-color: #1900ff;
+  background: #8b83f5 url(../ico/eye.svg )no-repeat center ;
+  background-size: 30px 30px;
   transform: translateX(-10px);
+}
+.oldButtonNotHidden:hover{
+  animation: animObjEdit 2s cubic-bezier(0.55, 0, 1, 0.45) 0s infinite normal forwards;
 }
 
 .oldButtonLoadChild {
   color: #ffffff;
   background-color: #0f4100;
   transform: translateX(-10px);
+  
 }
 
-.inputOldContainer svg {
-  fill: #ffffff;
-}
 
 .btn_child {
   transform: translate(0);
@@ -592,6 +597,7 @@ animation for optimization key
   width: 28px;
   height: 28px;
 }
+
 
 .spinner .path {
   stroke: #93bfec;
@@ -797,7 +803,7 @@ animation for optimization key
 
 .confirm button:hover {
   font-weight: bold;
-  background: #EFEFEF;
+ 
 }
 
 .confirm button:disabled {
