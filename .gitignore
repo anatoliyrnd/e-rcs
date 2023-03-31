@@ -50,3 +50,15 @@ settings/logs/
 editobj.php
 .gitignore
 object/
+settings/optimization.php
+logs/loginerror03_23.txt
+include/ldisp_config.php
+
+testteleg.php
+disp/test.php
+.idea/sqldialects.xml
+.idea/vcs.xml
+.idea/php.xml
+.idea/modules.xml
+.idea/e-rcs.local.iml
+.idea/dataSources.xml

@@ -1,3 +1,42 @@
+<?php 
+include("./include/session.php");
+include("./include/checksession.php");
+include("./include/ldisp_config.php");
+include("./include/function.php");
+include("./include/static_data.php");
+require_once("./include/PDO.class.php");
+if (isset($user_id)) {
+    $nacl    = nacl($user_id);
+    $user_id = (int) $user_id;
+    if ($nacl != $user_nacl) {
+        $log = " (nacl)$nacl - (user-nacl) " . $user_nacl . " ";
+        logsave($log, "editObjControl_php_error");
+        $response['status']  = 'error';
+        $response['message'] .= "ошибка авторизации";
+        echojson($response);
+    }
+} else {
+    $log = " user_id error ";
+    logsave($log, "editObjControl_php_error");
+    $response['status']  = 'error';
+    $response['message'] .= "Не получен User ID";
+    echojson($response);
+}
+$DB              = new PDODB(db_host, DBPort, db_name, db_user, db_password);
+$queryuser       = $DB->row("SELECT user_level, user_name, user_localadmin FROM lift_users WHERE user_id=$user_id LIMIT 1");
+$user_level      = (int) $queryuser['user_level'];
+$user_localadmin = (int) $queryuser['user_localadmin'];
+if ($user_level and !$user_localadmin) {
+    $log = " user_id доступ запрещен id $user_id  level $user_level admin $user_localadmin имя " . $queryuser['user_name'];
+    logsave($log, "editObjControl_php_error");
+    $response['status']  = 'error';
+    $response['message'] .= "Не достаточный уровень доступа";
+    echojson($response);
+}
+
+?>
+
+
 <!DOCTYPE html>
 <html lang="ru">
 

@@ -4,6 +4,7 @@ include("../include/checksession.php");
 include("../include/ldisp_config.php");
 include("../include/function.php");
 include("../include/static_data.php");
+include("../include/telegram.php");
 require_once("../include/PDO.class.php");
 
 if (isset($user_id)) {
@@ -361,15 +362,14 @@ function sendtelega($staff, $call_id)
 {
     $DB = new PDODB(db_host, DBPort, db_name, db_user, db_password);
     //$query.="call_staff=$staff,";//ответсвенный по заявке
-    $queryuser    = "SELECT user_name FROM lift_users WHERE user_id=" . $staff; //получим имя ответсвенного по его id
-    $name         = $DB->single($queryuser);
-    $text         = $call_id . $name;
-    $md5call      = md5($text); // создадим токен из ид заявки и имени ответсвенного
-    $query_token  = " UPDATE lift_calls SET read_md5='$md5call' WHERE call_id=$call_id";
-    $token_result = $DB->query($query_token);
-    if ($token_result) {
-        global $HOSTURL;
-        staff_call_new($staff, $HOSTURL . "/viewcalluser.php?callid=" . $call_id . "&token=" . $md5call);
+    $query_call    = "SELECT call_adres,call_request FROM lift_calls WHERE call_id=:ID LIMIT 1" ;
+    $call_info        = $DB->row($query_call,array($call_id));
+
+    if ($call_info) {
+       $call_info['call_request']==1?$alarm=true:$alarm=false;
+       $text="По адресу: ".$call_info['call_adres'];
+       $result= staff_call_new($DB,$staff,$call_id,$text,$alarm );
+       return $result;
     }
 
 }

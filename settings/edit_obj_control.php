@@ -35,7 +35,7 @@ if ($user_level and !$user_localadmin) {
     echojson($response);
 }
 
-const type = ["object_delete", "home_delete", "street_delete", "city_delete"];
+//const type = ["object_delete", "home_delete", "street_delete", "city_delete"];
 $inputJSON = file_get_contents('php://input');
 $input     = json_decode($inputJSON, TRUE);
 if (isset($input['action'])) {
@@ -279,7 +279,8 @@ function saveObject()
             if (isset($input['parentid'])) {
                 // если не город то обязательно наличие ID родительского объекта
                 $parent_id  = (int) $input['parentid'];
-                $sql_parent = " , " . parentArr($input['type']) . "=" . $parent_id;
+                $sql_parent = " ,  " . parentArr($input['type']) . "=" . $parent_id;
+                $sql_parent_serch =" AND  " . parentArr($input['type']) . "=" . $parent_id;
             } else {
                 $data["status"]  = "error";
                 $data['message'] = "Не получен ParentID";
@@ -292,7 +293,7 @@ function saveObject()
                 //проверим по названию
                 $check_text  = str_replace('.', '', $value); //уберем точки из поискового запроса что бы они не влияли на результат
                 $check_text  = str_replace(' ', '', $check_text);
-                $check_name=$DB->single("SELECT id FROM $table_name WHERE (REPLACE(REPLACE(`$colum_name`, ' ', ''),'.',''))=? $sql_parent", array($check_text));
+                $check_name=$DB->single("SELECT id FROM $table_name WHERE (REPLACE(REPLACE(`$colum_name`, ' ', ''),'.',''))=? $sql_parent_serch", array($check_text));
                 if ($check_name){
                     $count_duplicate++;
                     continue;

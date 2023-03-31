@@ -1,0 +1,304 @@
+body {   
+     box-sizing: border-box;
+	background: url(../img/5097.970.jpg)  no-repeat center center fixed;
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+	background-size: cover;
+	display:flex;
+	align-items: center;
+	justify-content: center;
+    height: 100vh;
+}
+.container {
+	width: 600px;
+	height: 500px;
+	box-shadow: 0px 0px 10px 10px rgba(0,0,0,0.3),0px 0px 67px 23px rgba(0,0,0,0.6);	
+	border-radius: 20px;
+	background-color: rgba(255, 255, 255, .30);
+	
+	backdrop-filter: blur(7px);
+    
+}
+
+.form {
+  display: block;
+    position: relative;
+    border-radius: 20px;
+    height: 500px;
+    padding: 20px;
+    width: 350px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  .title {
+    color: #eee;
+    font-family: sans-serif;
+    font-size: 36px;
+    font-weight: 600;
+    margin-top: 30px;
+  }
+   
+  .input-container {
+    height: 50px;
+    position: relative;
+    width: 100%;
+  }
+  
+  .ic1 {
+    margin-top: 40px;
+  }
+  
+  .ic2 {
+    margin-top: 30px;
+  }
+  
+  .input {
+    background-color: #30324557;
+    border-radius: 12px;
+    border: 0;
+    box-sizing: border-box;
+    color: #eee;
+    font-size: 18px;
+    height: 100%;
+    outline: 0;
+    padding: 4px 20px 0;
+    width: 285px;
+    transition: background 0.5s ease;
+  }
+  
+  .cut {
+    background-color:rgba(0,0,0,0.0);
+    border-radius: 10px;
+    height: 20px;
+    left: 20px;
+    position: absolute;
+    top: -20px;
+    transform: translateY(35px);
+    transition: transform 200ms;
+    width: 76px;
+    transition: background 0.5s ease;
+  }
+  
+  .cut-short {
+    width: 50px;
+  }
+  .input:focus,
+  .input:focus ~ .cut,
+  .input:not(:placeholder-shown) ~ .cut {
+    background-color:#303245 ;
+  }
+
+  .input:focus ~ .cut,
+  .input:not(:placeholder-shown) ~ .cut {
+    transform: translateY(8px);
+    transition: transform 200ms, color 200ms;
+    
+  }
+  
+  .placeholder {
+    color: #65657b;
+    font-family: sans-serif;
+    left: 20px;
+    line-height: 14px;
+    pointer-events: none;
+    position: absolute;
+    transform-origin: 0 50%;
+    transition: transform 200ms, color 200ms;
+    top: 20px;
+  }
+  
+  .input:focus ~ .placeholder,
+  .input:not(:placeholder-shown) ~ .placeholder {
+    transform: translateY(-30px) translateX(10px) scale(0.75);
+  }
+  
+  .input:not(:placeholder-shown) ~ .placeholder {
+    color: #808097;
+   
+  }
+  
+  .input:focus ~ .placeholder {
+    color: #dc2f55;
+  }
+  
+  .submit {
+    background-color: #08d;
+    border-radius: 12px;
+    border: 0;
+    box-sizing: border-box;
+    color: #eee;
+    cursor: pointer;
+    font-size: 18px;
+    height: 50px;
+    margin-top: 38px;
+    outline: 0;
+    text-align: center;
+    width: 285px;
+  }
+  
+  .submit:active {
+    background-color: #06b;
+  }
+
+  .shimmer {
+    font-size: 3em;
+    margin: 0 auto;
+    margin-bottom: 0;
+  }
+  .shimmer {
+    text-align: center;
+    color: rgba(255,255,255,0.1);
+    background: -webkit-gradient(linear, left top, right top, from(#222), to(#222), color-stop(0.5, #fff));
+    background: -moz-gradient(linear, left top, right top, from(#222), to(#222), color-stop(0.5, #fff));
+    background: gradient(linear, left top, right top, from(#222), to(#222), color-stop(0.5, #fff));
+    -webkit-background-size: 125px 100%;
+    -moz-background-size: 125px 100%;
+    background-size: 125px 100%;
+    -webkit-background-clip: text;
+    -moz-background-clip: text;
+    background-clip: text;
+    -webkit-animation-name: shimmer;
+    -moz-animation-name: shimmer;
+    animation-name: shimmer;
+    -webkit-animation-duration: 2s;
+    -moz-animation-duration: 2s;
+    animation-duration: 2s;
+    -webkit-animation-iteration-count: infinite;
+    -moz-animation-iteration-count: infinite;
+    animation-iteration-count: infinite;
+    background-repeat: no-repeat;
+    background-position: 0 0;
+    background-color: #222;
+  }
+  @-moz-keyframes shimmer {
+    0% {
+        background-position: top left -50%;
+      }
+      
+      100% {
+        background-position: top right -50%;
+      }
+  }
+  @-webkit-keyframes shimmer {
+    0% {
+        background-position: top left -50%;
+      }
+      
+      100% {
+        background-position: top right -50%;
+      }
+    }
+  @-o-keyframes shimmer {
+    0% {
+        background-position: top left -50%;
+      }
+      
+      100% {
+        background-position: top right -50%;
+      }
+  }
+  @keyframes shimmer {
+    0% {
+        background-position: top left -50%;
+      }
+      
+      100% {
+        background-position: top right -50%;
+      }
+  }
+
+  /* checkbox*/
+  .inputGroup {
+    background-color: #ffffff7a;
+    display: block;
+    margin: 30px 0px;
+    position: relative;
+    width: 285px;
+    border-radius: 30px;
+  }
+  .inputGroup label {
+    padding: 12px 10px;
+    width: 285px;
+    display: block;
+    text-align: left;
+    color: #6f7174;
+    cursor: pointer;
+    position: relative;
+    z-index: 2;
+    transition: color 200ms ease-in;
+    overflow: hidden;
+  }
+  .inputGroup label:before {
+    width: 285px;
+    height: 44px;
+    border-radius: 41px;
+    content: '';
+    background-color: #74faacbe;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    opacity: 0;
+    z-index: -1;
+  }
+  .inputGroup label:after {
+    width: 32px;
+    height: 32px;
+    content: '';
+    border: 2px solid #D1D7DC;
+    background-color: #fff;
+    background-image: url("data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5.414 11L4 12.414l5.414 5.414L20.828 6.414 19.414 5l-10 10z' fill='%23fff' fill-rule='nonzero'/%3E%3C/svg%3E ");
+    background-repeat: no-repeat;
+    background-position: 2px 3px;
+    border-radius: 50%;
+    z-index: 2;
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    transition: all 200ms ease-in;
+  }
+  .inputGroup input:checked ~ label {
+    color: #033b01;
+  }
+  .inputGroup input:checked ~ label:before {
+
+    opacity: 1;
+  }
+  .inputGroup input:checked ~ label:after {
+    background-color: #54E0C7;
+    border-color: #54E0C7;
+  }
+  .inputGroup input {
+    width: 32px;
+    height: 32px;
+    order: 1;
+    z-index: 2;
+    position: absolute;
+    right: 30px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    visibility: hidden;
+  }
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover, 
+  input:-webkit-autofill:focus, 
+  input:-webkit-autofill:active{ 
+    border: 0px solid darkorange;
+    -webkit-box-shadow: 0 0 0 30px #303245 inset !important;
+    -webkit-text-fill-color: #000 !important;
+  }
+  input:autofill,
+  input:autofill:hover, 
+  input:autofill:focus, 
+  input:autofill:active{
+    border: 0px solid darkorange;
+    -webkit-box-shadow: 0 0 0 30px #303245 inset !important;
+    -webkit-text-fill-color: #000 !important;
+  }
+  
+  

@@ -5,31 +5,30 @@ include("../include/function.php");
 include("../include/static_data.php");
 require_once("../include/PDO.class.php");
 
-
+$user_id="1";
 $DB = new PDODB(db_host, DBPort, db_name, db_user, db_password);
-object_echo();
-function object_echo()
-{
-    global $DB;
-    $list_delite_possible   = array(); //массив объектов которые можно удалить
-    $list_delite_impossible = array(); //массив объектов которые удалить нельзя (есть ссылки)
-    $list_object            = $DB->query("SELECT `id`, `object_name` FROM `lift_object` WHERE `vis_object`=1;");
- 
-    foreach ($list_object as $value) {
-        $check_id= $DB->column("SELECT `call_id` FROM `lift_calls` WHERE `address_lift`=".$value['id'].";");
-        if ($check_id){
-            array_unshift($check_id , $value['object_name']); 
-            $list_delite_impossible[$value['id']]= $check_id;  
-        }else{
-            $list_delite_possible[$value['id']]=$value['object_name'];
-        }
+$myquery = "SELECT call_id, call_date, call_adres, call_details, call_request, call_staff_status from lift_calls WHERE (call_status = 0) AND call_staff =$user_id ;";
+
+$lift_calls = $DB->query($myquery);
+//print_r($lift_calls);
+foreach ($lift_calls as $call) { //начало цикла формирования заявок
+//print_r($call);
+    $call_id = $call['call_id'];
+
+    $call_staff_status = $call['call_staff_status'];
+    $call_details = $call['call_details'];
+    $call_address = $call['call_adres'];
+    $call_request = $call['call_request']; //уровень заявки
+    $call_date = date("Y-m-d H:i", $call['call_date']);
+    //echo  "-$call_id-$call_staff_status-";
+    if (!$call_staff_status) {// Если отмечена как не переданна, то измененяем состояние на переданна онлайн
+        $query_staff_date = "call_staff_date=" . strtotime(date('Y-m-d H:i:s ')) . ',';
+        $update_status = "UPDATE lift_calls SET  $query_staff_date call_staff_status=2 WHERE  call_id=$call_id;";
+        $DB->query($update_status);
+        $history_date = strtotime(date('Y-m-d H:i:s '));
+        $set_history = "Заявка по адресу - " . $call_address . " Отмечена прочитанной. Прочитана в Телеграм. "; //запись в журнал
+        $DB->query("INSERT INTO lift_history (history_date,history_info, call_id) VALUES( $history_date, \"$set_history\",  $call_id );");
     }
-    $data["possible"]=$list_delite_possible;
-    $data["impossible"]=$list_delite_impossible;
-    echo (json_encode($data));
-
-    
-
+    $text_return.=  "Дата:	$call_date \nАдрес: $call_address \nОписание: $call_details \n------------\n";
 }
-
-
+echo $text_return;

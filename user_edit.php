@@ -456,7 +456,7 @@ while ($userdata = $stuser->fetch(PDO::FETCH_ASSOC)) {
 
     //функция по нажатию ок в модалке
     dialog.querySelector('.save').addEventListener('click', function () {//
-
+datasend["pass"]=document.getElementById('pass').value;
       datasend["admin"] = document.getElementById('admin').checked;
       datasend["edit_obj"] = document.getElementById('edit_obj').checked;
       datasend["edit_user"] = document.getElementById('edit_user').checked;

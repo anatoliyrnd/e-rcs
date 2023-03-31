@@ -9,7 +9,7 @@ define ('CITY_SEP','#');//азделитель названия города в 
 define ('CITY_DEFAULT','г.Ростов-на-Дону');// название города по умолчанию, если не получен разделитель из данных XML при отправки заявки из SPult
 define ('XML_ADD',true);//Разрешить вносить адреса полученные при ормировании заявки SPult в базу объектов
 define ('DISP_ADD_OBJECT',1);//1 - разрешить диспетчеру добавлять оъекты (улицы,дома,лифты) 0-запретить (до версии 2)
-define ('TOKEN_TELEGRAM','5305000587:AAFXeh5D6yiPy-0fH_SlPlNmj7L2E3Fv8N0');// токен апи телеграм бота
+define ('TOKEN_TELEGRAM','5305000587:AAGY-B9CzWJVgOLR96Ek1XYqRaqU0sW9vS4');// токен апи телеграм бота
 
 define ('DEMO',false); // замените true на false для рабочего ваианта
 /* The base configurations of Free Help Desk.

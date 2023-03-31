@@ -46,13 +46,13 @@ if (isset($input['action'])) {
 function loadadress()
 {
     global $DB;
-    $city = $DB->query("SELECT id, city_name  FROM lift_city WHERE vis_city=0");
+    $city = $DB->query("SELECT id, city_name  FROM lift_city WHERE vis_city=0 ORDER BY city_name ");
     
-    $street = $DB->query("SELECT id,street_name,city_id FROM lift_street WHERE vis_street=0");
+    $street = $DB->query("SELECT id,street_name,city_id FROM lift_street WHERE vis_street=0  ORDER BY street_name ");
 
-    $home             = $DB->query("SELECT id,home_name,street_id FROM lift_home WHERE vis_home=0");
+    $home             = $DB->query("SELECT id,home_name,street_id FROM lift_home WHERE vis_home=0 ORDER BY  home_name");
    
-    $lift             = $DB->query("SELECT id,object_name,home_id FROM lift_object WHERE vis_object=0");
+    $lift             = $DB->query("SELECT id,object_name,home_id FROM lift_object WHERE vis_object=0 ORDER BY object_name");
     $result['city']   = $city;
     $result['street'] = $street;
     $result["home"]   = $home;

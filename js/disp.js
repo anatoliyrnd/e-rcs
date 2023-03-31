@@ -2,6 +2,7 @@ import { tableOpen, tableClose, Select } from "./export/tabulatconfig.js";
 import { createlist } from "./export/class.js";
 const headMesage = document.getElementById("head_mesage");
 const headLoader = document.getElementById("loader_head");
+
 let selectData = {
   department: {},
   group: {},
@@ -31,7 +32,7 @@ const titleDialog = document.getElementById("title_dialog"); // заголово
 const dialog = document.querySelector("dialog"); //модальное окно
 const bodyDialog = document.getElementById("body_dialog"); // тело модального окна
 const menuListModal = document.getElementById("menu_madal"); // список меню для модального окна
-
+let resetModalTimeOut='';// ссылка на таймер для автоматического закрытия модалки
 const toggle_head = document.getElementById("toggle_head"); //кнопка главного меню
 const mainBody = document.getElementById("main_body"); // контент главнорго окна
 const spinerDialog = '<div class="lds-dual-ring" id="spinerDialog"></div>'; // спинер кнопки сохранить диалогового окна
@@ -45,7 +46,7 @@ setInterval(() => {
   //обновляем данные с сервера
   tableOpen.replaceData();
     tableClose.replaceData();
-}, 60000);
+}, 20000);
 saveDialog.addEventListener("click", savecall, false);
 closeDialog.addEventListener("click", modalClose);
 dialog.addEventListener("cancel", modalClose);
@@ -437,6 +438,10 @@ class ModalMenuItem {
 }
 function modalClose() {
   //подчищаем все перед закрытием модалки
+  if (resetModalTimeOut){
+//если есть таймер для закрытия модалки то удаляем его
+clearTimeout(resetModalTimeOut);
+  }
   if (document.getElementById("menu_dialog-modal").checked)
     clickButton("menu_dialog-modal");
   if (closeDialog.hasAttribute("body")) bodyDialog.innerHTML = "";
@@ -703,18 +708,20 @@ function saveCallResult(getResponse) {
       //если открыто диалоговое окно то сообщим на кнопки диалог
       saveDialog.innerHTML = "<span style='color:green'>Сохранено</span>";
 
-      setTimeout(() => {
+      resetModalTimeOut=setTimeout(() => {
+        resetModalTimeOut=null;
         modalClose();
-      }, 10000);
+      }, 20000);
     }
     headMessageEcho(getResponse.message, 30000);
   } else {
     if (dialog.open) {
       //если открыто диалоговое окно то сообщим на кнопки диалог
       saveDialog.innerHTML = "<span style='color:red'>Ошибка</span>";
-      setTimeout(() => {
+      resetModalTimeOut=setTimeout(() => {
+        resetModalTimeOut=null;
         modalClose();
-      }, 15000);
+      }, 20000);
       headMessageEcho(getResponse.message, 30000);
     }
   }

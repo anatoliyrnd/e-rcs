@@ -179,7 +179,7 @@ DB::$dsn = 'mysql:dbname=newtable;host=127.0.0.1';
 	}
 }
 
-function staff_call_new($userid, $link) {
+/* function staff_call_new($userid, $link) {
   DB::$dsn = db_PDO;
   DB::$user = db_user;
   DB::$pass = db_password;
@@ -200,16 +200,22 @@ if (!$user_telegram){
   return 0;}
   $adjdate=date("d-m-Y H:i ");
 $text_telega=$adjdate." -Вы назначены ответсвенным по заявке!";
+
 $but=array(
-  'inline_keyboard' => array(
-    array(
-          array(
-          'text' => 'Подробнее!',
-          'url' =>$link,
+  'keyboard' => array(
+      array(
+        array(
+          'text' => 'Тестовая кнопка 1',
+          'url' => 'YOUR BUTTON URL',
         ),
-    ),
-     
+        array(
+          'text' => 'Тестовая кнопка 2',
+          'url' => 'YOUR BUTTON URL',
+        ),
+      )
   ),
+  'one_time_keyboard' => TRUE,
+  'resize_keyboard' => TRUE,
 );
 $replay=json_encode($but);
 //запишим в логи
@@ -219,7 +225,7 @@ $replay=json_encode($but);
  
   file_put_contents($filename, $new_str . PHP_EOL, FILE_APPEND);
   
-}
+} */
 //функция генерации авторизационного токена
 function nacl($user_id){
   

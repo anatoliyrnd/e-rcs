@@ -1,5 +1,5 @@
 <?php
-define("DEBUG",true); // если нужна отладочная информация то ставим в true
+define("debug_xml",true); // если нужна отладочная информация то ставим в true
 $DATE_REPAIR=3;//срок ремонта из массива static_data.php
 if (strcasecmp($_SERVER['REQUEST_METHOD'], 'POST') != 0) {
     //If it isn't, send back a 405 Method Not Allowed header.
@@ -88,8 +88,8 @@ $address = $city . " - " . $street . ", " . $home . " -  " . $lift;
 $city_name = str_replace([' ', '.'], '', $city);
 file_put_contents($file, "<" . $city . ">" . $city_name);
 $qcheck  = "SELECT `id` FROM `lift_city` WHERE (REPLACE(REPLACE(`city_name`, ' ', ''),'.','') =?  ) LIMIT 1 ";
-if (DEBUG) {
-    debug ("Запрос наличия города - ".$qcheck);
+if (debug_xml) {
+    debug_xml ("Запрос наличия города - ".$qcheck);
 }
 $city_id = $DB->single($qcheck,Array($city_name)); //проверим есть ли в базе город
 if ($city_id) {
@@ -108,8 +108,8 @@ if ($city_id) {
 $street_name = str_replace([' ', '.'], '', $street);
 $qcheck = "SELECT `id` FROM `lift_street` WHERE (REPLACE(REPLACE(`street_name`, ' ', ''),'.','') =? AND `city_id`='$city_id') LIMIT 1";
 //
-if (DEBUG) {
-    debug ("Запрос наличия улицы - ".$qcheck);
+if (debug_xml) {
+    debug_xml ("Запрос наличия улицы - ".$qcheck);
 }
 $street_id = $DB->single($qcheck,Array($street_name));
 if ($street_id) {
@@ -128,8 +128,8 @@ if ($street_id) {
 $home      = str_replace('д.', '', $home);
 $home_name = str_replace([' ', '.'], '', $home); //уберем   пробел из поискового запроса что бы они не влияли на результат
 $qcheck    = "SELECT `id` FROM `lift_home` WHERE (REPLACE(REPLACE(`home_name`, ' ', ''),'.','') =? AND `street_id`='$street_id') "; // проерим есть данный дом в базу с привязкой к улице
-if (DEBUG) {
-    debug ("Запрос наличия home - ".$qcheck);
+if (debug_xml) {
+    debug_xml ("Запрос наличия home - ".$qcheck);
 }
 $home_id = $DB->single($qcheck,Array($home_name));
 if ($home_id) {
@@ -147,8 +147,8 @@ if ($home_id) {
 //;ift
 $lift_name = str_replace([' ', '.'], '', $lift); //уберем   пробел из поискового запроса что бы они не влияли на результат
 $qcheck    = "SELECT `id` FROM `lift_object` WHERE (REPLACE(REPLACE(`object_name`, ' ', ''),'.','') =? AND `home_id`='$home_id')  "; // проерим есть данный lift в базу с привязкой к home
-if (DEBUG) {
-    debug ("Запрос наличия lift - ".$qcheck);
+if (debug_xml) {
+    debug_xml ("Запрос наличия lift - ".$qcheck);
 }
 $lift_id = $DB->single($qcheck,Array($lift_name,$lift_name));
 if ($lift_id) {
@@ -228,8 +228,8 @@ $call_staff    = 0;
 $call_adres    = $address;
 $query_add_call             = "INSERT INTO lift_calls(call_status,call_date,call_first_name,call_email,call_phone,call_department,call_request,call_group,call_adres,call_details,call_solution,call_staff,	address_city,address_street,address_home,address_lift,expected_repair_time )VALUES($call_status,$call_date, ? ,'$call_email','$call_phone',$call_department,$call_request,$call_group, ? , ? ,'$call_solution',$call_staff,$city_id,$street_id,$home_id,$lift_id,".$repair_time_unix[$DATE_REPAIR].");";
 $query_data=Array($call_first_name, $call_adres, $discription);
-if (DEBUG) {
-    debug ("Запрос наличия lift - ".$query_add_call.print_r($query_data,true));
+if (debug_xml) {
+    debug_xml ("Запрос наличия lift - ".$query_add_call.print_r($query_data,true));
 }
 $DB->query($query_add_call,$query_data);
 //  /Создаем заявку из spult
@@ -253,14 +253,14 @@ $reader->close();
 var_dump  - структура которая будет представлять собой объект SimpleXMLElement .
 */
 //var_dump($xml);
-if(DEBUG){
-    debug($city_log.$street_log.$home_log.$lift_log);
+if(debug_xml){
+    debug_xml($city_log.$street_log.$home_log.$lift_log);
 }
 header($_SERVER["SERVER_PROTOCOL"] . " 200 ok", true, 200);
-function debug($content){
+function debug_xml($content){
 $time     = date('d.m.Y  -  H ч. i мин.  - ');
 $textsave=$time.$content.PHP_EOL;
-$fh       = fopen('xml_debug.txt', 'a');
+$fh       = fopen('xml_debug_xml.txt', 'a');
 fwrite($fh, $textsave);
 fclose($fh); 
 }
