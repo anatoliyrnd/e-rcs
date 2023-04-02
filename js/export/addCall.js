@@ -85,9 +85,12 @@ class mainAddress {
     this.input.addEventListener("input", this.generateList);
   }
   generateList() {
+    let time=1000;
     //создаем обекты исходя из введеное поискового запроса
     this.divObjectList.innerHTML = ""; //отчистим список
+    this.divObjectList.classList.add("hidden");
     let serch = this.input.value;
+    if (serch.length>=1)time=200;
     let type = this.input.dataset.type;
     let list = this.#currentList;
     //let top = document.createElement("div");
@@ -121,6 +124,10 @@ class mainAddress {
         this.divObjectList.append(divObject);
       }
     });
+    setTimeout(() => {
+      this.divObjectList.classList.remove("hidden");
+    
+    }, time);
   }
 }
 

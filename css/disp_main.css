@@ -393,7 +393,6 @@ html {
 .adress_card:nth-child(3n+1){
   background-color: #fff;
 }
-
 .adress_card:after {
 
   position: absolute;
@@ -412,24 +411,22 @@ html {
     4px 4px 5px 0px #0001;
   transition: all 0.3s ease;
 }
-
 .adress_card:hover {
   color: rgb(255, 255, 255);
   background-color: #3f3e3e;
 }
-
 .adress_card:hover:after {
   left: auto;
   right: 0;
   width: 100%;
 
 }
-
 .adress_card:active {
   top: 2px;
 }
-
 .addnewcall_conteiner {
+  opacity: 0;
+  animation: myAnim 1s cubic-bezier(0.52, 0.42, 1, 1) 50ms 1 normal forwards;
   box-sizing: border-box;
   display: grid;
   place-content: center;
@@ -439,28 +436,17 @@ html {
   justify-content: start;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
 }
-
 .addnewcall_conteiner_street,
 .addnewcall_conteiner_city {
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
 }
-
 .addnewcall_conteiner_home,
 .addnewcall_conteiner_object {
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 }
-
-
 .adress_card:hover {
   box-shadow: 1px 1px 0px 0px #0a0a0a8f;
 }
-
-
-
-
-
-
-
 .button_next {
   outline: none;
   width: 350px;
