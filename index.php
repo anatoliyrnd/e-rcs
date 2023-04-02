@@ -126,7 +126,7 @@ Spinner
               <label for="pass" class="placeholder">Пароль</label>
             </div>
            
-            <button type="text" id="login" class="submit">Войти</button>
+            <button type="text" id="login" class="submit" disabled>Войти</button>
 
             <div class="inputGroup">
                 <input id="autoLogin" name="option1" type="checkbox"/>
@@ -134,6 +134,7 @@ Spinner
               </div>
           </div>
     </div>
+    <canvas id="glcanvas" width="0" height="0"></canvas>
 <script src="./js/index.js"></script>
 </body>
 <!-- (c) Zamotaev Anatoliy Nikolaevich -->

@@ -5,7 +5,38 @@
 dialog {
     box-sizing: border-box;
 }
+.flex-cont-title {
 
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: flex-start;
+    align-items: stretch;
+    align-content: stretch;
+    width: auto;
+    min-height: 20px;
+  }
+  
+  .flex-box-title {
+  
+    margin: 5px;
+    padding: 5px;
+    flex: 1 0 auto;
+    align-self: flex-start;
+    order: 0;
+  }
+  
+  .flex-box-title:not(:last-child) {
+    background-color: #fff4ce;
+    cursor: pointer;
+    border-radius: 5px;
+    box-shadow: 2px 2px 1px rgba(0, 0, 0, 0.33), 0px 0px 2px rgb(0, 0, 0), 1px 3px 10px 4px rgba(0, 0, 0, 0.42);
+  }
+  
+  .flex-box-title:last-child {
+    box-shadow: -2px -2px 4px rgb(217, 217, 26) inset, 3px 3px 6px rgba(50, 50, 1, 0.93) inset;
+    border-radius: 3px;
+  }
+  
 .ext-cross:before,
 .checkbox__checker:before,
 .checkbox__cross:before,

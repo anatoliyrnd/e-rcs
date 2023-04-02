@@ -8,7 +8,7 @@ if(isset($_SESSION['user_id'])){
 	}
 	else{
 		
-		$href="../../../index.php?e=1";
+		$href="../../../index.php";
 	header('Location: '.$href);
 	exit;
 	}

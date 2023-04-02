@@ -3,47 +3,7 @@ import  './tabulator.min.js';
 //сохранять состояние таблицы при закрытии браузера - persistence: true,
 //auto detect the current language. -locale: true,
 // config open calls table
-export class  Select {
-  //прототип формы select
-  constructor(name, styleClass) {
-    this.elem = document.createElement("select");
-    if (name) this.elem.setAttribute("name", name);
-    if (styleClass) {
-      this.elem.classList.add(styleClass);
-    }
-  }
-  appendTo(parent, options, selected, callback) {
-    //parent родительский элемент куда вставлять select
-    //options массив списка 
-    // selected ключ который по которому стивим выбранный пункт если не будет совпадения будет добавлен пункт со зночением 0 и текстом Выберите
-    //callbak функция для при выборе
-    let rand = Math.floor(Math.random() * 10000);
-    let selectedopt=false;
-    this.elem.setAttribute("id", "rand" + rand);
 
-    for (let key in options) {
-      let option = document.createElement("option");
-      option.value = key;
-      option.innerText = options[key];
-
-      if (key == selected) {
-        selectedopt=true;
-        option.selected = true;
-      }
-      this.elem.append(option);
-    }
-    if (!selectedopt){
-      let option = document.createElement("option");
-      option.value = "0";
-      option.innerText = "Выберите...";
-      option.selected = true;
-      option.disabled=true;
-      this.elem.prepend(option);
-    }
-    parent.append(this.elem);
-    this.elem.addEventListener("change", callback);
-  }
-}
 const windowInnerWidth = window.innerWidth;
 let adres_width = 280;
 if (windowInnerWidth < 1000) {

@@ -1,8 +1,13 @@
-import { tableOpen, tableClose, Select } from "./export/tabulatconfig.js";
-import { createlist } from "./export/class.js";
+import { tableOpen, tableClose } from "./export/tabulatconfig.js";
+//import { createlist } from "./export/class.js";
+import { startAddressSelect, Select } from "./export/addCall.js";
+let webGL=hardWareInfo();
 const headMesage = document.getElementById("head_mesage");
 const headLoader = document.getElementById("loader_head");
-
+const timeLoadDataDefoult=20000
+let timeLoadData=timeLoadDataDefoult;// Интервал обновления данных
+let numErrorReload;// счетчик ошибок авторизации
+let nav=[];
 let selectData = {
   department: {},
   group: {},
@@ -15,7 +20,7 @@ let adressData = {};
 {
   headMesage.innerHTML = "Загружаем основные конфигурационные данные";
 
-  let url = "/disp/loadconfig.php";
+  const url = "/disp/loadconfig.php";
   fetchLoad(url, '{"action":"loadstartdate"}', start);
 }
 const svgstaff =
@@ -38,6 +43,7 @@ const mainBody = document.getElementById("main_body"); // контент гла�
 const spinerDialog = '<div class="lds-dual-ring" id="spinerDialog"></div>'; // спинер кнопки сохранить диалогового окна
 const menu = document.getElementById("menu").getElementsByTagName("ul")[0];
 let quantityCalls = { open: 0, close: 0 }; // массив количества заявок
+let address=null; //объект для генерации адреса новой заявки
 for (const list of menu.querySelectorAll("li")) {
   //console.log(list);
   list.addEventListener("click", clickMenu);
@@ -46,7 +52,7 @@ setInterval(() => {
   //обновляем данные с сервера
   tableOpen.replaceData();
     tableClose.replaceData();
-}, 20000);
+}, timeLoadData);
 saveDialog.addEventListener("click", savecall, false);
 closeDialog.addEventListener("click", modalClose);
 dialog.addEventListener("cancel", modalClose);
@@ -107,6 +113,7 @@ function start(rezult) {
   headMesage.innerHTML = "Конфигурация загруженна!";
   headLoader.hidden = true;
   if (rezult.status === "ok") {
+    nav=rezult.message.nav;
     selectData = rezult.message;
     setTimeout(() => {
       headMesage.innerHTML = "Загружаем базу адресов";
@@ -121,116 +128,24 @@ function start(rezult) {
 }
 
 function callNew(data = { nodata: true }) {
-  let addNewCallData = []; //масив для адреса новой заявки
-  //создание модального окна для редактирования заявки
-  let title = "Создание новой заявки->Выбирите город";
-  let adressDiv = document.createElement("div");
-  let adressList = document.createElement("div");
-  //console.log(data);
-  if (data.nodata) {
-  } else {
-    let ul = generatemenu(data, 4);
-    menuListModal.append(ul);
-  }
-  saveDialog.setAttribute("action", "callnew");
-  showDialog(title, true);
-  bodyDialog.append(adressDiv);
-  bodyDialog.append(adressList);
-
-  let city = new createlist(
-    adressData.city,
-    "city",
-    "none",
-    adressList,
-    adressDiv
-  );
-  let street = new createlist(
-    adressData.street,
-    "street",
-    "city_id",
-    adressList,
-    adressDiv
-  );
-  let home = new createlist(
-    adressData.home,
-    "home",
-    "street_id",
-    adressList,
-    adressDiv
-  );
-  let lift = new createlist(
-    adressData.lift,
-    "object",
-    "home_id",
-    adressList,
-    adressDiv
-  );
-
-  city.fullList(0);
-  city.generateTitle(cityclick);
-
-  function cityclick() {
-    //выбрали город
-    addNewCallData["city"] = { id: city.id, name: city.value };
-    title = addNewCallData.city.name + " ->Выбирите улицу";
-    titleDialog.innerHTML = title;
-    city.divname = "";
-    street.fullList(city.id);
-    street.generateTitle(streetclick);
-  }
-  function streetclick() {
-    //выбрали улицу
-    addNewCallData["street"] = { id: street.id, name: street.value };
-    title =
-      addNewCallData.city.name +
-      " - " +
-      addNewCallData.street.name +
-      " ->Выбирите дом";
-    titleDialog.innerHTML = title;
-    street.divname = "";
-    home.fullList(street.id);
-    home.generateTitle(homeclick);
-  }
-  function homeclick() {
-    //выбрали дом
-    addNewCallData["home"] = { id: home.id, name: home.value };
-    title =
-      addNewCallData.city.name +
-      " - " +
-      addNewCallData.street.name +
-      " Дом№ " +
-      addNewCallData.home.name +
-      " -> Выбирите лифт";
-    home.divname = "";
-    titleDialog.innerHTML = title;
-    //console.log(addNewCallData);
-    //console.log(home.id);
-    lift.fullList(home.id);
-    lift.generateTitle(liftclick);
-  }
-  function liftclick() {
-    //создали полный адресс заявки
-    addNewCallData["object"] = { id: lift.id, name: lift.value };
-    title =
-      addNewCallData.city.name +
-      " - " +
-      addNewCallData.street.name +
-      " Дом№ " +
-      addNewCallData.home.name +
-      " - " +
-      addNewCallData.object.name;
-    titleDialog.innerHTML = title;
-    lift.divname = "";
-    adressList.innerHTML = "";
-    //console.log(addNewCallData);
-    changeCall.set("city", addNewCallData.city.id);
-    changeCall.set("street", addNewCallData.street.id);
-    changeCall.set("home", addNewCallData.home.id);
-    changeCall.set("object", addNewCallData.object.id);
-    changeCall.set("fullAdress", title);
+saveDialog.setAttribute("action","callnew")
+  address= new startAddressSelect(titleDialog,bodyDialog,adressData,next)
+  address.city()// выбирем адрес 
+  function next(addressCall){
+    //получим массив с адресом по заявке 
+    changeCall.set("city", addressCall[0]);
+    changeCall.set("street", addressCall[1]);
+    changeCall.set("home", addressCall[2]);
+    changeCall.set("object", addressCall[3]);
+    changeCall.set("fullAdress", addressCall[4]);
+    address=null;
+   titleDialog.innerHTML=addressCall[4];
+   bodyDialog.innerHTML="";
     callNewStep2();
   }
-}
+  showDialog()    
+  }
+
 function callNewStep2() {
   // создание новой заявки шаг 2 выбор разделов и срока ремонта
   let buttonNext = document.createElement("button");
@@ -251,6 +166,24 @@ function callNewStep2() {
   bodyDialog.append(divContainer);
   bodyDialog.append(buttonNext);
 }
+function creatSelectCard(selectlist, parent, button, length = 0) {
+  //создаем список выбора
+  let control = [];
+  for (const key in selectlist) {
+    const element = selectlist[key];
+    let cardContent = cardCreat(parent, element);
+    let select = new Select(key, "select");
+    select.appendTo(cardContent, selectData[key], 0, function () {
+      this.classList.add("change_select");
+      control[key] = true;
+      changeCall.set(key, this.value);
+      if (Object.keys(control).length >= length) {
+        button.disabled = false;
+      }
+    });
+  }
+}
+
 function cardCreat(parent, labelText, content = "") {
   //создание ячейки сетки
   let div = document.createElement("div");
@@ -270,24 +203,7 @@ function cardCreat(parent, labelText, content = "") {
   cardContent.innerHTML = content;
   return cardContent;
 }
-function creatSelectCard(selectlist, parent, button, length = 0) {
-  //создаем список выбора
-  let control = [];
-  for (const key in selectlist) {
-    const element = selectlist[key];
-    let cardContent = cardCreat(parent, element);
-    let select = new Select(key, "select");
-    select.appendTo(cardContent, selectData[key], 0, function () {
-      this.classList.add("change_select");
-      control[key] = true;
-      changeCall.set(key, this.value);
-      if (Object.keys(control).length >= length) {
-        button.disabled = false;
-      }
-      //addNewCallData[index]{nam this.value};
-    });
-  }
-}
+
 function callNewStep3() {
   //создание новой заявки шаг 3 описание заявки
   bodyDialog.innerHTML = "";
@@ -393,11 +309,11 @@ function callNote(data) {
   showDialog(title);
 }
 
-function showDialog(title, body) {
+function showDialog(title=false, body=false) {
   //окончательная сборка модалки и ее вывод на экран
-  titleDialog.innerText = title;
+  if(title){titleDialog.innerText = title};
 
-  closeDialog.setAttribute("body", body);
+  if(body){closeDialog.setAttribute("body", body)};
   dialog.showModal();
 }
 function generatemenu(data, type) {
@@ -414,6 +330,7 @@ function generatemenu(data, type) {
   let ul = document.createElement("ul");
   ul.classList.add("menu_dialog");
   for (let key = 0; key < typetext.length; key++) {
+    console.log(nav[key]);
     if (key == type) continue; //если уже находимся в нужном месте
     if (!nav[key]) continue; // если пользователю запрещен доступ к этому поункто то идем далее
     new ModalMenuItem(typetext[key]).appendTo(ul, function () {
@@ -438,6 +355,8 @@ class ModalMenuItem {
 }
 function modalClose() {
   //подчищаем все перед закрытием модалки
+  address=null;
+  bodyDialog.innerHTML='';
   if (resetModalTimeOut){
 //если есть таймер для закрытия модалки то удаляем его
 clearTimeout(resetModalTimeOut);
@@ -741,6 +660,8 @@ tableClose.on("dataProcessed", function () {
 });
 //данные загружены, обработаны, и сформированы
 tableOpen.on("dataProcessed", function () {
+  numErrorReload=0;
+  timeLoadData=timeLoadDataDefoult;
   quantityCalls.open = tableOpen.getDataCount();
 });
 
@@ -751,7 +672,15 @@ tableClose.on("rowClick", function (e, row) {
 
   //  alert("Row " + row.getIndex() + " Clicked!!!!"+on.com)
 });
-
+tableOpen.on("dataLoadError", function(error){
+  numErrorReload++;
+  timeLoadData+=numErrorReload*1000;
+if (timeLoadData>=1100000)timeLoadData=1100000;
+  let text='<svg width="22" height="22" enable-background="new 0 0 16 16" version="1.1" xml:space="preserve"> <defs>  <symbol height="24" id="svg_1" width="24" >  </defs>  <g class="layer">   <title>Layer 1</title>   <use fill="#00ff00" id="svg_2" transform="matrix(1.39878 0 0 1.39878 3.48517 43.7184)" x="6" xlink:href="#svg_1" y="7"/>     <circle cx="10.66" cy="10.38" fill="#ff0000" id="svg_5" r="8" stroke="#000000"/>  </g> </svg>'+user_name+"-"+error; 
+  info.innerHTML = text;
+  tockenAutorization();
+  //error - the returned error object
+});
 tableOpen.on("rowClick", function (e, row) {
   //ловим клик по строке
   let on = row.getData();
@@ -766,8 +695,7 @@ tableOpen.on("rowTap", function (e, row) {
 });
 tableOpen.on("dataLoaded", function (data) {
   //data has been loaded
-  let actualtime =
-  user_name+"  ->  Данные актуальны по состоянию на - " + new Date().toLocaleString() ;
+  let actualtime = '<svg width="22" height="22" enable-background="new 0 0 16 16" version="1.1" xml:space="preserve"> <defs>  <symbol height="24" id="svg_1" width="24" >  </defs>  <g class="layer">   <title>Layer 1</title>   <use fill="#00ff00" id="svg_2" transform="matrix(1.39878 0 0 1.39878 3.48517 43.7184)" x="4" xlink:href="#svg_1" y="7"/>     <circle cx="10.66" cy="10.38" fill="#00ff00" id="svg_5" r="8" stroke="#000000"/>  </g> </svg>'+user_name+'  ->  Данные актуальны по состоянию на - ' + new Date().toLocaleString() ;
   info.innerHTML = actualtime;
 });
 tableOpen.on("rowContext", function (e, row) {
@@ -827,7 +755,33 @@ async function fetchLoad(url, data, callback) {
     callback({ status: "error", message: "Глобальная ошибка!" + err });
   }
 }
+async function tockenAutorization(){
+  let storage = window['localStorage']
+  let login = [];
 
+  login['token'] = storage.getItem('token');
+  if (login['token']?.length != 32) {
+    console.log("tokenerror");
+      return false;
+  }
+  login['id'] = storage.getItem('id');
+  login['username'] = storage.getItem('name');
+
+  fetch("login2.php", {
+    
+    method: "post",
+    headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+        id: login['id'],
+        token: login['token'],
+        mobile: false,
+        webGL:webGL
+    }),
+})
+}
 function errorfetch(element, message, timer = 4000) {
   element.innerHTML = message;
   setTimeout(() => {
@@ -836,4 +790,13 @@ function errorfetch(element, message, timer = 4000) {
 }
 function catcherrorfetch(error) {
   //console.log(error);
+}
+function hardWareInfo(){
+  const canvas = document.getElementById("glcanvas");
+let gl=canvas.getContext("experimental-webgl");
+let dbgRenderInfo = gl.getExtension("WEBGL_debug_renderer_info")
+if(dbgRenderInfo!=null){
+          let info=gl.getParameter(dbgRenderInfo.UNMASKED_RENDERER_WEBGL);   
+           return info;        }
+
 }

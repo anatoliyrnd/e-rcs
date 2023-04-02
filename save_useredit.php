@@ -1,17 +1,16 @@
 <?php
 //обработка полученных данных по пользователям v2.0
-//(С) Замотаев Анатолйи Николаевич
-include ("include/session.php");
-include ("include/checksession.php");
-include ("include/ldisp_config.php" );
-include ("include/function.php");
+//(С) Замотаев Анатолий Николаевич
+include ("./include/session.php");
+include ("./include/checksession.php");
+include ("./include/ldisp_config.php" );
+include ("./include/function.php");
 $inputJSON = file_get_contents('php://input');
 $input= json_decode( $inputJSON, TRUE ); 
 function errorecho($txt){
+
     //возврат фронту ошибки ввиде json
-    header('Content-type: application/json');
-    echo '{"status":"'.$txt.'"}';
-    exit();  
+  echojson(["status"=>$txt]);
 }
 if((!isset($input['user_name'])) || (!isset($input['nacl'])) )
 {

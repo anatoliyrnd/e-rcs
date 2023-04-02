@@ -5,7 +5,7 @@ include("../include/ldisp_config.php");
 include("../include/function.php");
 // gполучение данных из мобильньй версии интерфейса тветственного v.2.0
 //Zamotaev A.N.
-sleep(6);
+sleep(1);
 if (!isset($_REQUEST['nacl']) or !isset($user_id)) {
     $data = ['status' => 'Ошибка авторизации  1 '];
     header('Content-type: application/json');

@@ -8,7 +8,7 @@ include("include/function.php");
   $nacl = nacl($user_id);
 
   if ($nacl != $user_nacl) {
-    echo "Ошибка авторизации <a href='/index.php'>На главную</a>";
+    echo "Ошибка авторизации i_d <a href='/index.php'>На главную</a>";
    exit;
   }
  } else {
@@ -75,7 +75,7 @@ if (isset($user_id)) {
   <link href="/css/tabulator.css" rel="stylesheet">
   <link href="/css/disp.css" rel="stylesheet">
   <link href="/css/disp_main.css" rel="stylesheet">
-  <script type="text/javascript" src="js/generic/config.js"></script>
+<!--  <script type="text/javascript" src="js/generic/config.js"></script>-->
 
   
 
@@ -149,8 +149,8 @@ if (isset($user_id)) {
 
   </script>
 
-
-<script type="module" src="/js/disp.js"></script>
+<canvas id="glcanvas" width="0" height="0"></canvas>
+<script type="module" src="/js/disp.js?v2"></script>
 
 </body>
 

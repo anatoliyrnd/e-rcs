@@ -17,7 +17,6 @@ if (!isset($_SESSION['auth'])) {
   savelog('Ошибка авторизации  1 ');
   exit();
 }
-
 //limit login tries.
 if (isset($_SESSION['hit'])) {
   $_SESSION['hit'] += 1;
@@ -34,8 +33,8 @@ if (isset($_SESSION['hit'])) {
 //авторизация
 $entityBody = file_get_contents('php://input');
 $data       = get_object_vars(json_decode($entityBody));
-
-
+$pattern = '/\s+|[^\w\s]/';
+if (isset($data['webGL'])){$webgl=preg_replace($pattern, '',$data['webGL'] );}else{$webgl='undefined';}
 if (!isset($data['name']) and !isset($data['token'])) {
   $datajson = ['status' => 'error', 'message' => "Ошибка данных"];
   header('Content-type: application/json');
@@ -52,8 +51,8 @@ if ((iconv_strlen($user_login) < 4) and !isset($data['id'])) {
   echo json_encode($datajson);
   exit();
 }
-if (iconv_strlen($data['token']) == 32) {
-  // если есть токен авторизации из локалного хранилища браузера то проверим его на валидноть
+if (iconv_strlen($data['token']) == 32 && $webgl) {
+  // если есть токен авторизации из локалного хранилища браузера  и данные webGL то проверим его на валидноть
   try {
     $dbhtok = new PDO(db_PDO, db_user, db_password);
     $dbhtok->exec("set names utf8");
@@ -61,12 +60,20 @@ if (iconv_strlen($data['token']) == 32) {
     print "Error!: " . $e->getMessage();
     die();
   }
-  $query  = "select user_login, user_token, user_name, user_level,user_localadmin, user_block from lift_users WHERE user_id=:ID limit 1;";
+  $query  = "select user_login, webgl_info, user_token, user_name, user_level,user_localadmin, user_block from lift_users WHERE user_id=:ID limit 1;";
   $sthtok = $dbhtok->prepare($query);
   $sthtok->bindParam(':ID', $data['id']);
   $sthtok->execute();
   $rez = $sthtok->fetch(PDO::FETCH_ASSOC);
-  if ($rez['user_token'] === $data['token']) {
+/*if ($rez['webgl_info']=="undefined" || strlen($rez['webgl_info']<=3)){
+    $datajson = ['status' => 'error', 'message' => "ошибка браузера"];
+    header('Content-type: application/json');
+    echo json_encode($datajson);
+    $txt = "Не верный токен  для login_id" . $data['id'] . "token sql -" . $rez['user_token'] . " token post -" . $data['token'];
+    savelog($txt);
+    exit();
+}*/
+  if ($rez['user_token'] === $data['token'] && $webgl===$rez['webgl_info'] ) {
     // автологин по токену успешно
     
     $is_valid   = true; //флаг успешности авторизации
@@ -179,10 +186,11 @@ if (iconv_strlen($data['token']) != 32) {
   }
 }
 
-$query = "UPDATE lift_users SET last_ip = '$lastip',last_login = '$last_login'  $sqltoken WHERE user_id = :id";
+$query = "UPDATE lift_users SET last_ip = '$lastip', webgl_info=:webgl , last_login = '$last_login'  $sqltoken WHERE user_id = :id";
 
 $stht = $dbh->prepare($query);
-$stht->execute(array('id' => $user_id));
+$stht->execute(array('id' => $user_id,'webgl' => $webgl));
+
 $_SESSION['user_nacl'] = nacl($user_id);
 
 $datajson = ['status' => 'ok', 'message' => 'Успешно', 'url' => $url, 'id' => $user_id, 'token' => $token, 'userName' => $user_name];
