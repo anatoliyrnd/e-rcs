@@ -8,7 +8,7 @@ class InputField {
     this.container = container;
     this.classDiv = classDiv;
   }
-  createInput(action, name, parentid, placeholder, btnTxt) {
+  createInput(action, name, parentId, placeholder, btnTxt) {
     const removeBtn = document.createElement("button");
     const div = document.createElement("div");
     div.classList.add(this.classDiv);
@@ -21,7 +21,7 @@ class InputField {
     });
     input.addEventListener("input", () => {
       input.setAttribute("data-action", action);
-      input.setAttribute("data-parentId", parentid);
+      input.setAttribute("data-parentId", parentId);
       console.log(input);
     });
     removeBtn.innerText = btnTxt;
@@ -471,3 +471,5 @@ export async function fetchLoad(url, data, callback) {
   } */
 }
 function catcherrorfetch() {}
+
+

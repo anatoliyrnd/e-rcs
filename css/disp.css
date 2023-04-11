@@ -15,7 +15,19 @@ dialog {
     width: auto;
     min-height: 20px;
   }
-  
+  .button_close{
+    border-radius: 5px;
+    background-color: #00000040;
+    padding: 3px;
+    font-size: 10px;
+    position: absolute;
+    right: 20px;
+    top: 5px;
+      transition: transform .2s; /* Animation */
+}
+ .button_close:hover{
+     transform: scale(1.5);
+ }
   .flex-box-title {
   
     margin: 5px;
@@ -191,7 +203,7 @@ dialog {
     }
 
 }
-@media screen and ((min-height: 401px) and (max-height: 500px)) {
+@media screen and (min-height:401px) AND (max-height:500px) {
     .confirm {
         height: 370px;
         
@@ -201,7 +213,7 @@ dialog {
     }
 
 }
-@media screen and ((min-height: 501px) and (max-height: 600px)) {
+@media screen and (min-height: 501px) AND (max-height: 600px) {
     .confirm {
         height: 470px;
     }
@@ -209,7 +221,7 @@ dialog {
         height: 370px;
     }
 }
-@media screen and ((min-height: 601px) and (max-height: 700px)) {
+@media screen and (min-height: 601px) and (max-height: 700px) {
     .confirm {
         height: 570px;
     }
@@ -663,7 +675,7 @@ select::-ms-expand {
 datalist {
     position: absolute;
     max-height: 20em;
-    border: 2 none #888;
+    border:  none ;
     overflow-x: hidden;
     overflow-y: auto;
 }

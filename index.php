@@ -14,7 +14,7 @@ $_SESSION['auth'] = md5(uniqid(microtime()));
 <meta name="description" content="Электронный журнал заявок по ремнту лифтов ->" />
 <meta name="author" content="Zamotaev Anatoliy" />
 <script type="text/javascript" src="js/mobile-detect.min.js"></script>
-<link rel="stylesheet" href="./css/index.css?v1.001" /> 
+<link rel="stylesheet" href="./css/index.css?v1.002" /> 
 <style>
   * {
     box-sizing: border-box;
@@ -135,7 +135,7 @@ Spinner
           </div>
     </div>
     <canvas id="glcanvas" width="0" height="0"></canvas>
-<script src="./js/index.js"></script>
+<script src="./js/index.js?v2.002"></script>
 </body>
 <!-- (c) Zamotaev Anatoliy Nikolaevich -->
 </html>

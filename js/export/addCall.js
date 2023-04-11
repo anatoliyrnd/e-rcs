@@ -9,7 +9,7 @@ export class  Select {
   }
   appendTo(parent, options, selected, callback) {
     //parent родительский элемент куда вставлять select
-    //options массив списка 
+    //options массив списка
     // selected ключ который по которому стивим выбранный пункт если не будет совпадения будет добавлен пункт со зночением 0 и текстом Выберите
     //callbak функция  при выборе
     let rand = Math.floor(Math.random() * 10000);
@@ -126,7 +126,7 @@ class mainAddress {
     });
     setTimeout(() => {
       this.divObjectList.classList.remove("hidden");
-    
+
     }, time);
   }
 }
@@ -192,7 +192,7 @@ export class startAddressSelect extends mainAddress {
     this.divObjectList.removeAttribute('class');
     this.divObjectList.style="  position: relative; margin: 20px; padding: 20px;"
     const div=document.createElement("div");
-    this.divObjectList.append(div); 
+    this.divObjectList.append(div);
     const button = document.createElement("button");
     div.append(button);
     //div.classList.add("")
@@ -216,6 +216,50 @@ export class startAddressSelect extends mainAddress {
     }
     return list;
     //генерируем полный список с филтром по родительскому элементу
-    console.log(list);
+    //console.log(list);
+  }
+}
+
+export class buttonCloseModal {
+  constructor(timerId,time,callback) {
+    this.time = time;
+    this.timerId=timerId;
+    this.callback=callback;
+    this.interval=null;
+    this.count=0;
+  }
+  startCountdown(time=0) {
+if(time){
+  this.count=time;
+}
+else{
+  this.count=this.time;
+}
+    if(this.interval){
+      clearInterval(this.interval);
+    }
+
+    this.interval = setInterval(() => {
+      let timer;
+      this.count--;
+      if (this.count>60){
+        let timerMinute=Math.floor(this.count/60);
+        let timerSec=this.count-timerMinute*60;
+        timer=timerMinute+" мин." + timerSec+" сек";
+
+      }else{
+        timer=this.count+" сек."
+      }
+      this.timerId.innerText = timer;
+
+      if (this.count <= 0) {
+        this.callback();
+        clearInterval(this.interval);
+
+      }
+    }, 1000);
+  }
+  changeTime(time){
+    this.count=time;
   }
 }

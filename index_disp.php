@@ -73,8 +73,8 @@ if (isset($user_id)) {
   <link rel="icon" type="image/png" href="favicon.ico">
   <script type="text/javascript" src="/js/tabulator.js"></script>
   <link href="/css/tabulator.css" rel="stylesheet">
-  <link href="/css/disp.css" rel="stylesheet">
-  <link href="/css/disp_main.css" rel="stylesheet">
+  <link href="/css/disp.css?v2-003" rel="stylesheet">
+  <link href="/css/disp_main.css?v2-003" rel="stylesheet">
 <!--  <script type="text/javascript" src="js/generic/config.js"></script>-->
 
   
@@ -138,7 +138,7 @@ if (isset($user_id)) {
       </section>
       <div class='body_dialog ' id="body_dialog"></div>
     </div><div class="modal_but">
-    <button id='close' data-type='close'>Закрыть</button>
+    <button id='close' data-type='close'>Закрыть <label class="button_close" id="closeTimer"></label></button>
     <button id='save' data-type='confirm' disabled>Сохранить </button></div>
   </dialog>
   <script type="text/javascript">
@@ -150,7 +150,7 @@ if (isset($user_id)) {
   </script>
 
 <canvas id="glcanvas" width="0" height="0"></canvas>
-<script type="module" src="/js/disp.js?v2"></script>
+<script type="module" src="/js/disp.js?v2-003"></script>
 
 </body>
 

@@ -1,6 +1,6 @@
 import { tableOpen, tableClose } from "./export/tabulatconfig.js";
-//import { createlist } from "./export/class.js";
-import { startAddressSelect, Select } from "./export/addCall.js";
+//import { createList } from "./export/class.js";
+import { startAddressSelect, Select, buttonCloseModal } from "./export/addCall.js";
 let webGL=hardWareInfo();
 const headMesage = document.getElementById("head_mesage");
 const headLoader = document.getElementById("loader_head");
@@ -44,6 +44,33 @@ const spinerDialog = '<div class="lds-dual-ring" id="spinerDialog"></div>'; // �
 const menu = document.getElementById("menu").getElementsByTagName("ul")[0];
 let quantityCalls = { open: 0, close: 0 }; // массив количества заявок
 let address=null; //объект для генерации адреса новой заявки
+
+let  timerModal=new buttonCloseModal(document.getElementById("closeTimer"),600,modalClose);
+function modalClose() {
+  //подчищаем все перед закрытием модалки
+  address=null;
+  bodyDialog.innerHTML='';
+  if (resetModalTimeOut){
+//если есть таймер для закрытия модалки то удаляем его
+    clearTimeout(resetModalTimeOut);
+  }
+timerModal.changeTime(0);
+  if (document.getElementById("menu_dialog-modal").checked)
+    clickButton("menu_dialog-modal");
+  if (closeDialog.hasAttribute("body")) bodyDialog.innerHTML = "";
+  saveDialog.disabled = true;
+  saveDialog.innerHTML = "Сохранить";
+  titleDialog.innerHTML = "";
+  changeCall.clear();
+  alertCapsUnblockAudio = true;
+  alertENUnblockAudio = true;
+  saveDialog.removeAttribute("action");
+  if (menuListModal.querySelector("ul")) {
+    let ul = menuListModal.querySelector("ul");
+    ul.remove();
+  }
+  dialog.close();
+}
 for (const list of menu.querySelectorAll("li")) {
   //console.log(list);
   list.addEventListener("click", clickMenu);
@@ -314,6 +341,9 @@ function showDialog(title=false, body=false) {
   if(title){titleDialog.innerText = title};
 
   if(body){closeDialog.setAttribute("body", body)};
+  //запускаем диологовое окно
+
+  timerModal.startCountdown(600);
   dialog.showModal();
 }
 function generatemenu(data, type) {
@@ -353,30 +383,7 @@ class ModalMenuItem {
     this.li.addEventListener("click", callback);
   }
 }
-function modalClose() {
-  //подчищаем все перед закрытием модалки
-  address=null;
-  bodyDialog.innerHTML='';
-  if (resetModalTimeOut){
-//если есть таймер для закрытия модалки то удаляем его
-clearTimeout(resetModalTimeOut);
-  }
-  if (document.getElementById("menu_dialog-modal").checked)
-    clickButton("menu_dialog-modal");
-  if (closeDialog.hasAttribute("body")) bodyDialog.innerHTML = "";
-  saveDialog.disabled = true;
-  saveDialog.innerHTML = "Сохранить";
-  titleDialog.innerHTML = "";
-  changeCall.clear();
-  alertCapsUnblockAudio = true;
-  alertENUnblockAudio = true;
-  saveDialog.removeAttribute("action");
-  if (menuListModal.querySelector("ul")) {
-    let ul = menuListModal.querySelector("ul");
-    ul.remove();
-  }
-  dialog.close();
-}
+
 // функция эмуляции клика
 function clickButton(id) {
   document.querySelector("#" + id).click();
@@ -626,21 +633,29 @@ function saveCallResult(getResponse) {
     if (dialog.open) {
       //если открыто диалоговое окно то сообщим на кнопки диалог
       saveDialog.innerHTML = "<span style='color:green'>Сохранено</span>";
-
+     if (timerModal){
+       timerModal.changeTime(10);
+     }else{
       resetModalTimeOut=setTimeout(() => {
         resetModalTimeOut=null;
         modalClose();
-      }, 20000);
+      }, 2000);
+     }
     }
     headMessageEcho(getResponse.message, 30000);
   } else {
     if (dialog.open) {
+
       //если открыто диалоговое окно то сообщим на кнопки диалог
       saveDialog.innerHTML = "<span style='color:red'>Ошибка</span>";
-      resetModalTimeOut=setTimeout(() => {
-        resetModalTimeOut=null;
-        modalClose();
-      }, 20000);
+      if (timerModal){
+        timerModal.changeTime(10);
+      }else{
+        resetModalTimeOut=setTimeout(() => {
+          resetModalTimeOut=null;
+          modalClose();
+        }, 2000);
+      }
       headMessageEcho(getResponse.message, 30000);
     }
   }
@@ -782,12 +797,7 @@ async function tockenAutorization(){
     }),
 })
 }
-function errorfetch(element, message, timer = 4000) {
-  element.innerHTML = message;
-  setTimeout(() => {
-    element.innerHTML = "";
-  }, timer);
-}
+
 function catcherrorfetch(error) {
   //console.log(error);
 }

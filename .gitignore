@@ -62,3 +62,7 @@ disp/test.php
 .idea/modules.xml
 .idea/e-rcs.local.iml
 .idea/dataSources.xml
+test.html
+.idea/inspectionProfiles/Project_Default.xml
+disp/logs/2023-04-11save_php_error.txt
+disp/logs/2023-04-12save_php_error.txt

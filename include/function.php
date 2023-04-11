@@ -336,7 +336,7 @@ function queryarr($type="0"){
      $name="city_name";
     }else {
       //получаем список сотрудников
-    $query="select user_id,user_name from lift_users where user_level<>1 order by user_name;";
+    $query="select user_id,user_name from lift_users where (user_level=2 OR user_level=0) AND user_block<>1 order by user_name;";
     $id="user_id";
     $name="user_name";
     
