@@ -54,6 +54,7 @@ class mainAddress {
     for (let index = 0; index < this.bread_crumbs.length; index++) {
       this.bread_crumbs[index] = document.createElement("div");
       this.bread_crumbs[index].classList.add("flex-box-title");
+      this.bread_crumbs[index].classList.add("scale");
       this.divTitleContainer.append(this.bread_crumbs[index]);
     }
     this.divObjectList = document.createElement("div");

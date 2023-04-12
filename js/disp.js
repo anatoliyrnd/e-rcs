@@ -72,22 +72,21 @@ timerModal.changeTime(0);
   dialog.close();
 }
 for (const list of menu.querySelectorAll("li")) {
-  //console.log(list);
   list.addEventListener("click", clickMenu);
 }
 setInterval(() => {
   //обновляем данные с сервера
   tableOpen.replaceData();
-    tableClose.replaceData();
+  tableClose.replaceData();
 }, timeLoadData);
 saveDialog.addEventListener("click", savecall, false);
 closeDialog.addEventListener("click", modalClose);
 dialog.addEventListener("cancel", modalClose);
-function startstep2(rezult) {
+function startStep2(result) {
   headMesage.innerHTML = "";
   headLoader.hidden = true;
-  if (rezult.status === "ok") {
-    adressData = rezult.message;
+  if (result.status === "ok") {
+    adressData = result.message;
 //console.log(adressData);
     document.getElementById("open_calls_table").hidden = false;
     headMessageEcho(
@@ -95,7 +94,7 @@ function startstep2(rezult) {
     );
   } else {
     headMesage.innerHTML =
-      rezult.message +
+      result.message +
       "<br> База адресов не загружена. Будет предпринята попытка получить локальную базу адресов ";
   }
 }
@@ -136,25 +135,26 @@ function viewMainBody(type) {
     );
   });
 }
-function start(rezult) {
+function start(result) {
   headMesage.innerHTML = "Конфигурация загруженна!";
   headLoader.hidden = true;
-  if (rezult.status === "ok") {
-    nav=rezult.message.nav;
-    selectData = rezult.message;
+  if (result.status === "ok") {
+    nav=result.message.nav;
+    selectData = result.message;
     setTimeout(() => {
       headMesage.innerHTML = "Загружаем базу адресов";
       headLoader.hidden = false;
-      fetchLoad("disp/loadconfig.php", '{"action":"loadadress"}', startstep2);
+      fetchLoad("disp/loadconfig.php", '{"action":"loadadress"}', startStep2);
     }, 500);
   } else {
     headMesage.innerHTML =
-      rezult.message +
+      result.message +
       "<br> Конфигурационные данные не загружены с сервера, будет предпринята попытка получить последние локальные данные ";
   }
 }
 
 function callNew(data = { nodata: true }) {
+
 saveDialog.setAttribute("action","callnew")
   address= new startAddressSelect(titleDialog,bodyDialog,adressData,next)
   address.city()// выбирем адрес 
@@ -170,10 +170,11 @@ saveDialog.setAttribute("action","callnew")
    bodyDialog.innerHTML="";
     callNewStep2();
   }
-  showDialog()    
+  showDialog(false,false,1200)
   }
 
 function callNewStep2() {
+  timerModal.changeTime(600);
   // создание новой заявки шаг 2 выбор разделов и срока ремонта
   let buttonNext = document.createElement("button");
   let divContainer = document.createElement("div");
@@ -232,6 +233,7 @@ function cardCreat(parent, labelText, content = "") {
 }
 
 function callNewStep3() {
+  timerModal.changeTime(1200);
   //создание новой заявки шаг 3 описание заявки
   bodyDialog.innerHTML = "";
   let body = document.createElement("div");
@@ -336,14 +338,14 @@ function callNote(data) {
   showDialog(title);
 }
 
-function showDialog(title=false, body=false) {
+function showDialog(title=false, body=false,timer=600) {
   //окончательная сборка модалки и ее вывод на экран
   if(title){titleDialog.innerText = title};
 
   if(body){closeDialog.setAttribute("body", body)};
   //запускаем диологовое окно
 
-  timerModal.startCountdown(600);
+  timerModal.startCountdown(timer);
   dialog.showModal();
 }
 function generatemenu(data, type) {
@@ -396,6 +398,7 @@ function geenrateBodyDialog(data, type) {
   for (let index in data) {
     let div = document.createElement("div");
     div.classList.add("grid-item");
+    console.log(index,data[index])
     if (type === 0) card = cardtemplate(index, data[index],data['type']);
     if (type === 1) card = cardTemplateEdit(index, data);
     if (!card) continue;
@@ -437,10 +440,10 @@ function cardTemplateNote(data) {
   return divreturn;
 }
 function cardtemplate(labelindex, data,type) {
+  //Генерация карточек к заявке
   //console.log(data);
   let name={};
-  //<div class="card"><div class="card-content"></div><label class="card_label animate__fadeIn" >label</label></div>
-  if (type==="open"){
+    if (type==="open"){
     name = {
     details: "Описание заявки",
     open_name: "Открыл заявку",
@@ -580,6 +583,7 @@ function cardTemplateEdit(index, fulldata) {
 }
 function checkTextarea(element) {
   //различные проверки поля текстареа
+  timerModal.changeTime(900);
   let caps = new RegExp("[А-Я]{4,}"); //
   let en = new RegExp("[A-Za-z]{3,}");
 

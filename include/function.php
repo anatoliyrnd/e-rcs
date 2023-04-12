@@ -1,4 +1,5 @@
 <?php
+$text_call_staff_status=Array("Не уведомлен","По телефону","В телеграмм","он-лайн");
 function echojson($data)
 {
     header('Content-type: application/json');

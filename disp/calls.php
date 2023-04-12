@@ -60,7 +60,6 @@ foreach ($calls_DB as $key => $value) {
     'id' => $value['call_id'],
     'adress' => $value['call_adres'],
     'repair_time' => date("d.m.Y@H:i", $value['expected_repair_time']),
-
     'details' => $value['call_details'],
     'staff_id' => $value['call_staff'],
     'department_id' => $value['call_department'],
@@ -69,10 +68,11 @@ foreach ($calls_DB as $key => $value) {
     
     
   ];
+  $staff_status_type=$text_call_staff_status[$value['call_staff_status']];
   if ($value['call_staff_date']) {
-    $call['staff_date'] = date("d.m.Y@H:i", $value['call_staff_date']);
+    $call['staff_date'] = date("d.m.Y@H:i", $value['call_staff_date'])." - ".$staff_status_type;
   } else {
-    $call['staff_date'] = "не уведомлен";
+    $call['staff_date'] = "Не уведомлен";
   }
 
   if ($action == "open") {
