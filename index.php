@@ -14,7 +14,7 @@ $_SESSION['auth'] = md5(uniqid(microtime()));
 <meta name="description" content="Электронный журнал заявок по ремнту лифтов ->" />
 <meta name="author" content="Zamotaev Anatoliy" />
 <script type="text/javascript" src="js/mobile-detect.min.js"></script>
-<link rel="stylesheet" href="./css/index.css?v1.001" /> 
+<link rel="stylesheet" href="./css/index.css?v1.002" /> 
 <style>
   * {
     box-sizing: border-box;
@@ -126,7 +126,7 @@ Spinner
               <label for="pass" class="placeholder">Пароль</label>
             </div>
            
-            <button type="text" id="login" class="submit">Войти</button>
+            <button type="text" id="login" class="submit" disabled>Войти</button>
 
             <div class="inputGroup">
                 <input id="autoLogin" name="option1" type="checkbox"/>
@@ -134,7 +134,8 @@ Spinner
               </div>
           </div>
     </div>
-<script src="./js/index.js"></script>
+    <canvas id="glcanvas" width="0" height="0"></canvas>
+<script src="./js/index.js?v2.002"></script>
 </body>
 <!-- (c) Zamotaev Anatoliy Nikolaevich -->
 </html>

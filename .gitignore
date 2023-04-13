@@ -63,7 +63,11 @@ disp/test.php
 .idea/e-rcs.local.iml
 .idea/dataSources.xml
 test.html
+<<<<<<< HEAD
 .idea/prettier.xml
+=======
+>>>>>>> bet1.1
 .idea/inspectionProfiles/Project_Default.xml
 disp/logs/2023-04-11save_php_error.txt
 disp/logs/2023-04-12save_php_error.txt
+logs/loginerror04_23.txt

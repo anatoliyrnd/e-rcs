@@ -1,9 +1,9 @@
-export class createlist {
+export class createList {
     // класс для создания списка объектов
    #list = [];
    #inputSerch;
    #buttonNext;
-   #divinput;
+   #divInput;
     constructor(arrayList, type, parentType, parentList, parentTitle) {
       this.array = arrayList;
       this.type = type;
@@ -21,11 +21,11 @@ export class createlist {
      * @param {any} HTML
      */
     set divname(HTML){
-  this.#divinput.innerHTML=HTML;
+  this.#divInput.innerHTML=HTML;
     }
     generateTitle(callback){
-      this.#divinput=document.createElement('div');
-      this.#divinput.classList.add("div_add_new_input");
+      this.#divInput=document.createElement('div');
+      this.#divInput.classList.add("div_add_new_input");
       this.#inputSerch=document.createElement('input');
       this.#inputSerch.classList.add("input_title");
       this.#buttonNext=document.createElement('button');
@@ -33,9 +33,9 @@ export class createlist {
       this.#buttonNext.innerText="Далее";
       this.#buttonNext.disabled=true;
       //console.log(this.#inputSerch,this.#buttonNext);
-      this.parentTitle.append(this.#divinput);
-      this.#divinput.append(this.#inputSerch);
-      this.#divinput.append(this.#buttonNext);
+      this.parentTitle.append(this.#divInput);
+      this.#divInput.append(this.#inputSerch);
+      this.#divInput.append(this.#buttonNext);
       this.parentList.className="addnewcall_conteiner addnewcall_conteiner_"+this.type;
       this.generateList();
       this.#buttonNext.addEventListener('click',callback);

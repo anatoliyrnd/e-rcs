@@ -2,12 +2,25 @@ const params = new Proxy(new URLSearchParams(window.location.search), {
     get: (searchParams, prop) => searchParams.get(prop),
 });
 // Get the value of "some_key" in eg "https://example.com/?some_key=some_value"
+const webGL=hardWareInfo();
+let username = document.getElementById("username");
+const pass = document.getElementById("pass");
+const button = document.getElementById("login");
+username.addEventListener("input",checkInput)
+pass.addEventListener('input',checkInput)
+function checkInput(){
+    if(username.value.length<3 || pass.value.length<3){
+       button.disabled=true; 
+    }else{
+        button.disabled=false;
+    }
+}
 let tokenAuth = params.e; // "some_value"
 if (tokenAuth) {
     localData("exit");
 }
 let detect = new MobileDetect(window.navigator.userAgent);
-const button = document.getElementById("login");
+
 let mobile = detect.mobile();
 
 let localSt = localData();
@@ -27,7 +40,8 @@ if (localSt) {
         body: JSON.stringify({
             id: localSt['id'],
             token: localSt['token'],
-            mobile: mobile
+            mobile: mobile,
+            webGL: webGL
         }),
     })
         .then((response) => response.json())
@@ -61,17 +75,11 @@ button.addEventListener("click", login,true);
 
 function login(Event) {
     Event.preventDefault();
-    let username = document.getElementById("username").value;
-    let pass = document.getElementById("pass").value;
+   
     let autoLogin=document.getElementById("autoLogin").checked;
     button.classList.add("button--loading");
     button.disabled = true;
-    console.log(JSON.stringify({
-        name: username,
-        pname: pass,
-        mobile: mobile,
-        autoLogin:autoLogin
-    }))
+    //console.log(JSON.stringify( name: username.value,pname: pass.value,mobile: mobile,webGL: webGL,autoLogin:autoLogin}))
     fetch("login2.php", {
 
 
@@ -82,10 +90,11 @@ function login(Event) {
         },
         //make sure to serialize your JSON body
         body: JSON.stringify({
-            name: username,
-            pname: pass,
-            mobile: mobile,
-            autoLogin:autoLogin
+            name: username.value,
+        pname: pass.value,
+        mobile: mobile,
+        webGL: webGL,
+        autoLogin:autoLogin
         }),
     })
         .then((response) => response.json())
@@ -196,4 +205,14 @@ function localData(type = '', token = '', id = '', name = '') {
             return false;
         }
     }
+}
+function hardWareInfo(){
+    const canvas = document.getElementById("glcanvas");
+let gl=canvas.getContext("experimental-webgl");
+let dbgRenderInfo = gl.getExtension("WEBGL_debug_renderer_info")
+if(dbgRenderInfo!=null){
+            let info=gl.getParameter(dbgRenderInfo.UNMASKED_RENDERER_WEBGL);   
+  console.log(info)
+             return info;        }
+
 }

@@ -8,7 +8,7 @@ include("include/function.php");
   $nacl = nacl($user_id);
 
   if ($nacl != $user_nacl) {
-    echo "Ошибка авторизации <a href='/index.php'>На главную</a>";
+    echo "Ошибка авторизации i_d <a href='/index.php'>На главную</a>";
    exit;
   }
  } else {
@@ -73,9 +73,9 @@ if (isset($user_id)) {
   <link rel="icon" type="image/png" href="favicon.ico">
   <script type="text/javascript" src="/js/tabulator.js"></script>
   <link href="/css/tabulator.css" rel="stylesheet">
-  <link href="/css/disp.css" rel="stylesheet">
-  <link href="/css/disp_main.css" rel="stylesheet">
-  <script type="text/javascript" src="js/generic/config.js"></script>
+  <link href="/css/disp.css?v2-003" rel="stylesheet">
+  <link href="/css/disp_main.css?v2-003" rel="stylesheet">
+<!--  <script type="text/javascript" src="js/generic/config.js"></script>-->
 
   
 
@@ -110,7 +110,7 @@ if (isset($user_id)) {
           </ul>
         </div>
       </div>
-      <div class="head_mesage" ><span id="head_mesage" >head</span>     <div class="loader-head" id="loader_head">
+      <div class="head_message" ><span id="head_message" >head </span>   <div class="loader-head" id="loader_head">
         <div class="circle-head"></div>
         <div class="circle-head"></div>
         <div class="circle-head"></div>
@@ -138,7 +138,7 @@ if (isset($user_id)) {
       </section>
       <div class='body_dialog ' id="body_dialog"></div>
     </div><div class="modal_but">
-    <button id='close' data-type='close'>Закрыть</button>
+    <button id='close' data-type='close'>Закрыть <label class="button_close" id="closeTimer"></label></button>
     <button id='save' data-type='confirm' disabled>Сохранить </button></div>
   </dialog>
   <script type="text/javascript">
@@ -149,9 +149,9 @@ if (isset($user_id)) {
 
   </script>
 
-
-<script type="module" src="/js/disp.js"></script>
-
+<canvas id="glcanvas" width="0" height="0"></canvas>
+<script type="module" src="/js/disp.js?v2-003"></script>
+<div id="countdownBar" class="countdownBar hidden"></div>;
 </body>
 
 </html>

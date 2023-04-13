@@ -1,8 +1,13 @@
-import { tableOpen, tableClose, Select } from "./export/tabulatconfig.js";
-import { createlist } from "./export/class.js";
-const headMesage = document.getElementById("head_mesage");
+import { tableOpen, tableClose } from "./export/tabulatconfig.js";
+//import { createList } from "./export/class.js";
+import { startAddressSelect, Select, timerCountDown } from "./export/addCall.js";
+let webGL=hardWareInfo();
+const headMessage = document.getElementById("head_message");
 const headLoader = document.getElementById("loader_head");
-
+const timeLoadDataDefoult=20000
+let timeLoadData=timeLoadDataDefoult;// Интервал обновления данных
+let numErrorReload;// счетчик ошибок авторизации
+let nav=[];
 let selectData = {
   department: {},
   group: {},
@@ -12,15 +17,18 @@ let selectData = {
 };
 let adressData = {};
 
-{
-  headMesage.innerHTML = "Загружаем основные конфигурационные данные";
 
-  let url = "/disp/loadconfig.php";
+{
+  headMessage.innerHTML = "Загружаем основные конфигурационные данные";
+
+  const url = "/disp/loadconfig.php";
   fetchLoad(url, '{"action":"loadstartdate"}', start);
 }
 const svgstaff =
   '<span class="checkbox__checker"></span><span class="checkbox__txt-left">Да</span><span class="checkbox__txt-right">Нет</span><span class="checkbox__bg"><?xml version="1.0" ?><svg  viewBox="0 0 110 43.76" xmlns="http://www.w3.org/2000/svg"><path d="M88.256,43.76c12.188,0,21.88-9.796,21.88-21.88S100.247,0,88.256,0c-15.745,0-20.67,12.281-33.257,12.281,S38.16,0,21.731,0C9.622,0-0.149,9.796-0.149,21.88s9.672,21.88,21.88,21.88c17.519,0,20.67-13.384,33.263-13.384,S72.784,43.76,88.256,43.76z"/></svg><span>';
 //global variabl
+const bar= document.getElementById("countdownBar");
+
 let changeCall = new Map(); // массив с внесенными изменениями
 let alertCapsUnblockAudio = true; // флаг возможности воспроизвести сообщение о включенном Капслок
 let alertENUnblockAudio = true; // флаг возможности воспроизвести сообщение об английской раскладке
@@ -38,31 +46,62 @@ const mainBody = document.getElementById("main_body"); // контент гла�
 const spinerDialog = '<div class="lds-dual-ring" id="spinerDialog"></div>'; // спинер кнопки сохранить диалогового окна
 const menu = document.getElementById("menu").getElementsByTagName("ul")[0];
 let quantityCalls = { open: 0, close: 0 }; // массив количества заявок
+let address=null; //объект для генерации адреса новой заявки
+document.addEventListener("click",clickMouse)
+const  timerModal=new timerCountDown(document.getElementById("closeTimer"),600,modalClose,'time');// timer button close modal
+const timerDownCloseCalls = new timerCountDown(bar,120, viewMainBody,'bar');// top  timer
+function clickMouse(){
+timerDownCloseCalls.reset();
+}
+function modalClose() {
+  //подчищаем все перед закрытием модалки
+  address=null;
+  bodyDialog.innerHTML='';
+  if (resetModalTimeOut){
+//если есть таймер для закрытия модалки то удаляем его
+    clearTimeout(resetModalTimeOut);
+  }
+timerModal.changeTime(0);
+  if (document.getElementById("menu_dialog-modal").checked)
+    clickButton("menu_dialog-modal");
+  if (closeDialog.hasAttribute("body")) bodyDialog.innerHTML = "";
+  saveDialog.disabled = true;
+  saveDialog.innerHTML = "Сохранить";
+  titleDialog.innerHTML = "";
+  changeCall.clear();
+  alertCapsUnblockAudio = true;
+  alertENUnblockAudio = true;
+  saveDialog.removeAttribute("action");
+  if (menuListModal.querySelector("ul")) {
+    let ul = menuListModal.querySelector("ul");
+    ul.remove();
+  }
+  dialog.close();
+}
 for (const list of menu.querySelectorAll("li")) {
-  //console.log(list);
   list.addEventListener("click", clickMenu);
 }
 setInterval(() => {
   //обновляем данные с сервера
   tableOpen.replaceData();
-    tableClose.replaceData();
-}, 20000);
+  tableClose.replaceData();
+}, timeLoadData);
 saveDialog.addEventListener("click", savecall, false);
 closeDialog.addEventListener("click", modalClose);
 dialog.addEventListener("cancel", modalClose);
-function startstep2(rezult) {
-  headMesage.innerHTML = "";
+function startStep2(result) {
+  headMessage.innerHTML = "";
   headLoader.hidden = true;
-  if (rezult.status === "ok") {
-    adressData = rezult.message;
+  if (result.status === "ok") {
+    adressData = result.message;
 //console.log(adressData);
     document.getElementById("open_calls_table").hidden = false;
     headMessageEcho(
       `Сейчас Вы просматриваете открытые заявки<br>Открытых заявок - ${quantityCalls.open} . Закрытых за последние 24 час - ${quantityCalls.close}`
     );
   } else {
-    headMesage.innerHTML =
-      rezult.message +
+    headMessage.innerHTML =
+      result.message +
       "<br> База адресов не загружена. Будет предпринята попытка получить локальную базу адресов ";
   }
 }
@@ -70,6 +109,7 @@ function clickMenu() {
   //console.log(this.getAttribute("name"));
   toggle_head.classList.remove("open");
   document.getElementById("menu").classList.remove("opened");
+  timerDownCloseCalls.stop();
   switch (this.getAttribute("name")) {
     case "clickMenu-newCall":
       callNew();
@@ -85,11 +125,12 @@ function clickMenu() {
       break;
   }
 }
-function viewMainBody(type) {
+function viewMainBody(type="open") {
   const title = {
     open: "открытые заявки",
     close: "закрытые заявки",
   };
+  if (type==='close')timerDownCloseCalls.startCountdown();
   let list = mainBody.querySelectorAll(".mainchild");
   list.forEach((element) => {
     //console.log(element.getAttribute("name"), type);
@@ -103,135 +144,46 @@ function viewMainBody(type) {
     );
   });
 }
-function start(rezult) {
-  headMesage.innerHTML = "Конфигурация загруженна!";
+function start(result) {
+  headMessage.innerHTML = "Конфигурация загруженна!";
   headLoader.hidden = true;
-  if (rezult.status === "ok") {
-    selectData = rezult.message;
+  if (result.status === "ok") {
+    nav=result.message.nav;
+    selectData = result.message;
     setTimeout(() => {
-      headMesage.innerHTML = "Загружаем базу адресов";
+      headMessage.innerHTML = "Загружаем базу адресов";
       headLoader.hidden = false;
-      fetchLoad("disp/loadconfig.php", '{"action":"loadadress"}', startstep2);
+      fetchLoad("disp/loadconfig.php", '{"action":"loadadress"}', startStep2);
     }, 500);
   } else {
-    headMesage.innerHTML =
-      rezult.message +
+    headMessage.innerHTML =
+      result.message +
       "<br> Конфигурационные данные не загружены с сервера, будет предпринята попытка получить последние локальные данные ";
   }
 }
 
 function callNew(data = { nodata: true }) {
-  let addNewCallData = []; //масив для адреса новой заявки
-  //создание модального окна для редактирования заявки
-  let title = "Создание новой заявки->Выбирите город";
-  let adressDiv = document.createElement("div");
-  let adressList = document.createElement("div");
-  //console.log(data);
-  if (data.nodata) {
-  } else {
-    let ul = generatemenu(data, 4);
-    menuListModal.append(ul);
-  }
-  saveDialog.setAttribute("action", "callnew");
-  showDialog(title, true);
-  bodyDialog.append(adressDiv);
-  bodyDialog.append(adressList);
 
-  let city = new createlist(
-    adressData.city,
-    "city",
-    "none",
-    adressList,
-    adressDiv
-  );
-  let street = new createlist(
-    adressData.street,
-    "street",
-    "city_id",
-    adressList,
-    adressDiv
-  );
-  let home = new createlist(
-    adressData.home,
-    "home",
-    "street_id",
-    adressList,
-    adressDiv
-  );
-  let lift = new createlist(
-    adressData.lift,
-    "object",
-    "home_id",
-    adressList,
-    adressDiv
-  );
-
-  city.fullList(0);
-  city.generateTitle(cityclick);
-
-  function cityclick() {
-    //выбрали город
-    addNewCallData["city"] = { id: city.id, name: city.value };
-    title = addNewCallData.city.name + " ->Выбирите улицу";
-    titleDialog.innerHTML = title;
-    city.divname = "";
-    street.fullList(city.id);
-    street.generateTitle(streetclick);
-  }
-  function streetclick() {
-    //выбрали улицу
-    addNewCallData["street"] = { id: street.id, name: street.value };
-    title =
-      addNewCallData.city.name +
-      " - " +
-      addNewCallData.street.name +
-      " ->Выбирите дом";
-    titleDialog.innerHTML = title;
-    street.divname = "";
-    home.fullList(street.id);
-    home.generateTitle(homeclick);
-  }
-  function homeclick() {
-    //выбрали дом
-    addNewCallData["home"] = { id: home.id, name: home.value };
-    title =
-      addNewCallData.city.name +
-      " - " +
-      addNewCallData.street.name +
-      " Дом№ " +
-      addNewCallData.home.name +
-      " -> Выбирите лифт";
-    home.divname = "";
-    titleDialog.innerHTML = title;
-    //console.log(addNewCallData);
-    //console.log(home.id);
-    lift.fullList(home.id);
-    lift.generateTitle(liftclick);
-  }
-  function liftclick() {
-    //создали полный адресс заявки
-    addNewCallData["object"] = { id: lift.id, name: lift.value };
-    title =
-      addNewCallData.city.name +
-      " - " +
-      addNewCallData.street.name +
-      " Дом№ " +
-      addNewCallData.home.name +
-      " - " +
-      addNewCallData.object.name;
-    titleDialog.innerHTML = title;
-    lift.divname = "";
-    adressList.innerHTML = "";
-    //console.log(addNewCallData);
-    changeCall.set("city", addNewCallData.city.id);
-    changeCall.set("street", addNewCallData.street.id);
-    changeCall.set("home", addNewCallData.home.id);
-    changeCall.set("object", addNewCallData.object.id);
-    changeCall.set("fullAdress", title);
+saveDialog.setAttribute("action","callnew")
+  address= new startAddressSelect(titleDialog,bodyDialog,adressData,next)
+  address.city()// выбирем адрес 
+  function next(addressCall){
+    //получим массив с адресом по заявке 
+    changeCall.set("city", addressCall[0]);
+    changeCall.set("street", addressCall[1]);
+    changeCall.set("home", addressCall[2]);
+    changeCall.set("object", addressCall[3]);
+    changeCall.set("fullAdress", addressCall[4]);
+    address=null;
+   titleDialog.innerHTML=addressCall[4];
+   bodyDialog.innerHTML="";
     callNewStep2();
   }
-}
+  showDialog(false,false,1200)
+  }
+
 function callNewStep2() {
+  timerModal.changeTime(600);
   // создание новой заявки шаг 2 выбор разделов и срока ремонта
   let buttonNext = document.createElement("button");
   let divContainer = document.createElement("div");
@@ -251,6 +203,24 @@ function callNewStep2() {
   bodyDialog.append(divContainer);
   bodyDialog.append(buttonNext);
 }
+function creatSelectCard(selectlist, parent, button, length = 0) {
+  //создаем список выбора
+  let control = [];
+  for (const key in selectlist) {
+    const element = selectlist[key];
+    let cardContent = cardCreat(parent, element);
+    let select = new Select(key, "select");
+    select.appendTo(cardContent, selectData[key], 0, function () {
+      this.classList.add("change_select");
+      control[key] = true;
+      changeCall.set(key, this.value);
+      if (Object.keys(control).length >= length) {
+        button.disabled = false;
+      }
+    });
+  }
+}
+
 function cardCreat(parent, labelText, content = "") {
   //создание ячейки сетки
   let div = document.createElement("div");
@@ -270,25 +240,9 @@ function cardCreat(parent, labelText, content = "") {
   cardContent.innerHTML = content;
   return cardContent;
 }
-function creatSelectCard(selectlist, parent, button, length = 0) {
-  //создаем список выбора
-  let control = [];
-  for (const key in selectlist) {
-    const element = selectlist[key];
-    let cardContent = cardCreat(parent, element);
-    let select = new Select(key, "select");
-    select.appendTo(cardContent, selectData[key], 0, function () {
-      this.classList.add("change_select");
-      control[key] = true;
-      changeCall.set(key, this.value);
-      if (Object.keys(control).length >= length) {
-        button.disabled = false;
-      }
-      //addNewCallData[index]{nam this.value};
-    });
-  }
-}
+
 function callNewStep3() {
+  timerModal.changeTime(1200);
   //создание новой заявки шаг 3 описание заявки
   bodyDialog.innerHTML = "";
   let body = document.createElement("div");
@@ -339,9 +293,10 @@ function callNewStep3() {
 
 function callViewer(data) {
   //создание модального окна для просмотра заявки
-  let title = data["adress"] + " Просмотр";
+let title=data["adress"];
+ title += data['type']==='close'?"<span style='color:red'> Заявка закрыта</span>":" Просмотр";
 
-  let body = geenrateBodyDialog(data, 0);
+  let body = generateBodyDialog(data, 0);
   bodyDialog.append(body);
   if (data["type"] === "open") {
     let ul = generatemenu(data, 0);
@@ -349,7 +304,7 @@ function callViewer(data) {
   }
 
   saveDialog.removeAttribute("action");
-  showDialog(title, true);
+  showDialog(title, true,1200);
   saveDialog.disabled = true;
 }
 
@@ -358,7 +313,7 @@ function callEdit(data) {
   //создание модального окна для редактирования заявки
   let title = data["adress"] + " Редактирование";
   let ul = generatemenu(data, 1);
-  let body = geenrateBodyDialog(data, 1);
+  let body = generateBodyDialog(data, 1);
   bodyDialog.append(body);
   menuListModal.append(ul);
   saveDialog.setAttribute("action", "calledit");
@@ -393,11 +348,14 @@ function callNote(data) {
   showDialog(title);
 }
 
-function showDialog(title, body) {
+function showDialog(title='', body='',timer=600) {
   //окончательная сборка модалки и ее вывод на экран
-  titleDialog.innerText = title;
+  if(title){titleDialog.innerHTML = title};
 
-  closeDialog.setAttribute("body", body);
+  if(body){closeDialog.setAttribute("body", body)};
+  //запускаем диологовое окно
+
+  timerModal.startCountdown(timer);
   dialog.showModal();
 }
 function generatemenu(data, type) {
@@ -414,6 +372,7 @@ function generatemenu(data, type) {
   let ul = document.createElement("ul");
   ul.classList.add("menu_dialog");
   for (let key = 0; key < typetext.length; key++) {
+    console.log(nav[key]);
     if (key == type) continue; //если уже находимся в нужном месте
     if (!nav[key]) continue; // если пользователю запрещен доступ к этому поункто то идем далее
     new ModalMenuItem(typetext[key]).appendTo(ul, function () {
@@ -436,33 +395,12 @@ class ModalMenuItem {
     this.li.addEventListener("click", callback);
   }
 }
-function modalClose() {
-  //подчищаем все перед закрытием модалки
-  if (resetModalTimeOut){
-//если есть таймер для закрытия модалки то удаляем его
-clearTimeout(resetModalTimeOut);
-  }
-  if (document.getElementById("menu_dialog-modal").checked)
-    clickButton("menu_dialog-modal");
-  if (closeDialog.hasAttribute("body")) bodyDialog.innerHTML = "";
-  saveDialog.disabled = true;
-  saveDialog.innerHTML = "Сохранить";
-  titleDialog.innerHTML = "";
-  changeCall.clear();
-  alertCapsUnblockAudio = true;
-  alertENUnblockAudio = true;
-  saveDialog.removeAttribute("action");
-  if (menuListModal.querySelector("ul")) {
-    let ul = menuListModal.querySelector("ul");
-    ul.remove();
-  }
-  dialog.close();
-}
+
 // функция эмуляции клика
 function clickButton(id) {
   document.querySelector("#" + id).click();
 }
-function geenrateBodyDialog(data, type) {
+function generateBodyDialog(data, type) {
   //<div class="grid-item">1</div>
   let card = false;
   let divContainer = document.createElement("div");
@@ -470,6 +408,7 @@ function geenrateBodyDialog(data, type) {
   for (let index in data) {
     let div = document.createElement("div");
     div.classList.add("grid-item");
+    console.log(index,data[index],data)
     if (type === 0) card = cardtemplate(index, data[index],data['type']);
     if (type === 1) card = cardTemplateEdit(index, data);
     if (!card) continue;
@@ -511,10 +450,10 @@ function cardTemplateNote(data) {
   return divreturn;
 }
 function cardtemplate(labelindex, data,type) {
+  //Генерация карточек к заявке
   //console.log(data);
   let name={};
-  //<div class="card"><div class="card-content"></div><label class="card_label animate__fadeIn" >label</label></div>
-  if (type==="open"){
+    if (type==="open"){
     name = {
     details: "Описание заявки",
     open_name: "Открыл заявку",
@@ -654,6 +593,7 @@ function cardTemplateEdit(index, fulldata) {
 }
 function checkTextarea(element) {
   //различные проверки поля текстареа
+  timerModal.changeTime(900);
   let caps = new RegExp("[А-Я]{4,}"); //
   let en = new RegExp("[A-Za-z]{3,}");
 
@@ -707,33 +647,41 @@ function saveCallResult(getResponse) {
     if (dialog.open) {
       //если открыто диалоговое окно то сообщим на кнопки диалог
       saveDialog.innerHTML = "<span style='color:green'>Сохранено</span>";
-
+     if (timerModal){
+       timerModal.changeTime(10);
+     }else{
       resetModalTimeOut=setTimeout(() => {
         resetModalTimeOut=null;
         modalClose();
-      }, 20000);
+      }, 2000);
+     }
     }
     headMessageEcho(getResponse.message, 30000);
   } else {
     if (dialog.open) {
+
       //если открыто диалоговое окно то сообщим на кнопки диалог
       saveDialog.innerHTML = "<span style='color:red'>Ошибка</span>";
-      resetModalTimeOut=setTimeout(() => {
-        resetModalTimeOut=null;
-        modalClose();
-      }, 20000);
+      if (timerModal){
+        timerModal.changeTime(10);
+      }else{
+        resetModalTimeOut=setTimeout(() => {
+          resetModalTimeOut=null;
+          modalClose();
+        }, 2000);
+      }
       headMessageEcho(getResponse.message, 30000);
     }
   }
 }
-function headMessageEcho(message, time = 0) {
+function headMessageEcho(message, time = 1000) {
   if (!Boolean(time)) {
-    let oldText = headMesage.innerHTML;
+    let oldText = headMessage.innerHTML;
     setTimeout(() => {
-      headMesage.innerHTML = oldText;
+      headMessage.innerHTML = oldText;
     }, time);
   }
-  headMesage.innerHTML = message;
+  headMessage.innerHTML = message;
 }
 function openCallsTab() {}
 tableClose.on("dataProcessed", function () {
@@ -741,6 +689,8 @@ tableClose.on("dataProcessed", function () {
 });
 //данные загружены, обработаны, и сформированы
 tableOpen.on("dataProcessed", function () {
+  numErrorReload=0;
+  timeLoadData=timeLoadDataDefoult;
   quantityCalls.open = tableOpen.getDataCount();
 });
 
@@ -751,7 +701,15 @@ tableClose.on("rowClick", function (e, row) {
 
   //  alert("Row " + row.getIndex() + " Clicked!!!!"+on.com)
 });
-
+tableOpen.on("dataLoadError", function(error){
+  numErrorReload++;
+  timeLoadData+=numErrorReload*1000;
+if (timeLoadData>=1100000)timeLoadData=1100000;
+  let text='<svg width="22" height="22" enable-background="new 0 0 16 16" version="1.1" xml:space="preserve"> <defs>  <symbol height="24" id="svg_1" width="24" >  </defs>  <g class="layer">   <title>Layer 1</title>   <use fill="#00ff00" id="svg_2" transform="matrix(1.39878 0 0 1.39878 3.48517 43.7184)" x="6" xlink:href="#svg_1" y="7"/>     <circle cx="10.66" cy="10.38" fill="#ff0000" id="svg_5" r="8" stroke="#000000"/>  </g> </svg>'+user_name+"-"+error; 
+  info.innerHTML = text;
+  tockenAutorization();
+  //error - the returned error object
+});
 tableOpen.on("rowClick", function (e, row) {
   //ловим клик по строке
   let on = row.getData();
@@ -766,8 +724,7 @@ tableOpen.on("rowTap", function (e, row) {
 });
 tableOpen.on("dataLoaded", function (data) {
   //data has been loaded
-  let actualtime =
-  user_name+"  ->  Данные актуальны по состоянию на - " + new Date().toLocaleString() ;
+  let actualtime = '<svg width="22" height="22" enable-background="new 0 0 16 16" version="1.1" xml:space="preserve"> <defs>  <symbol height="24" id="svg_1" width="24" >  </defs>  <g class="layer">   <title>Layer 1</title>   <use fill="#00ff00" id="svg_2" transform="matrix(1.39878 0 0 1.39878 3.48517 43.7184)" x="4" xlink:href="#svg_1" y="7"/>     <circle cx="10.66" cy="10.38" fill="#00ff00" id="svg_5" r="8" stroke="#000000"/>  </g> </svg>'+user_name+'  ->  Данные актуальны по состоянию на - ' + new Date().toLocaleString() ;
   info.innerHTML = actualtime;
 });
 tableOpen.on("rowContext", function (e, row) {
@@ -827,13 +784,43 @@ async function fetchLoad(url, data, callback) {
     callback({ status: "error", message: "Глобальная ошибка!" + err });
   }
 }
+async function tockenAutorization(){
+  let storage = window['localStorage']
+  let login = [];
 
-function errorfetch(element, message, timer = 4000) {
-  element.innerHTML = message;
-  setTimeout(() => {
-    element.innerHTML = "";
-  }, timer);
+  login['token'] = storage.getItem('token');
+  if (login['token']?.length != 32) {
+    console.log("tokenerror");
+      return false;
+  }
+  login['id'] = storage.getItem('id');
+  login['username'] = storage.getItem('name');
+
+  fetch("login2.php", {
+    
+    method: "post",
+    headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+        id: login['id'],
+        token: login['token'],
+        mobile: false,
+        webGL:webGL
+    }),
+})
 }
+
 function catcherrorfetch(error) {
   //console.log(error);
+}
+function hardWareInfo(){
+  const canvas = document.getElementById("glcanvas");
+let gl=canvas.getContext("experimental-webgl");
+let dbgRenderInfo = gl.getExtension("WEBGL_debug_renderer_info")
+if(dbgRenderInfo!=null){
+          let info=gl.getParameter(dbgRenderInfo.UNMASKED_RENDERER_WEBGL);   
+           return info;        }
+
 }

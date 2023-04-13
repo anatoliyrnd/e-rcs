@@ -14,7 +14,7 @@ if (isset($user_id)) {
         $log = " (nacl)$nacl - (user-nacl) " . $user_nacl . " ";
         logsave($log, "save_php_error");
         $response['status']  = 'error';
-        $response['message'] .= "ошибка авторизации";
+        $response['message'] .= "ошибка авторизации2";
         echojson($response);
     }
 } else {
