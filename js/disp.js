@@ -1,8 +1,8 @@
 import { tableOpen, tableClose } from "./export/tabulatconfig.js";
 //import { createList } from "./export/class.js";
-import { startAddressSelect, Select, buttonCloseModal } from "./export/addCall.js";
+import { startAddressSelect, Select, timerCountDown } from "./export/addCall.js";
 let webGL=hardWareInfo();
-const headMesage = document.getElementById("head_mesage");
+const headMessage = document.getElementById("head_message");
 const headLoader = document.getElementById("loader_head");
 const timeLoadDataDefoult=20000
 let timeLoadData=timeLoadDataDefoult;// Интервал обновления данных
@@ -17,8 +17,9 @@ let selectData = {
 };
 let adressData = {};
 
+
 {
-  headMesage.innerHTML = "Загружаем основные конфигурационные данные";
+  headMessage.innerHTML = "Загружаем основные конфигурационные данные";
 
   const url = "/disp/loadconfig.php";
   fetchLoad(url, '{"action":"loadstartdate"}', start);
@@ -26,6 +27,8 @@ let adressData = {};
 const svgstaff =
   '<span class="checkbox__checker"></span><span class="checkbox__txt-left">Да</span><span class="checkbox__txt-right">Нет</span><span class="checkbox__bg"><?xml version="1.0" ?><svg  viewBox="0 0 110 43.76" xmlns="http://www.w3.org/2000/svg"><path d="M88.256,43.76c12.188,0,21.88-9.796,21.88-21.88S100.247,0,88.256,0c-15.745,0-20.67,12.281-33.257,12.281,S38.16,0,21.731,0C9.622,0-0.149,9.796-0.149,21.88s9.672,21.88,21.88,21.88c17.519,0,20.67-13.384,33.263-13.384,S72.784,43.76,88.256,43.76z"/></svg><span>';
 //global variabl
+const bar= document.getElementById("countdownBar");
+
 let changeCall = new Map(); // массив с внесенными изменениями
 let alertCapsUnblockAudio = true; // флаг возможности воспроизвести сообщение о включенном Капслок
 let alertENUnblockAudio = true; // флаг возможности воспроизвести сообщение об английской раскладке
@@ -44,8 +47,12 @@ const spinerDialog = '<div class="lds-dual-ring" id="spinerDialog"></div>'; // �
 const menu = document.getElementById("menu").getElementsByTagName("ul")[0];
 let quantityCalls = { open: 0, close: 0 }; // массив количества заявок
 let address=null; //объект для генерации адреса новой заявки
-
-let  timerModal=new buttonCloseModal(document.getElementById("closeTimer"),600,modalClose);
+document.addEventListener("click",clickMouse)
+const  timerModal=new timerCountDown(document.getElementById("closeTimer"),600,modalClose,'time');// timer button close modal
+const timerDownCloseCalls = new timerCountDown(bar,120, viewMainBody,'bar');// top  timer
+function clickMouse(){
+timerDownCloseCalls.reset();
+}
 function modalClose() {
   //подчищаем все перед закрытием модалки
   address=null;
@@ -83,7 +90,7 @@ saveDialog.addEventListener("click", savecall, false);
 closeDialog.addEventListener("click", modalClose);
 dialog.addEventListener("cancel", modalClose);
 function startStep2(result) {
-  headMesage.innerHTML = "";
+  headMessage.innerHTML = "";
   headLoader.hidden = true;
   if (result.status === "ok") {
     adressData = result.message;
@@ -93,7 +100,7 @@ function startStep2(result) {
       `Сейчас Вы просматриваете открытые заявки<br>Открытых заявок - ${quantityCalls.open} . Закрытых за последние 24 час - ${quantityCalls.close}`
     );
   } else {
-    headMesage.innerHTML =
+    headMessage.innerHTML =
       result.message +
       "<br> База адресов не загружена. Будет предпринята попытка получить локальную базу адресов ";
   }
@@ -102,6 +109,7 @@ function clickMenu() {
   //console.log(this.getAttribute("name"));
   toggle_head.classList.remove("open");
   document.getElementById("menu").classList.remove("opened");
+  timerDownCloseCalls.stop();
   switch (this.getAttribute("name")) {
     case "clickMenu-newCall":
       callNew();
@@ -117,11 +125,12 @@ function clickMenu() {
       break;
   }
 }
-function viewMainBody(type) {
+function viewMainBody(type="open") {
   const title = {
     open: "открытые заявки",
     close: "закрытые заявки",
   };
+  if (type==='close')timerDownCloseCalls.startCountdown();
   let list = mainBody.querySelectorAll(".mainchild");
   list.forEach((element) => {
     //console.log(element.getAttribute("name"), type);
@@ -136,18 +145,18 @@ function viewMainBody(type) {
   });
 }
 function start(result) {
-  headMesage.innerHTML = "Конфигурация загруженна!";
+  headMessage.innerHTML = "Конфигурация загруженна!";
   headLoader.hidden = true;
   if (result.status === "ok") {
     nav=result.message.nav;
     selectData = result.message;
     setTimeout(() => {
-      headMesage.innerHTML = "Загружаем базу адресов";
+      headMessage.innerHTML = "Загружаем базу адресов";
       headLoader.hidden = false;
       fetchLoad("disp/loadconfig.php", '{"action":"loadadress"}', startStep2);
     }, 500);
   } else {
-    headMesage.innerHTML =
+    headMessage.innerHTML =
       result.message +
       "<br> Конфигурационные данные не загружены с сервера, будет предпринята попытка получить последние локальные данные ";
   }
@@ -284,9 +293,10 @@ function callNewStep3() {
 
 function callViewer(data) {
   //создание модального окна для просмотра заявки
-  let title = data["adress"] + " Просмотр";
+let title=data["adress"];
+ title += data['type']==='close'?"<span style='color:red'> Заявка закрыта</span>":" Просмотр";
 
-  let body = geenrateBodyDialog(data, 0);
+  let body = generateBodyDialog(data, 0);
   bodyDialog.append(body);
   if (data["type"] === "open") {
     let ul = generatemenu(data, 0);
@@ -294,7 +304,7 @@ function callViewer(data) {
   }
 
   saveDialog.removeAttribute("action");
-  showDialog(title, true);
+  showDialog(title, true,1200);
   saveDialog.disabled = true;
 }
 
@@ -303,7 +313,7 @@ function callEdit(data) {
   //создание модального окна для редактирования заявки
   let title = data["adress"] + " Редактирование";
   let ul = generatemenu(data, 1);
-  let body = geenrateBodyDialog(data, 1);
+  let body = generateBodyDialog(data, 1);
   bodyDialog.append(body);
   menuListModal.append(ul);
   saveDialog.setAttribute("action", "calledit");
@@ -338,9 +348,9 @@ function callNote(data) {
   showDialog(title);
 }
 
-function showDialog(title=false, body=false,timer=600) {
+function showDialog(title='', body='',timer=600) {
   //окончательная сборка модалки и ее вывод на экран
-  if(title){titleDialog.innerText = title};
+  if(title){titleDialog.innerHTML = title};
 
   if(body){closeDialog.setAttribute("body", body)};
   //запускаем диологовое окно
@@ -390,7 +400,7 @@ class ModalMenuItem {
 function clickButton(id) {
   document.querySelector("#" + id).click();
 }
-function geenrateBodyDialog(data, type) {
+function generateBodyDialog(data, type) {
   //<div class="grid-item">1</div>
   let card = false;
   let divContainer = document.createElement("div");
@@ -398,7 +408,7 @@ function geenrateBodyDialog(data, type) {
   for (let index in data) {
     let div = document.createElement("div");
     div.classList.add("grid-item");
-    console.log(index,data[index])
+    console.log(index,data[index],data)
     if (type === 0) card = cardtemplate(index, data[index],data['type']);
     if (type === 1) card = cardTemplateEdit(index, data);
     if (!card) continue;
@@ -664,14 +674,14 @@ function saveCallResult(getResponse) {
     }
   }
 }
-function headMessageEcho(message, time = 0) {
+function headMessageEcho(message, time = 1000) {
   if (!Boolean(time)) {
-    let oldText = headMesage.innerHTML;
+    let oldText = headMessage.innerHTML;
     setTimeout(() => {
-      headMesage.innerHTML = oldText;
+      headMessage.innerHTML = oldText;
     }, time);
   }
-  headMesage.innerHTML = message;
+  headMessage.innerHTML = message;
 }
 function openCallsTab() {}
 tableClose.on("dataProcessed", function () {

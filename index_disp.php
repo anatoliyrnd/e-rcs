@@ -110,7 +110,7 @@ if (isset($user_id)) {
           </ul>
         </div>
       </div>
-      <div class="head_mesage" ><span id="head_mesage" >head</span>     <div class="loader-head" id="loader_head">
+      <div class="head_message" ><span id="head_message" >head </span>   <div class="loader-head" id="loader_head">
         <div class="circle-head"></div>
         <div class="circle-head"></div>
         <div class="circle-head"></div>
@@ -151,7 +151,7 @@ if (isset($user_id)) {
 
 <canvas id="glcanvas" width="0" height="0"></canvas>
 <script type="module" src="/js/disp.js?v2-003"></script>
-
+<div id="countdownBar" class="countdownBar hidden"></div>;
 </body>
 
 </html>

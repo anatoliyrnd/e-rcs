@@ -347,18 +347,23 @@ html {
   font-size: 2em;
 }
 
-#head_mesage {
+#head_message {
   width: 85%;
   margin: 0 auto;
 }
 
-#head_mesage {
+#head_message {
   display: block;
 
   margin: 5px auto;
   text-align: center;
 }
-
+.head_message{
+  transition: transform .3s; /* Animation */
+}
+.head_message:hover{
+  transform: scale(1.05) ;
+}
 #menu hr {
   width: 50%
 }

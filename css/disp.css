@@ -16,16 +16,17 @@ dialog {
     min-height: 20px;
   }
   .button_close{
-    border-radius: 5px;
-    background-color: #00000040;
-    padding: 3px;
-    font-size: 9px;
-    position: absolute;
-    right: 20px;
-    top: 5px;
-      transition: transform .3s; /* Animation */
+      border-radius: 5px;
+      background-color: #00000040;
+      padding: 3px;
+      font-size: 8px;
+      position: absolute;
+      right: 15px;
+      top: 5px;
+      transition: transform .3s;
 }
  .button_close:hover{
+    right:35px;
      transform: scale(1.4);
  }
  .scale{
@@ -742,7 +743,7 @@ datalist option:focus {
     height: 14px;
     margin: 8px;
     border-radius: 50%;
-    
+
     border-color: #6f6 transparent #6f6 transparent;
     animation: lds-dual-ring 1.2s linear infinite;
   }
@@ -755,7 +756,16 @@ datalist option:focus {
     }
   }
   
-
+.header_close_calls{
+    background-color: rgba(231, 0, 0, 0.24);
+}
 .hidden {
     display: none !important;
+}
+.countdownBar{
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 4px;
+    background-color: green;
 }
