@@ -1,5 +1,11 @@
 export class Select {
     //прототип формы select
+    /**
+     * select form
+     * @constructor
+     * @param name {string} attribute name
+     * @param styleClass {string} name style class
+     */
     constructor(name, styleClass) {
         this.elem = document.createElement("select");
         if (name) this.elem.setAttribute("name", name);
@@ -9,10 +15,13 @@ export class Select {
     }
 
     appendTo(parent, options, selected, callback) {
-        //parent родительский элемент куда вставлять select
-        //options массив списка
-        // selected ключ который по которому стивим выбранный пункт если не будет совпадения будет добавлен пункт со зночением 0 и текстом Выберите
-        //callbak функция  при выборе
+        /**
+         * append method.
+         * @param parent {HTMLElement} родительский элемент куда вставлять select
+         * @param options {array} массив списка
+         * @param callback {function} callback function
+         * @param selected {string}ключ  по которому стивим выбранный пункт если не будет совпадения будет добавлен пункт со зночением 0 и текстом Выберите
+         */
         let rand = Math.floor(Math.random() * 10000);
         let selectedopt = false;
         this.elem.setAttribute("id", "rand" + rand);
@@ -46,6 +55,14 @@ class mainAddress {
     typeId = 0;
     nextStep = null; // Функция для следующего шага (генерация адреса пошагова - вначале Город, затем улица, затем дом и лифт)
     #currentList = null; //актуальный список объектов для текущего типа и родительского объекта
+
+    /**
+     *  address select generation.
+     * @constructor
+     * @param titleModal {HTMLElement} link HTML element title for modal window
+     * @param bodyModal {HTMLElement} link HTML element body for modal window
+     * @param address {object} object with all address
+     */
     constructor(titleModal, bodyModal, address) {
         this.addressList = address; //объект с полным перечнем всех адресов
         this.divTitleContainer = document.createElement("div");// контейнер для заголовка модалки
@@ -66,14 +83,23 @@ class mainAddress {
     }
 
     getTypeId(name) {
-        //получить номер по названию типа объекта
+        /**
+         * получить номер по названию типа объекта
+         * @param name {string} name type object
+         */
         let result = this.typeList.indexOf(name);
         if (result === -1) result = false;
         return result;
     }
 
     creatSerchInput(typeId, list, nextStepFunction) {
-        //конфигурация поля ввода для поиска и вывода списка объектов
+        /**
+         * конфигурация поля ввода для поиска и вывода списка объектов
+         * @param typeId {number} id type object address
+         * @param list {array} array or object list address
+         * @param nextStepFunction {function} the following function when forming an application
+         */
+
         this.typeId = typeId;
         this.#currentList = list;
         for (let i = 0; i < this.typeList.length; i++) {
@@ -90,8 +116,10 @@ class mainAddress {
     }
 
     generateList() {
+        /**
+         * создаем обекты исходя из введеное поискового запроса
+         */
         let time = 1000;
-        //создаем обекты исходя из введеное поискового запроса
         this.divObjectList.innerHTML = ""; //отчистим список
         this.divObjectList.classList.add("hidden");
         let serch = this.input.value;
@@ -236,20 +264,22 @@ export class startAddressSelect extends mainAddress {
 
 export class timerCountDown {
     /**
-    * D constructor.
-* @param timerId
-* @param time sec
-* @param callback
-* @param type (time,number,bar)
-*/
+     * таймер  обратного отсчета
+     * @constructor
+     * @param timerId {HTMLElement} link HTML element
+     * @param time {number} time in seconds
+     * @callback callback
+     * @param callback {callback} callback function
+     * @param type {'time' | 'number' | 'bar'}
+     */
 
-  constructor(timerId, time, callback,type) {
-        this.remainingTime=this.time = time;
+    constructor(timerId, time, callback, type) {
+        this.remainingTime = this.time = time;
         this.timerId = timerId;
         this.callback = callback;
         this.interval = null;
         this.count = 0;
-        this.type=type;
+        this.type = type;
     }
 
     startCountdown(time = 0) {
@@ -273,27 +303,30 @@ export class timerCountDown {
             } else {
                 timer = this.count + " сек."
             }
-            barWidth=(Math.floor(this.count/this.remainingTime*100))+'%';
-            this.type==='time'?this.timerId.innerText = timer:null;
-            this.type==='number'?this.timerId.innerText=this.count:null;
-            this.type==='bar'?this.timerId.style.width=barWidth:null;
-            this.type==='bar'?this.timerId.classList.remove("hidden"):null;
+            barWidth = (Math.floor(this.count / this.remainingTime * 100)) + '%';
+            this.type === 'time' ? this.timerId.innerText = timer : null;
+            this.type === 'number' ? this.timerId.innerText = this.count : null;
+            this.type === 'bar' ? this.timerId.style.width = barWidth : null;
+            this.type === 'bar' ? this.timerId.classList.remove("hidden") : null;
             if (this.count <= 0) {
-                this.count=0;
+                this.count = 0;
                 this.callback();
                 clearInterval(this.interval);
 
             }
         }, 1000);
     }
-reset(){
-        this.count= this.remainingTime;
-}
-    changeTime(time) {
-        this.remainingTime=this.count = time;
+
+    reset() {
+        this.count = this.remainingTime;
     }
-    stop(){
-        this.type==='bar'?this.timerId.classList.add("hidden"):null;
+
+    changeTime(time) {
+        this.remainingTime = this.count = time;
+    }
+
+    stop() {
+        this.type === 'bar' ? this.timerId.classList.add("hidden") : null;
         clearInterval(this.interval);
     }
 

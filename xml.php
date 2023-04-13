@@ -188,22 +188,27 @@ if (stripos($note, $string1) !== false) {
     $call_group      = 4;
     $call_request    = 1;
 } elseif (stripos($note, $string2) !== false) {
+    $DATE_REPAIR=3;
     $call_department = 22;
     $call_group      = 6;
     $call_request    = 2;
 } elseif (stripos($note, $string3) !== false) {
+    $DATE_REPAIR=3;
     $call_department = 22;
     $call_group      = 6;
     $call_request    = 2;
 } elseif (stripos($note, $string4) !== false) {
+    $DATE_REPAIR=3;
     $call_department = 22;
     $call_group      = 24;
     $call_request    = 2;
 } elseif (stripos($note, $string5) !== false) {
+    $DATE_REPAIR=2;
     $call_department = 22;
     $call_group      = 7;
     $call_request    = 2;
 } elseif (stripos($note, $string6) !== false) {
+    $DATE_REPAIR=3;
     $call_department = 23;
     $call_group      = 6;
     $call_request    = 2;
