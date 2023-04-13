@@ -45,11 +45,25 @@ const toggle_head = document.getElementById("toggle_head"); //кнопка гл�
 const mainBody = document.getElementById("main_body"); // контент главнорго окна
 const spinerDialog = '<div class="lds-dual-ring" id="spinerDialog"></div>'; // спинер кнопки сохранить диалогового окна
 const menu = document.getElementById("menu").getElementsByTagName("ul")[0];
+const help=document.getElementById("help");
 let quantityCalls = { open: 0, close: 0 }; // массив количества заявок
 let address=null; //объект для генерации адреса новой заявки
 document.addEventListener("click",clickMouse)
 const  timerModal=new timerCountDown(document.getElementById("closeTimer"),600,modalClose,'time');// timer button close modal
 const timerDownCloseCalls = new timerCountDown(bar,120, viewMainBody,'bar');// top  timer
+help.addEventListener("click",(event) => {
+      openRequestedTab('/help_disp.html','Краткая видеоинструкция по работе с системой для диспетчера ');
+      event.preventDefault();
+    },
+    false);
+let windowObjectReference = null; // global variable
+function openRequestedTab(url, windowName) {
+  if (windowObjectReference === null || windowObjectReference.closed) {
+    windowObjectReference = window.open(url, windowName,'popup');
+  } else {
+    windowObjectReference.focus();
+  }
+}
 function clickMouse(){
 timerDownCloseCalls.reset();
 }
@@ -183,7 +197,7 @@ saveDialog.setAttribute("action","callnew")
   }
 
 function callNewStep2() {
-  timerModal.changeTime(600);
+  timerModal.changeTime(1200);
   // создание новой заявки шаг 2 выбор разделов и срока ремонта
   let buttonNext = document.createElement("button");
   let divContainer = document.createElement("div");
@@ -193,21 +207,70 @@ function callNewStep2() {
   buttonNext.innerText = "Далее";
   buttonNext.disabled = true;
   // создание новой заявки шаг 2 выбор отдела уровня и
-  const selectlist = {
+  const selectList = {
     group: "Группа",
     request: "Уровень",
     department: "Отдел",
     repair_time: "Срок предпологаемого ремонта",
   };
-  creatSelectCard(selectlist, divContainer, buttonNext, 4);
+  creatSelectCard(selectList, divContainer, buttonNext, 4);
   bodyDialog.append(divContainer);
   bodyDialog.append(buttonNext);
 }
-function creatSelectCard(selectlist, parent, button, length = 0) {
+function callNewStep3() {
+  timerModal.changeTime(1200);
+  //создание новой заявки шаг 3 описание заявки
+  bodyDialog.innerHTML = "";
+  let body = document.createElement("div");
+  body.classList.add("grid_close");
+  let textarea = document.createElement("textarea");
+  textarea.name = "details";
+  textarea.addEventListener("input", checkTextarea, false);
+  textarea.classList.add("textarea_close");
+  body.innerHTML = "<div class='label_close'>Введите описание заявки</div>";
+  body.append(textarea);
+  bodyDialog.append(body);
+  bodyDialog.append(document.createElement("hr"));
+  bodyDialog.append(
+      (document.createElement("span").innerHTML =
+          "Параметры ниже можно заполнить позднее")
+  );
+  bodyDialog.append(document.createElement("hr"));
+
+  //для поля уведомление ответсвственного
+  let divStaff = document.createElement("div");
+  divStaff.classList.add("staff_checkbox");
+  let labelStaff = document.createElement("label");
+  labelStaff.classList.add("checkbox__container");
+  let inputStaff = document.createElement("input");
+  inputStaff.setAttribute("type", "checkbox");
+  inputStaff.checked = false;
+  inputStaff.disabled = true;
+  inputStaff.classList.add("checkbox__toggle");
+  inputStaff.addEventListener("change", function () {
+    changeCall.set("staff_status", this.checked);
+  });
+
+  labelStaff.innerHTML = svgstaff;
+  labelStaff.prepend(inputStaff);
+  divStaff.append(labelStaff);
+  let divContainer = document.createElement("div");
+  divContainer.classList.add("grid-container");
+  let cardContent = cardCreat(divContainer, "Уведомлен по телефону");
+  cardContent.append(divStaff);
+  //выбор ответсвенного по заявке
+
+  const selectlist = {
+    staff: "Ответсвенный по заявке",
+  };
+  creatSelectCard(selectlist, divContainer, inputStaff, 1);
+  bodyDialog.append(divContainer);
+}
+function creatSelectCard(selectList, parent, button, length = 0) {
   //создаем список выбора
   let control = [];
-  for (const key in selectlist) {
-    const element = selectlist[key];
+  for (const key in selectList) {
+    const element = selectList[key];
     let cardContent = cardCreat(parent, element);
     let select = new Select(key, "select");
     select.appendTo(cardContent, selectData[key], 0, function () {
@@ -241,55 +304,7 @@ function cardCreat(parent, labelText, content = "") {
   return cardContent;
 }
 
-function callNewStep3() {
-  timerModal.changeTime(1200);
-  //создание новой заявки шаг 3 описание заявки
-  bodyDialog.innerHTML = "";
-  let body = document.createElement("div");
-  body.classList.add("grid_close");
-  let textarea = document.createElement("textarea");
-  textarea.name = "details";
-  textarea.addEventListener("input", checkTextarea, false);
-  textarea.classList.add("textarea_close");
-  body.innerHTML = "<div class='label_close'>Введите описание заявки</div>";
-  body.append(textarea);
-  bodyDialog.append(body);
-  bodyDialog.append(document.createElement("hr"));
-  bodyDialog.append(
-    (document.createElement("span").innerHTML =
-      "Параметры ниже можно заполнить позднее")
-  );
-  bodyDialog.append(document.createElement("hr"));
 
-  //для поля уведомление ответсвственного
-  let divStaff = document.createElement("div");
-  divStaff.classList.add("staff_checkbox");
-  let labelStaff = document.createElement("label");
-  labelStaff.classList.add("checkbox__container");
-  let inputStaff = document.createElement("input");
-  inputStaff.setAttribute("type", "checkbox");
-  inputStaff.checked = false;
-  inputStaff.disabled = true;
-  inputStaff.classList.add("checkbox__toggle");
-  inputStaff.addEventListener("change", function () {
-    changeCall.set("staff_status", this.checked);
-  });
-
-  labelStaff.innerHTML = svgstaff;
-  labelStaff.prepend(inputStaff);
-  divStaff.append(labelStaff);
-  let divContainer = document.createElement("div");
-  divContainer.classList.add("grid-container");
-  let cardContent = cardCreat(divContainer, "Уведомлен по телефону");
-  cardContent.append(divStaff);
-  //выбор ответсвенного по заявке
-
-  const selectlist = {
-    staff: "Ответсвенный по заявке",
-  };
-  creatSelectCard(selectlist, divContainer, inputStaff, 1);
-  bodyDialog.append(divContainer);
-}
 
 function callViewer(data) {
   //создание модального окна для просмотра заявки

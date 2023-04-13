@@ -1,8 +1,8 @@
 <?php //build data array
-include(realpath("../include/session.php"));
-include(realpath("../include/checksession.php"));
-include(realpath("../include/ldisp_config.php"));
-include(realpath("../include/function.php"));
+require_once("../include/session.php");
+require_once("../include/checksession.php");
+include("../include/ldisp_config.php");
+include("../include/function.php");
 require_once("../include/PDO.class.php");
 if (isset($user_id)) {
 
@@ -131,4 +131,3 @@ foreach ($calls_DB as $key => $value) {
 
 
 echo (json_encode($data));
-?>

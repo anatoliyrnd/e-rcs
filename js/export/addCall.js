@@ -1,5 +1,5 @@
 export class Select {
-    //прототип формы select
+    // формы select
     /**
      * select form
      * @constructor
@@ -23,7 +23,7 @@ export class Select {
          * @param selected {string}ключ  по которому стивим выбранный пункт если не будет совпадения будет добавлен пункт со зночением 0 и текстом Выберите
          */
         let rand = Math.floor(Math.random() * 10000);
-        let selectedopt = false;
+        let selectedOption = false;
         this.elem.setAttribute("id", "rand" + rand);
 
         for (let key in options) {
@@ -31,12 +31,12 @@ export class Select {
             option.value = key;
             option.innerText = options[key];
             if (key == selected) {
-                selectedopt = true;
+                selectedOption = true;
                 option.selected = true;
             }
             this.elem.append(option);
         }
-        if (!selectedopt) {
+        if (!selectedOption) {
             let option = document.createElement("option");
             option.value = "0";
             option.innerText = "Выберите...";
@@ -269,7 +269,7 @@ export class timerCountDown {
      * @param timerId {HTMLElement} link HTML element
      * @param time {number} time in seconds
      * @callback callback
-     * @param callback {callback} callback function
+     * @param callback {function} callback function
      * @param type {'time' | 'number' | 'bar'}
      */
 

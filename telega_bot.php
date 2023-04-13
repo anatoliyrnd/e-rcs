@@ -36,7 +36,7 @@ if (isset($data['callback_query'])) {
 
     $user_id = telegram_id_check($DB, $data['callback_query']);
     if (!$user_id) {
-        send_to_telegram(TOKEN_TELEGRAM, $data['callback_query']['message']['chat']['id'], "Чет я тебя не знаю , команды незнакомцев не принимаются!");
+        send_to_telegram(TOKEN_TELEGRAM, $data['callback_query']['message']['chat']['id'], "Представьтесь!Отправьте контактные данные. Ваш номер телефона не будет доступен третьим лицам.");
         exit();
     }
     $temp = '';
@@ -53,64 +53,148 @@ if (isset($data['callback_query'])) {
         $action = $data_keyboard['action'];
         switch ($action) {
             case "note":
-                $temp = " $address Отправьте в ответ сообщение с текстом заметки " . $data_keyboard['id'];
+                action_Call($DB, $data_keyboard['id'], $user_id, $chat_id, $address, 'add_note', $arr_delete_message);
                 break;
             case "close":
-                $temp = " $address Для закрытия заявки, отправьте в ответ сообщение с текстом Решения по заявке " . $data_keyboard['id'];
+                $temp = " $address Для закрытия заявки, отправьте в ответ сообщение с текстом Решения по заявке в течении 10 мин." . $data_keyboard['id'];
                 break;
             case "more":
-                more_call($data,$data_keyboard['id'],$arr_delete_message);
+                more_call($data, $data_keyboard['id'], $arr_delete_message);
                 break;
             default:
-                $temp = "Какaя то не понятная команда :(";
+                $temp = "Какaя-то не понятная команда :(";
 
         }
 
     }
-    send_to_telegram(TOKEN_TELEGRAM, $data['callback_query']['message']['chat']['id'], $temp . "-" . $user_id);
 
 } else if (!empty($data['message']['text'])) {
     // если просто текстовое сообщение
-
+    $user_id = telegram_id_check($DB, $data);
     $text = trim($data['message']['text']);
     $text_array = explode(" ", $text);
     $text_command = mb_strtolower($text, 'UTF-8');
     $text_command = preg_replace('/\s/', '', $text_command);
     //send_to_telegram(TOKEN_TELEGRAM, $data['message']['chat']['id'], $text_command);
+    check_action($DB, $user_id, $data);
+        switch ($text_command) {
+            case "/start":
+                start_command($data);
+                break;
+            case "/stop":
+                unsubscrbe($data);
+                break;
+            case "/del":
+                unsubscrbe($data);
+                break;
 
-    switch ($text_command) {
-        case "/start":
-            start_command($data);
-            break;
-        case "/stop":
-            unsubscrbe($data);
-            break;
-        case "/del":
-            unsubscrbe($data);
-            break;
-
-        case 'help':
-            send_help($data);
-            break;
-        case 'открытыезаявки':
-            open_calls($data);
-            break;
-        case 'закрытыезаявки':
-           // close_calls($data);
-            break;
+            case 'help':
+                send_help($data);
+                break;
+            case 'открытыезаявки':
+                open_calls($data);
+                break;
+            case 'закрытыезаявки':
+                // close_calls($data);
+                break;
 
 
-    }
+        }
 
 }
 (isset($data['message']['contact'])) ? subscribe($data) : null;
+
+function action_Call($DB, $call_id, $user_id, $chat_id, $address, $action, $arr_delete_message)
+{
+    /**
+     * Кнопка действия по заявке
+     *
+     */
+    $query_check_userId = "SELECT  call_staff FROM lift_calls WHERE call_id=$call_id";
+    $staff_id = $DB->single($query_check_userId);
+    if ($staff_id != $user_id) {
+
+        send_to_telegram(TOKEN_TELEGRAM, $chat_id, 'Произошла непредвиденная ошибка. Id пользователя не привязан к данной заявке');
+    } else {
+        $current_timestamp = strtotime("now");
+        $query_search_telegram_action = "SELECT id FROM lift_telegram WHERE user_id=$user_id ";
+        //проверим есть ли для пользователя ожидания сообщения
+        $check = $DB->single($query_search_telegram_action);
+        if ($check) {
+            // если есть то изменим на текущую
+            $query_telegram_expectation = "UPDATE lift_telegram SET call_id=:callId, time=$current_timestamp, action='$action' WHERE id=$check";
+        } else {
+            $query_telegram_expectation = "INSERT INTO `lift_telegram`  SET user_id=$user_id, call_id=:callId, time=$current_timestamp, action='$action' ";
+        }
+        $add_telegram_action = $DB->query($query_telegram_expectation, array("callId" => $call_id));
+        if ($add_telegram_action) {
+            $temp = " $address Отправьте в ответ сообщение с текстом заметки в течении 10 мин.";
+        } else {
+            $temp = "Произошла ошибка попробуйте повторить запрос позднее";
+        }
+        $answer = send_to_telegram(TOKEN_TELEGRAM, $chat_id, $temp);
+        if (isset($answer['ok']) and $answer['ok'] == 1) {
+            request(0, TOKEN_TELEGRAM, $arr_delete_message);
+        }
+    }
+    exit();
+
+}
+
+function check_action($DB, $user_id, $arrData)
+{
+    $chat_id = $arrData['message']['chat']['id'];
+    $telegram="t-".$chat_id;
+    $current_timestamp = strtotime("now");
+    $query_search_telegram_action = "SELECT id,user_id,call_id,time ,action FROM lift_telegram WHERE user_id=$user_id ";
+    //проверим есть ли для пользователя ожидания сообщения
+    $query_telegram_expectation = $DB->row($query_search_telegram_action);
+    $call_id = $query_telegram_expectation['call_id'];
+    $action=$query_telegram_expectation['action'];
+    $message=$arrData['message']['text'];
+    $id_telegram_expectation=$query_telegram_expectation['id'];
+    $delete_action_query = "DELETE FROM `lift_telegram` WHERE id=$id_telegram_expectation" ;// запрос в базу для удаления записи последовательност команд телеграмм
+    if ($query_telegram_expectation) {
+        if (($query_telegram_expectation['time'] + 600) < $current_timestamp) {
+            $DB->query($delete_action_query);
+            return false;
+        } else {
+            // add call note
+            $query_check_userId = "SELECT  call_staff FROM lift_calls WHERE call_id=$call_id AND !call_status";
+            $staff_id = $DB->single($query_check_userId);
+            if ($staff_id != $user_id) {
+                send_to_telegram(TOKEN_TELEGRAM, $chat_id, 'Произошла непредвиденная ошибка. Среди Ваших заявок не найдена данная открытая заявка');
+            } else {
+                if ($action==='add_note') {
+                    $query_telegram_action = "INSERT INTO `lift_notes` SET note_post_ip=:telegram, note_post_user=$user_id, note_title='Заметка',note_body=:text, note_relation=$call_id, note_type=1,note_post_date=$current_timestamp";
+                    $add_note=$DB->query($query_telegram_action,array("telegram"=>$telegram,"text"=>$message));
+                    ($add_note)? send_to_telegram(TOKEN_TELEGRAM, $chat_id, 'Заметка добавлена'):send_to_telegram(TOKEN_TELEGRAM, $chat_id, 'Произошла ошибка!');
+                    $DB->query($delete_action_query);
+                    exit();
+                }else if ($action==='close_call'){
+
+                }else{
+                    return false;
+                }
+
+            }
+        }
+
+
+    } else {
+        return false;
+    }
+}
+
+//send_to_telegram(TOKEN_TELEGRAM, $data['callback_query']['message']['chat']['id'], $temp . "-" . $user_id);
+
 function start_command($arrData)
 {
     //стартовая инициализация
 
 }
 
-function more_call($arrData,$call_id,  $arr_delete_message=array())
+function more_call($arrData, $call_id, $arr_delete_message = array())
 {
     global $DB;
     $user_id = telegram_id_check($DB, $arrData['callback_query']);
@@ -119,37 +203,37 @@ function more_call($arrData,$call_id,  $arr_delete_message=array())
         send_to_telegram(TOKEN_TELEGRAM, $arrData['callback_query']['message']['chat']['id'], 'Не нашел тебя в нашей базе. Твой ID - ' . $arrData['callback_query']['message']['chat']['id']);
         exit();
     }
-    $call_id=(int)$call_id;
-    $call_query="SELECT call_date, call_first_name, call_adres, call_details,  call_request, call_staff, call_staff_status FROM lift_calls WHERE call_id=$call_id LIMIT 1";
+    $call_id = (int)$call_id;
+    $call_query = "SELECT call_date, call_first_name, call_adres, call_details,  call_request, call_staff, call_staff_status FROM lift_calls WHERE call_id=$call_id LIMIT 1";
 
-    $call_info=$DB->row($call_query);
+    $call_info = $DB->row($call_query);
 
-    if (!$call_info){
+    if (!$call_info) {
         send_to_telegram(TOKEN_TELEGRAM, $arrData['callback_query']['message']['chat']['id'], 'Какая-то ошибка базы. Бот не смог получить информацию, попробуйте чуть позже');
         exit();
     }
-    if($user_id!=$call_info['call_staff']){
+    if ($user_id != $call_info['call_staff']) {
         send_to_telegram(TOKEN_TELEGRAM, $arrData['callback_query']['message']['chat']['id'], 'Возникла какя-то ошибка. Эта заявка не твоя! Возможно диспетчер уже изменила ответсвенного. ');
         exit();
     }
 
-    $request_query="SELECT type_name FROM lift_types WHERE type_id";
-    $request_name=$DB->single($request_query);
+    $request_query = "SELECT type_name FROM lift_types WHERE type_id=" . $call_info['call_request'];
+    $request_name = $DB->single($request_query);
 
-    if(!$call_info['call_staff_status']){
+    if (!$call_info['call_staff_status']) {
         // запишим в базу данные о том что ответсвенный уведомлен
-        $update_call_query="UPDATE lift_calls SET call_staff_date=".time()." , call_staff_status=2 WHERE call_id=$call_id";
+        $update_call_query = "UPDATE lift_calls SET call_staff_date=" . time() . " , call_staff_status=2 WHERE call_id=$call_id";
 
         $DB->query($update_call_query);
         //logsave($update_call_query,"_staff_telega_read);
     }
-    $date_call=date('d-m-y # H:i', $call_info['call_date']);
+    $date_call = date('d-m-y # H:i', $call_info['call_date']);
 
-    $text_message="$date_call ".$call_info['call_first_name']."\n создал(а) заявку с № $call_id по адресу: \n".$call_info['call_adres']."\n Детали заявки: \n ".$call_info['call_details']."\n Уровен заявки - $request_name";
-   $answer=send_to_telegram(TOKEN_TELEGRAM,$arrData['callback_query']['message']['chat'] ['id'],$text_message);
-   if (isset($answer['ok']) AND $answer['ok']==1) {
-       request(0, TOKEN_TELEGRAM, $arr_delete_message);
-   }
+    $text_message = "$date_call " . $call_info['call_first_name'] . "\n создал(а) заявку с № $call_id по адресу: \n" . $call_info['call_adres'] . "\n Детали заявки: \n " . $call_info['call_details'] . "\n Уровен заявки - $request_name";
+    $answer = send_to_telegram(TOKEN_TELEGRAM, $arrData['callback_query']['message']['chat'] ['id'], $text_message);
+    if (isset($answer['ok']) and $answer['ok'] == 1) {
+        request(0, TOKEN_TELEGRAM, $arr_delete_message);
+    }
 }
 
 function unsubscrbe($arrData)

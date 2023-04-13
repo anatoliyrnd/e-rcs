@@ -104,7 +104,7 @@ if (isset($user_id)) {
            echo $edituserlink; ?>
             <hr>
             <?php  if ($setting){echo "<li><a href='./setting.php'><span>Настройки</span></a></li>";} ?>
-               <li><a href="#"><span>Помощь</span></a></li>
+               <li><a href="#" id="help"><span>Помощь</span></a></li>
             <hr>
             <li><a href="index.php?e=loggeout"><span>Выйти</span></a></li>
           </ul>
@@ -150,7 +150,7 @@ if (isset($user_id)) {
   </script>
 
 <canvas id="glcanvas" width="0" height="0"></canvas>
-<script type="module" src="/js/disp.js?v2-003"></script>
+<script type="module" src="/js/disp.js?v2-004"></script>
 <div id="countdownBar" class="countdownBar hidden"></div>;
 </body>
 
