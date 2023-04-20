@@ -14,6 +14,7 @@ class telegram_class
      * @param $debug (foo[bool])
      *
      */
+    private $user_id;
     private $telegram_token;
     private $DB;
     private $data;
@@ -22,7 +23,8 @@ class telegram_class
     private $ds;
     private $chat_id;
     private $message_id;
-private $call_back_id;
+    private $call_back_id;
+
     public function __construct($token, $DB, $debug)
     {
         $this->telegram_token = $token;
@@ -32,16 +34,17 @@ private $call_back_id;
         $this->debug = $debug;
     }
 
-    public function setData($data,$callBack=false)
+    public function setData($data, $callBack = false)
     {
-        if(!isset($data)){
-            $this->log("Ошибка данных телеграм","error_data");
-            return false;}
+        if (!isset($data)) {
+            $this->log("Ошибка данных телеграм", "error_data");
+            return false;
+        }
         $this->data = $data;
-        (isset($this->data['message']['chat']['id']))?$this->chat_id = $this->data['message']['chat']['id']:$this->chat_id=0;
-        (isset($this->data['message']['message_id']))?$this->message_id = $this->data['message']['message_id']:$this->message_id=0;
+        (isset($this->data['message']['chat']['id'])) ? $this->chat_id = $this->data['message']['chat']['id'] : $this->chat_id = 0;
+        (isset($this->data['message']['message_id'])) ? $this->message_id = $this->data['message']['message_id'] : $this->message_id = 0;
         $this->user_id = $this->telegram_id_check();
-        $this->call_back_id=$callBack;
+        $this->call_back_id = $callBack;
         return true;
 
     }
@@ -52,14 +55,14 @@ private $call_back_id;
          * Кнопка действия по заявке
          *
          */
-$action_text=array("close_call"=>" Для закрытия заявки отправьте в ответ текстовое сообщение, с текстом решения по заявке в течении 10 мин.",
-    "add_note"=>"Отправьте в ответ сообщение с текстом заметки в течении 10 мин.");
+        $action_text = array("close_call" => " Для закрытия заявки отправьте в ответ текстовое сообщение, с текстом решения по заявке в течении 10 мин.",
+            "add_note" => "Отправьте в ответ сообщение с текстом заметки в течении 10 мин.");
         $address = $this->data['message']['text'];
         $arr_delete_message = array('chat_id' => $this->chat_id, 'message_id' => "$this->message_id");
         $query_check_userId = "SELECT  call_staff FROM lift_calls WHERE call_id=$call_id";
         $staff_id = $this->DB->single($query_check_userId);
         if ($staff_id != $this->user_id) {
-            $this->log("staff - $staff_id != user".$this->user_id,"action_call");
+            $this->log("staff - $staff_id != user" . $this->user_id, "action_call");
             $this->send_to_telegram($this->chat_id, 'Произошла непредвиденная ошибка. Id пользователя не привязан к данной заявке');
         } else {
             $current_timestamp = strtotime("now");
@@ -74,15 +77,15 @@ $action_text=array("close_call"=>" Для закрытия заявки отпр
             }
             $add_telegram_action = $this->DB->query($query_telegram_expectation, array("callId" => $call_id));
             if ($add_telegram_action) {
-                $temp =  $address.$action_text[$action];
+                $temp = $address . $action_text[$action];
             } else {
-                $this->log("SQL Error $query_telegram_expectation , callId => $call_id","action_call");
+                $this->log("SQL Error $query_telegram_expectation , callId => $call_id", "action_call");
                 $temp = "Произошла ошибка попробуйте повторить запрос позднее";
             }
             $answer = send_to_telegram($this->telegram_token, $this->chat_id, $temp);
-            $this->debug( json_encode($answer),"answer");
+            $this->debug(json_encode($answer), "answer");
             if (isset($answer['ok']) and $answer['ok'] == 1) {
-                $this->request(0,  $arr_delete_message);
+                $this->request(0, $arr_delete_message);
             }
         }
         return true;
@@ -91,7 +94,9 @@ $action_text=array("close_call"=>" Для закрытия заявки отпр
 
     public function check_action()
     {
-        if(!$this->user_id){return false;}
+        if (!$this->user_id) {
+            return false;
+        }
         $telegram = "t-" . $this->chat_id;
         $current_timestamp = strtotime("now");
         $query_search_telegram_action = "SELECT id,user_id,call_id,time ,action FROM lift_telegram WHERE user_id=$this->user_id ";
@@ -107,22 +112,58 @@ $action_text=array("close_call"=>" Для закрытия заявки отпр
                 $this->DB->query($delete_action_query);
                 return false;
             } else {
-                // add call note
-                $query_check_userId = "SELECT  call_staff FROM lift_calls WHERE call_id=$call_id AND !call_status";
+                //проверим не закрыта ли заявка
+                if($this->check_call_close($call_id)){
+                    $this->DB->query($delete_action_query);
+                    return false;
+                }
+                $query_check_userId = "SELECT  call_staff FROM lift_calls WHERE call_id=$call_id";
                 $staff_id = $this->DB->single($query_check_userId);
                 if ($staff_id != $this->user_id) {
-                    $this->log("staff $staff_id != user".$this->user_id,"check_action");
-                    $this->send_to_telegram( $this->chat_id, 'Произошла непредвиденная ошибка. Среди Ваших заявок не найдена данная открытая заявка');
+                    $this->log("$query_check_userId - query , staff $staff_id != user" . $this->user_id, "check_action");
+                    $this->send_to_telegram($this->chat_id, 'Произошла непредвиденная ошибка. Среди Ваших заявок не найдена данная открытая заявка');
+                    $this->DB->query($delete_action_query);
+                    return false;
                 } else {
                     if ($action === 'add_note') {
+                        // add call note
                         $query_telegram_action = "INSERT INTO `lift_notes` SET note_post_ip=:telegram, note_post_user=$this->user_id, note_title='Заметка',note_body=:text, note_relation=$call_id, note_type=1,note_post_date=$current_timestamp";
                         $add_note = $this->DB->query($query_telegram_action, array("telegram" => $telegram, "text" => $message));
-                        ($add_note) ? $this->send_to_telegram( $this->chat_id, 'Заметка добавлена') : $this->send_to_telegram( $this->chat_id, 'Произошла ошибка!');
+                        ($add_note) ? $this->send_to_telegram($this->chat_id, 'Заметка добавлена') : $this->send_to_telegram($this->chat_id, 'Произошла ошибка!');
                         $this->DB->query($delete_action_query);
-                         return true;
+                        return true;
                     } else if ($action === 'close_call') {
+                            // call closed
 
+
+                            if (iconv_strlen($message) < 5) {
+                                $this->send_to_telegram($this->chat_id, "Отправьте текст с решением по заявке в ответном сообщении, не менее 5 символов!");
+                                return false;
+                            }
+                            //Запрос на закрытие заявки
+
+                            $user_name = $this->getUserName();
+                            $call_date2 = strtotime(date('Y-m-d H:i:s '));
+                            $query_call_close = "UPDATE lift_calls SET call_status=1, call_date2=$call_date2, call_solution=:solution, call_last_name=:user_name WHERE call_id = :call_id;";
+                            $query_data = array('solution' => $message, 'user_name' => $user_name, 'call_id' => $call_id);
+
+                            $call_close_result = $this->DB->query($query_call_close, $query_data);
+                            if (!$call_close_result) {
+                                $this->send_to_telegram($this->chat_id, "Произошла ошибка записи в базу информации о закрытии заявки !");
+                                $this->log("$call_close_result - call_close_result , $query_call_close - query", "call_close");
+                                return false;
+                            }
+                            $save_archive_note = $this->note_to_archive_close($call_id);
+                            $error = '';
+                            if (!$save_archive_note) {
+                                $error = "С небольшими ошибками";
+                            }
+                            $this->send_to_telegram($this->chat_id, "Заявка закрыта!" . $error);
+                            $this->DB->query($delete_action_query);
+                            return true;
                     } else {
+                        $this->log("$action - action", "action_nor_message");
+                        $this->DB->query($delete_action_query);
                         return false;
                     }
 
@@ -139,6 +180,37 @@ $action_text=array("close_call"=>" Для закрытия заявки отпр
     {
         $text = "Приветсвтую тебя \n Для того что бы отписать свой телеграм от получения новых заявок подай команду /stop \n Чтобы зарегестрировать твой телеграм отправь контактные данные \n Три точки в правом верхнем углу и выбрать  'Отправить свой телефон' затем нажать кнопочку - Поделиться контактом \n Для управления открытми заявками нажми ниже кнопочку 'Открытые заявки'\n(в разработке) Под каждой открытой заявкой кнопочки Закрыть и Заметка ( позваляют собственно выполнить все то что на них написано)  \n Не забывая что врежиме ЗАКРЫТЬ или ЗАМЕТКА любое сообщение отправленное боту будет как соответсвующее сообщение по команде (закрытие  - как решение по заявке, Заметке - как добавление текстовой заметке к заявке) Если команду выполнять не надо, нажми кнопочку ОТМЕНА\n Удачи! \n  (C) Zamotaev A.N. https://e-rcs.ru";
         $this->send_to_telegram($this->data['message']['chat']['id'], $text);
+
+    }
+
+    private function note_to_archive_close($call_id)
+    {
+        $query = "SELECT `history_date`,`history_info` FROM `lift_history` WHERE `call_id`=$call_id";
+        $sthistory = $this->DB->query($query);
+        $num = 0;
+        $text = '';
+        foreach ($sthistory as $value) {
+            $date_history = date("d.m.Y@H:i", $value['history_date']);
+            $num++;
+            $text .= "Дата изменений:$date_history -" . $value['history_info'] . "<hr>";
+        }
+
+        if ($num) {
+            $query = "UPDATE lift_calls SET call_fullhistory='$text' WHERE call_id=$call_id ";
+            $update = $this->DB->query($query);
+            if ($update) {
+                return true;
+
+            } else {
+
+                $this->log("$query-query, $update - result", "history_save_error");
+                return false;
+            }
+
+        } else {
+            return true;
+        }
+
 
     }
 
@@ -170,9 +242,9 @@ $action_text=array("close_call"=>" Для закрытия заявки отпр
             ]
         ];
 
-        if($this->call_back_id){
-        $this->request(1,array('callback_query_id'      => $this->call_back_id,'text'     => $chat_id));
-    }
+        if ($this->call_back_id) {
+            $this->request(1, array('callback_query_id' => $this->call_back_id, 'text' => $chat_id));
+        }
         curl_setopt_array($ch, $ch_post);
         $result = json_decode(curl_exec($ch), true);
 //debug(print_r($result, true), '_result_message');
@@ -180,6 +252,7 @@ $action_text=array("close_call"=>" Для закрытия заявки отпр
         return $result;
 
     }
+
     public function more_call($call_id)
     {
         $arr_delete_message = array('chat_id' => $this->chat_id, 'message_id' => "$this->message_id");
@@ -193,7 +266,7 @@ $action_text=array("close_call"=>" Для закрытия заявки отпр
         }
         if ($this->user_id != $call_info['call_staff']) {
             $this->send_to_telegram($this->chat_id, 'Возникла какя-то ошибка. Эта заявка не твоя! Возможно диспетчер уже изменила ответсвенного. ');
-            $this->log("userid=".$this->user_id.", callId=$call_id, queryresult = ".json_encode($call_info)." err=2", "more_call");
+            $this->log("userid=" . $this->user_id . ", callId=$call_id, queryresult = " . json_encode($call_info) . " err=2", "more_call");
             return false;
         }
         $request_query = "SELECT type_name FROM lift_types WHERE type_id=" . $call_info['call_request'];
@@ -207,7 +280,7 @@ $action_text=array("close_call"=>" Для закрытия заявки отпр
         $text_message = "$date_call " . $call_info['call_first_name'] . "\n создал(а) заявку с № $call_id по адресу: \n" . $call_info['call_adres'] . "\n Детали заявки: \n " . $call_info['call_details'] . "\n Уровен заявки - $request_name";
         $answer = $this->send_to_telegram($this->chat_id, $text_message);
         if ($answer['ok']) {
-            $this->request(0, array('chat_id' => $this->chat_id,'message_id' => $this->message_id));
+            $this->request(0, array('chat_id' => $this->chat_id, 'message_id' => $this->message_id));
         }
     }
 
@@ -247,62 +320,67 @@ $action_text=array("close_call"=>" Для закрытия заявки отпр
             return false;
         }
     }
-public function open_calls()
-{
 
-    $text_return = '';
+    public function open_calls()
+    {
 
-    $user_id = $this->telegram_id_check();
+        $text_return = '';
 
-    if (!$user_id) {
-        $this->send_to_telegram( $this->chat_id, "Я тебя не знаю! Поэтому твое первое задание пройти идентификацию! Отправь номер телефона через меню - три точки в левом правом углу");
-        exit();
-    }
-    $myquery = "SELECT call_id, call_date, call_adres, call_details, call_request, call_staff_status from lift_calls WHERE (call_status = 0) AND call_staff =$user_id ;";
-    $lift_calls = $this->DB->query($myquery);
-    foreach ($lift_calls as $call) { //начало цикла формирования заявок
-        $call_id = $call['call_id'];
-        $call_staff_status = $call['call_staff_status'];
-        $call_details = $call['call_details'];
-        $call_address = $call['call_adres'];
-        $call_request = (int)$call['call_request']; //уровень заявки
-        $call_date = date("Y-m-d H:i", $call['call_date']);
-        ($call_request === 1) ? $alarm = "\xF0\x9F\x9A\xA8 \n" : $alarm = "\xF0\x9F\x8F\xA2\n";
-        // ( $call_request==3)?$alarm="\xE2\x98\x95 \n":$alarm="\n";
-        if (!$call_staff_status) {// Если отмечена как не переданна, то измененяем состояние на переданна онлайн
-            $query_staff_date = "call_staff_date=" . strtotime(date('Y-m-d H:i:s ')) . ',';
-            $update_status = "UPDATE lift_calls SET  $query_staff_date call_staff_status=2 WHERE  call_id=$call_id;";
-            $this->DB->query($update_status);
-            $history_date = strtotime(date('Y-m-d H:i:s '));
-            $set_history = "Заявка по адресу - " . $call_address . " Отмечена прочитанной. Прочитана в Телеграм. "; //запись в журнал
-            $this->DB->query("INSERT INTO lift_history (history_date,history_info, call_id) VALUES( $history_date, '$set_history',  $call_id );");
+        $user_id = $this->telegram_id_check();
+
+        if (!$user_id) {
+            $this->send_to_telegram($this->chat_id, "Я тебя не знаю! Поэтому твое первое задание пройти идентификацию! Отправь номер телефона через меню - три точки в левом правом углу");
+            exit();
         }
-        $but = array('inline_keyboard' => array(
-            array(
+        $myquery = "SELECT call_id, call_date, call_adres, call_details, call_request, call_staff_status from lift_calls WHERE (call_status = 0) AND call_staff =$user_id ;";
+        $lift_calls = $this->DB->query($myquery);
+        if(!$lift_calls){
+            $this->send_to_telegram($this->chat_id, "У тебя нет открытых заявок! \xF0\x9F\x91\x8D");
+        }
+        foreach ($lift_calls as $call) { //начало цикла формирования заявок
+            $call_id = $call['call_id'];
+            $call_staff_status = $call['call_staff_status'];
+            $call_details = $call['call_details'];
+            $call_address = $call['call_adres'];
+            $call_request = (int)$call['call_request']; //уровень заявки
+            $call_date = date("Y-m-d H:i", $call['call_date']);
+            ($call_request === 1) ? $alarm = "\xF0\x9F\x9A\xA8 \n" : $alarm = "\xF0\x9F\x8F\xA2\n";
+            // ( $call_request==3)?$alarm="\xE2\x98\x95 \n":$alarm="\n";
+            if (!$call_staff_status) {// Если отмечена как не переданна, то измененяем состояние на переданна онлайн
+                $query_staff_date = "call_staff_date=" . strtotime(date('Y-m-d H:i:s ')) . ',';
+                $update_status = "UPDATE lift_calls SET  $query_staff_date call_staff_status=2 WHERE  call_id=$call_id;";
+                $this->DB->query($update_status);
+                $history_date = strtotime(date('Y-m-d H:i:s '));
+                $set_history = "Заявка по адресу - " . $call_address . " Отмечена прочитанной. Прочитана в Телеграм. "; //запись в журнал
+                $this->DB->query("INSERT INTO lift_history (history_date,history_info, call_id) VALUES( $history_date, '$set_history',  $call_id );");
+            }
+            $but = array('inline_keyboard' => array(
                 array(
-                    'text' => 'Закрыть',
-                    'callback_data' => '{"id":"' . $call_id . '","action":"close"}',
-                ),
-                array(
-                    'text' => 'Заметка',
-                    'callback_data' => '{"id":"' . $call_id . '","action":"note"}',
+                    array(
+                        'text' => 'Закрыть',
+                        'callback_data' => '{"id":"' . $call_id . '","action":"close"}',
+                    ),
+                    array(
+                        'text' => 'Заметка',
+                        'callback_data' => '{"id":"' . $call_id . '","action":"note"}',
+                    ),
                 ),
             ),
-        ),
-            'one_time_keyboard' => TRUE,
-        );
-        $replay = json_encode($but);
-        $text_return = $alarm . "Дата:	$call_date \nАдрес: $call_address \nОписание: $call_details \n \xF0\x9F\x91\x87 \n";
-        $this->send_to_telegram( $this->chat_id, $text_return, $replay);
+                'one_time_keyboard' => TRUE,
+            );
+            $replay = json_encode($but);
+            $text_return = $alarm . "Дата:	$call_date \nАдрес: $call_address \nОписание: $call_details \n \xF0\x9F\x91\x87 \n";
+            $this->send_to_telegram($this->chat_id, $text_return, $replay);
+        }
     }
-}
-    public  function unsubscribe()
+
+    public function unsubscribe()
     {
         /**
          * отписка от получения сообщений в телеграмм
          */
-          $user_id = $this->telegram_id_check();
-          if (!$user_id) {
+        $user_id = $this->telegram_id_check();
+        if (!$user_id) {
             $this->send_to_telegram($this->chat_id, 'Вы не подписаны на новые заявки');
             return false;
         }
@@ -316,12 +394,12 @@ public function open_calls()
 
     public function subscribe()
     {
-  /**
-   * подписка на новые заявки в телеграмм
-   *
-   */
+        /**
+         * подписка на новые заявки в телеграмм
+         *
+         */
 
-  if ($this->telegram_id_check()) {
+        if ($this->telegram_id_check()) {
             $this->send_to_telegram($this->chat_id, 'Ваш ID уже внесен в нашу базу для отписки от сообщений о новых заявках отправьте команду /del или /stop');
             return false;
         }
@@ -337,7 +415,7 @@ public function open_calls()
             } else {
                 $text_return = "Вош номер телефона не найден в базе  ";
             }
-           $this->send_to_telegram($this->chat_id, $text_return);
+            $this->send_to_telegram($this->chat_id, $text_return);
         }
     }
 
@@ -353,12 +431,29 @@ public function open_calls()
         file_put_contents($filename . "_telega.txt", $text . PHP_EOL);
     }
 
+    private function getUserName()
+    {
+        return $this->DB->single("SELECT user_name FROM lift_users WHERE user_id=:id LIMIT 1", array("id" => $this->user_id));
+    }
+
     private function log($text, $type)
     {
         $file = 'logs' . $this->ds . 'telegram' . $this->ds . date('Y-m-d') . $type;
         $filename = $this->root . $this->ds . str_replace('\\', $this->ds, $file);
         $text = date('Y-m-d H:m:s') . " - " . $_SERVER['REMOTE_ADDR'] . " - " . $text;
-        file_put_contents($filename . "_telega.txt", $text . PHP_EOL,FILE_APPEND);
+        file_put_contents($filename . "_telega.txt", $text . PHP_EOL, FILE_APPEND);
+    }
+    private function check_call_close($call_id){
+        //Запрос на проверку закрыта или нет заявка перед закрытием $exit = "Заявка уже была закрыта сотрудником -call_last_name - date(call_date2) с решением : call_solution";
+        $query_check_close = "SELECT call_solution, call_date2, call_last_name, call_status from lift_calls  WHERE call_id = $call_id  LIMIT 1;";
+        $check_close = $this->DB->row($query_check_close);
+        if ($check_close['call_status']) {
+            $text = "Произошла ошибка. Заявка уже была закрыта сотрудником " . $check_close['call_last_name'] . " - " . date("Y-m-d H:i:s", $check_close['call_date2']) . " с решением " . $check_close['call_solution'];
+            $this->send_to_telegram($this->chat_id, $text);
+           return true;
+        } else {
+            return false;
+        }
     }
 
 }
