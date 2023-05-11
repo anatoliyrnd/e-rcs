@@ -1,6 +1,9 @@
 <?php
 
 namespace telegram;
+
+use Imagick;
+
 /**
  * @property $telegram_token = string
  * @property $DB
@@ -83,7 +86,7 @@ class telegram_class
                 $temp = "Произошла ошибка попробуйте повторить запрос позднее";
             }
             $answer = send_to_telegram($this->telegram_token, $this->chat_id, $temp);
-            $this->debug(json_encode($answer), "answer");
+            //$this->debug(json_encode($answer), "answer");
             if (isset($answer['ok']) and $answer['ok'] == 1) {
                 $this->request(0, $arr_delete_message);
             }
@@ -97,14 +100,14 @@ class telegram_class
         if (!$this->user_id) {
             return false;
         }
-        $telegram = "t-" . $this->chat_id;
+
         $current_timestamp = strtotime("now");
         $query_search_telegram_action = "SELECT id,user_id,call_id,time ,action FROM lift_telegram WHERE user_id=$this->user_id ";
         //проверим есть ли для пользователя ожидания сообщения
         $query_telegram_expectation = $this->DB->row($query_search_telegram_action);
         $call_id = $query_telegram_expectation['call_id'];
         $action = $query_telegram_expectation['action'];
-        $message = $this->data['message']['text'];
+        ($this->data['message']['text']) ? $message = $this->data['message']['text'] : $message = '';
         $id_telegram_expectation = $query_telegram_expectation['id'];
         $delete_action_query = "DELETE FROM `lift_telegram` WHERE id=$id_telegram_expectation";// запрос в базу для удаления записи последовательност команд телеграмм
         if ($query_telegram_expectation) {
@@ -113,7 +116,7 @@ class telegram_class
                 return false;
             } else {
                 //проверим не закрыта ли заявка
-                if($this->check_call_close($call_id)){
+                if ($this->check_call_close($call_id)) {
                     $this->DB->query($delete_action_query);
                     return false;
                 }
@@ -127,40 +130,65 @@ class telegram_class
                 } else {
                     if ($action === 'add_note') {
                         // add call note
-                        $query_telegram_action = "INSERT INTO `lift_notes` SET note_post_ip=:telegram, note_post_user=$this->user_id, note_title='Заметка',note_body=:text, note_relation=$call_id, note_type=1,note_post_date=$current_timestamp";
-                        $add_note = $this->DB->query($query_telegram_action, array("telegram" => $telegram, "text" => $message));
-                        ($add_note) ? $this->send_to_telegram($this->chat_id, 'Заметка добавлена') : $this->send_to_telegram($this->chat_id, 'Произошла ошибка!');
+                           // проверим картинку
+                        if (array_key_exists('photo', $this->data['message'])) {
+                            // если пришла картинка то сохраняем ее у себя
+                            $this->debug(json_encode($this->data['message']['photo'])."-".isset($this->data['message']['photo']['caption']), "note");
+
+
+                            $caption = "Без текста"; // если есть дополнительный текст к фото
+                            if (isset($this->data['message']['photo']['caption'])) {
+                                $caption = $this->data['message']['photo']['caption'];
+                                unset($this->data['message']['photo']['caption']);
+                            }
+
+                            $file_id = array_pop($this->data['message']['photo']);
+                            //$this->debug("file-id - ".json_encode($file_id).", caption - $caption", "note");
+                            $path_query = json_decode($this->getPhotoPath($file_id['file_id']));// получаем file_path
+                           // $this->debug(" path_query-" . json_encode($path_query), "note");
+                            if ($path_query->ok) {
+                                $path = $path_query->result->file_path;
+                                $this->save_img_note($path, $call_id, $caption);
+                            } else {
+                                $this->log(json_encode($path_query), "getImg");
+                                $this->send_to_telegram($this->chat_id, "произошла ошибка получения изображения");
+                            }
+
+                        } else {
+                            $this->debug("add-note-text", 'note');
+                            $add_note = $this->add_note($message, $call_id);
+                            ($add_note) ? $this->send_to_telegram($this->chat_id, 'Заметка добавлена') : $this->send_to_telegram($this->chat_id, 'Произошла ошибка!');
+                        }
+                        $this->DB->query($delete_action_query);
+                    } else if ($action === 'close_call') {
+                        // call closed
+
+
+                        if (iconv_strlen($message) < 5) {
+                            $this->send_to_telegram($this->chat_id, "Отправьте текст с решением по заявке в ответном сообщении, не менее 5 символов!");
+                            return false;
+                        }
+                        //Запрос на закрытие заявки
+
+                        $user_name = $this->getUserName();
+                        $call_date2 = strtotime(date('Y-m-d H:i:s '));
+                        $query_call_close = "UPDATE lift_calls SET call_status=1, call_date2=$call_date2, call_solution=:solution, call_last_name=:user_name WHERE call_id = :call_id;";
+                        $query_data = array('solution' => $message, 'user_name' => $user_name, 'call_id' => $call_id);
+
+                        $call_close_result = $this->DB->query($query_call_close, $query_data);
+                        if (!$call_close_result) {
+                            $this->send_to_telegram($this->chat_id, "Произошла ошибка записи в базу информации о закрытии заявки !");
+                            $this->log("$call_close_result - call_close_result , $query_call_close - query", "call_close");
+                            return false;
+                        }
+                        $save_archive_note = $this->note_to_archive_close($call_id);
+                        $error = '';
+                        if (!$save_archive_note) {
+                            $error = "С небольшими ошибками";
+                        }
+                        $this->send_to_telegram($this->chat_id, "Заявка закрыта!" . $error);
                         $this->DB->query($delete_action_query);
                         return true;
-                    } else if ($action === 'close_call') {
-                            // call closed
-
-
-                            if (iconv_strlen($message) < 5) {
-                                $this->send_to_telegram($this->chat_id, "Отправьте текст с решением по заявке в ответном сообщении, не менее 5 символов!");
-                                return false;
-                            }
-                            //Запрос на закрытие заявки
-
-                            $user_name = $this->getUserName();
-                            $call_date2 = strtotime(date('Y-m-d H:i:s '));
-                            $query_call_close = "UPDATE lift_calls SET call_status=1, call_date2=$call_date2, call_solution=:solution, call_last_name=:user_name WHERE call_id = :call_id;";
-                            $query_data = array('solution' => $message, 'user_name' => $user_name, 'call_id' => $call_id);
-
-                            $call_close_result = $this->DB->query($query_call_close, $query_data);
-                            if (!$call_close_result) {
-                                $this->send_to_telegram($this->chat_id, "Произошла ошибка записи в базу информации о закрытии заявки !");
-                                $this->log("$call_close_result - call_close_result , $query_call_close - query", "call_close");
-                                return false;
-                            }
-                            $save_archive_note = $this->note_to_archive_close($call_id);
-                            $error = '';
-                            if (!$save_archive_note) {
-                                $error = "С небольшими ошибками";
-                            }
-                            $this->send_to_telegram($this->chat_id, "Заявка закрыта!" . $error);
-                            $this->DB->query($delete_action_query);
-                            return true;
                     } else {
                         $this->log("$action - action", "action_nor_message");
                         $this->DB->query($delete_action_query);
@@ -218,9 +246,9 @@ class telegram_class
     {
         /**
          * send to telegram message
-         * @param $chat_id id telegram user
-         * @param $text message text
-         * @param $reply_markup json  keyboard
+         * @param int $chat_id id telegram user
+         * @param string $text message text
+         * @param array $reply_markup json  keyboard
          */
         $ch = curl_init();
         if ($reply_markup == '') {
@@ -334,7 +362,7 @@ class telegram_class
         }
         $myquery = "SELECT call_id, call_date, call_adres, call_details, call_request, call_staff_status from lift_calls WHERE (call_status = 0) AND call_staff =$user_id ;";
         $lift_calls = $this->DB->query($myquery);
-        if(!$lift_calls){
+        if (!$lift_calls) {
             $this->send_to_telegram($this->chat_id, "У тебя нет открытых заявок! \xF0\x9F\x91\x8D");
         }
         foreach ($lift_calls as $call) { //начало цикла формирования заявок
@@ -422,13 +450,14 @@ class telegram_class
 
     private function debug($text, $type)
     {
+        if (!$this->debug) {
+            return;
+        }
         $file = 'debug' . $this->ds . date('Y-m-d') . $type;
         $filename = $this->root . $this->ds . str_replace('\\', $this->ds, $file);
-        if (!DEBUG) {
-            // return;
-        }
+
         $text = date('Y-m-d H:m:s') . " - " . $_SERVER['REMOTE_ADDR'] . " - " . $text;
-        file_put_contents($filename . "_telega.txt", $text . PHP_EOL);
+        file_put_contents($filename . "_telega.txt", $text . PHP_EOL, FILE_APPEND);
     }
 
     private function getUserName()
@@ -443,17 +472,111 @@ class telegram_class
         $text = date('Y-m-d H:m:s') . " - " . $_SERVER['REMOTE_ADDR'] . " - " . $text;
         file_put_contents($filename . "_telega.txt", $text . PHP_EOL, FILE_APPEND);
     }
-    private function check_call_close($call_id){
+
+    private function check_call_close($call_id)
+    {
         //Запрос на проверку закрыта или нет заявка перед закрытием $exit = "Заявка уже была закрыта сотрудником -call_last_name - date(call_date2) с решением : call_solution";
         $query_check_close = "SELECT call_solution, call_date2, call_last_name, call_status from lift_calls  WHERE call_id = $call_id  LIMIT 1;";
         $check_close = $this->DB->row($query_check_close);
         if ($check_close['call_status']) {
             $text = "Произошла ошибка. Заявка уже была закрыта сотрудником " . $check_close['call_last_name'] . " - " . date("Y-m-d H:i:s", $check_close['call_date2']) . " с решением " . $check_close['call_solution'];
             $this->send_to_telegram($this->chat_id, $text);
-           return true;
+            return true;
         } else {
             return false;
         }
+    }
+
+    public function getPhotoPath($file_id)
+    {
+        // получаем объект File
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, 'https://api.telegram.org/bot' . $this->telegram_token . '/getFile');
+        curl_setopt($ch, CURLOPT_POST, count(['file_id' => $file_id]));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query(['file_id' => $file_id]));
+        $result = curl_exec($ch);
+        curl_close($ch);
+        // возвращаем file_path
+        return $result;
+    }
+
+    private function save_img_note($path, $call_id, $caption)
+    {
+        $path_parts = pathinfo($path);
+        $extension = $path_parts['extension'];//расширение
+        if (!preg_match('/(jpg|jpeg|png|gif)/', $extension)) {
+            $this->send_to_telegram($this->chat_id, "Разрешены файлы формата jpg|jpeg|png|gif ");
+            return false;
+        }
+        $this->send_to_telegram($this->chat_id, "Проверяем файл с изображением!");
+        //https://api.telegram.org/file/bot<token>/$path
+        $url = "https://api.telegram.org/file/bot" . $this->telegram_token . "/$path";
+        //file_put_contents("img.png", file_get_contents($url));
+        //return false;
+        $temp = tempnam("temp", "img");
+        $fileName = "$temp.$extension";
+        file_put_contents($fileName, file_get_contents($url));
+        $img = new Imagick($fileName);
+        $size_width = $img->getImageWidth();
+        $size_height = $img->getImageHeight();
+        $image_name = $call_id . "note_img" . rand(10, 2000) . ".$extension";
+        if ($size_height > 720 || $size_width > 1280) {
+            $img->thumbnailImage(1280, 720, true);
+        } else {
+            $img->thumbnailImage(($size_width - 10), ($size_height - 10), true);
+        }
+        $dir_image_note=$_SERVER['DOCUMENT_ROOT'] . "/note_images";
+        $dir_image_note_thumb=$_SERVER['DOCUMENT_ROOT'] . "/note_thumb";
+        $this->check_directory($dir_image_note);
+        $this->check_directory($dir_image_note_thumb);
+        $image_big = $img->writeImage($dir_image_note."/$image_name");// сохраним крупное изображение
+        $img->thumbnailImage(100, 100, TRUE);
+        $image_thumb = $img->writeImage($dir_image_note_thumb."/$image_name");
+        if (!$image_big || !$image_thumb) {
+            $this->log("ошибка записи изображения", "imgSave");
+        }
+        $error = '';
+        if ($img->clear()) {
+            //chmod($fileName, 0770);
+            unlink($fileName);
+            unlink($temp);
+        } else {
+            $error = "С некоторыми ошибками";
+        }
+
+        ($this->add_note($caption, $call_id, $image_name,$caption)) ? $this->send_to_telegram($this->chat_id, "Изображение сохранено и будет привязано к текущей завке." . $error) : $this->send_to_telegram($this->chat_id, "Произошла ошибка! попробуйте позже!");
+    }
+    private function check_directory ($dir)
+    {
+        if(!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
+    }
+
+    /**
+     * @param $message
+     * @param  $call_id
+     * @param string $file_name
+     * @return true
+     */
+    private function add_note($message, $call_id, $file_name = '',$caption='')
+    {
+        $this->debug("add to sql", "addNote");
+        $telegram = "t-" . $this->chat_id;
+        $current_timestamp = strtotime("now");
+        $type = 1;
+        $title = "Заметка";
+        if ($file_name) {
+            $message=$caption;
+            $type = 2;
+            $title = "Изображение";
+            $file_name = " , img_name='" . $file_name . "'";
+        }
+        $query_telegram_action = "INSERT INTO `lift_notes` SET note_post_ip=:telegram, note_post_user=$this->user_id, note_title='$title',note_body=:text, note_relation=$call_id, note_type=$type,note_post_date=$current_timestamp $file_name";
+        $this->debug("type $type, title= $title, query=$query_telegram_action", "addNote");
+            (strlen($message) > 3) ? $add_note = $this->DB->query($query_telegram_action, array("telegram" => $telegram, "text" => $message)) : $add_note = false;
+        return $add_note;
     }
 
 }

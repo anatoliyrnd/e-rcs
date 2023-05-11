@@ -55,6 +55,7 @@ foreach ($calls_DB as $key => $value) {
   $call = [
     'open_name' => $value['call_first_name'],
     'date' => date("d.m.Y@H:i", $value['call_date']),
+
     'close_name'=>$value['call_last_name'],
     'close_date'=>date("d.m.Y@H:i", $value['call_date2']),
     'id' => $value['call_id'],
@@ -90,7 +91,7 @@ foreach ($calls_DB as $key => $value) {
   $queryDepartment = "SELECT type_name FROM lift_types WHERE type_id=" . $value['call_department']." LIMIT 1"; // название отдела
   $queryGroup      = "SELECT type_name FROM lift_types WHERE type_id=" . $value['call_group']." LIMIT 1";
   $queryRequest    = "SELECT type_name FROM lift_types WHERE type_id=" . $value['call_request']." LIMIT 1"; // название уровня заявки
-  $queryNotes      = "SELECT * from lift_notes WHERE (note_relation =" . $value['call_id'] . ") AND note_type = 1;";
+  $queryNotes      = "SELECT * from lift_notes WHERE (note_relation =" . $value['call_id'] . ");";
   if ($value['call_staff']) {
     $queryUser     = "SELECT user_name FROM lift_users WHERE user_id=" . $value['call_staff']; //получим имя ответсвенного по его id
     $userName      = $DB->single($queryUser);
@@ -111,23 +112,12 @@ foreach ($calls_DB as $key => $value) {
     $query_user_note = "SELECT user_name FROM lift_users WHERE user_id=" . $note_query['note_post_user']; //получим имя ответсвенного по его id
     $user_name_note  = $DB->single($query_user_note);
     $note            = ['user' => $user_name_note, 'body' => $note_query['note_body'], 'date' =>
-      date("d.m.Y H:i", ($note_query['note_post_date']))];
+      date("d.m.Y H:i", ($note_query['note_post_date'])),'type'=>$note_query['note_type'],"id"=>$note_query['note_id']];
     $num++;
     $call['note'][$num] = $note;
   }
   $call['note_num'] = $num;
   if ($num){$call['other']="Есть заметки ($num)";}
-  
   array_push($data, $call);
-  
-
-
-
-
-
-}
-
-
-
-
+  }
 echo (json_encode($data));

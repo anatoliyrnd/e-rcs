@@ -51,14 +51,15 @@ if(!$telegram->setData($data['callback_query'],$call_back_id)){$telegram->send_t
                 $temp = "Какaя-то не понятная команда :(";
         }
     }
-} else if (!empty($data['message']['text'])) {
-    // если просто текстовое сообщение
+} else if (!empty($data['message']['text']) || !empty($data['message']['photo'])) {
+    // если просто текстовое сообщение или фото
     if(!$telegram->setData($data)){$telegram->send_to_telegram( $data['message']['chat']['id'], "Ошибка данных телеграм чата");exit();}
     $text = trim($data['message']['text']);
     $text_array = explode(" ", $text);
     $text_command = mb_strtolower($text, 'UTF-8');
     $text_command = preg_replace('/\s/', '', $text_command);
-   if ($telegram->check_action()){exit();}//Если действия с заявкой  выполнии выходим
+     ($telegram->check_action())?exit():null;//Если действия с заявкой  выполнии выходим
+    (strlen($text_command)<3)?exit():null;
         switch ($text_command) {
             case "/start":
                 start_command($data);

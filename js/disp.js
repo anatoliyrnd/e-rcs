@@ -434,19 +434,26 @@ function generateBodyDialog(data, type) {
 }
 function cardTemplateNote(data) {
   changeCall.set("call_id", data.id);
-  let divreturn = document.createElement("div");
+  let divReturn = document.createElement("div");
   let divContainer = document.createElement("div");
   divContainer.classList.add("grid-container");
-  divreturn.append(divContainer);
+  divReturn.append(divContainer);
   if (Number(data.note_num) !== 0) {
     for (const key in data.note) {
       if (Object.hasOwnProperty.call(data.note, key)) {
         const element = data.note[key];
+        console.log(element);
         let cardContent = cardCreat(
           divContainer,
           element.user + " - " + element.date
         );
-        cardContent.innerHTML = element.body;
+        if (element.type=="1") {
+          cardContent.innerHTML = element.body;
+        }
+        if (element.type=="2"){
+         const link="note_images.php?id="+element.id;
+          cardContent.innerHTML = "<a href='"+link+"' target='blank'><img src='"+link+"&type=thumb'></a>";
+        }
       }
     }
   }
@@ -461,8 +468,8 @@ function cardTemplateNote(data) {
   textarea.classList.add("textarea_close");
   body.innerHTML = "<div class='label_close'>Введите новую заметку</div>";
   body.append(textarea);
-  divreturn.append(body);
-  return divreturn;
+  divReturn.append(body);
+  return divReturn;
 }
 function cardtemplate(labelindex, data,type) {
   //Генерация карточек к заявке
