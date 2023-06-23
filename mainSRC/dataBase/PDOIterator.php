@@ -1,6 +1,6 @@
 <?php
 
-namespace database;
+namespace mainSRC\dataBase;
 use Iterator;
 use PDO;
 use PDOStatement;

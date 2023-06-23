@@ -1,31 +1,32 @@
 <?php
+
+use mainSRC\dataBase\PDODB;
+
 ob_start();
-include("include/session.php");
-include("include/ldisp_config.php");
-include("include/function.php");
+include("include/autoload.php");
+$main=new \mainSRC\main();
+const OLDHASH=true; //тпредидущая система хширования
+const log_path="authorisation";
+$DB = PDODB::getInstance();
 $is_valid  = false;
-$url       = $HOSTURL . "/index_disp.php";
-$mobileurl = $HOSTURL . "/mobile_user.php";
+$url       = $main->getHostURL() . "/index_disp.php";
+$mobileurl = $main->getHostURL(). "/mobile_user.php";
 $lastip    = $_SERVER['REMOTE_ADDR'];
 $sqltoken  = '';
-sleep(4);
+sleep(1);
 if (!isset($_SESSION['auth'])) {
-
-  $datajson = ['status' => 'Ошибка авторизации  1 ', 'alerttxt' => ''];
-  header('Content-type: application/json');
-  echo json_encode($datajson);
-  savelog('Ошибка авторизации  1 ');
-  exit();
+$main->logSave("Ошибка авторизации отсутствует сессионный ключ auth",'error',log_path);
+  $datajson = ['status' => 'error ', 'message' => 'Ошибка авторизаннции  1'];
+  $main->echoJSON($datajson);
 }
 //limit login tries.
+$login_tries=$DB->single("SELECT option_value FROM lift_options WHERE option_name='login_tries'");
 if (isset($_SESSION['hit'])) {
   $_SESSION['hit'] += 1;
-  if ($_SESSION['hit'] > LOGIN_TRIES) {
+  if ($_SESSION['hit'] > $login_tries) {
+      $main->logSave("Ошибка авторизации превышен лимит попыток ".$_SESSION['hit'],'error',log_path);
     $datajson = ['status' => 'error', 'message' => 'Доступ заблокирован '];
-    header('Content-type: application/json');
-    echo json_encode($datajson);
-    savelog('Доступ заблокирован');
-    exit();
+   $main->echoJSON($datajson);
   }
 } else {
   //	$_SESSION['hit'] = 0;
@@ -37,9 +38,7 @@ $pattern = '/\s+|[^\w\s]/';
 if (isset($data['webGL'])){$webgl=preg_replace($pattern, '',$data['webGL'] );}else{$webgl='undefined';}
 if (!isset($data['name']) and !isset($data['token'])) {
   $datajson = ['status' => 'error', 'message' => "Ошибка данных"];
-  header('Content-type: application/json');
-  echo json_encode($datajson);
-  exit();
+  $main->echoJSON($datajson);
 
 }
 
@@ -47,9 +46,7 @@ $user_login = trim($data['name']);
 
 if ((iconv_strlen($user_login) < 4) and !isset($data['id'])) {
   $datajson = ['status' => 'error', 'message' => "Логин короткий"];
-  header('Content-type: application/json');
-  echo json_encode($datajson);
-  exit();
+    $main->echoJSON($datajson);
 }
 if (iconv_strlen($data['token']) == 32 && $webgl) {
   // если есть токен авторизации из локалного хранилища браузера  и данные webGL то проверим его на валидноть
@@ -81,11 +78,10 @@ if (iconv_strlen($data['token']) == 32 && $webgl) {
     $checkusing = "user_login"; // для правельной авторизации по логину
   } else {
     $datajson = ['status' => 'error', 'message' => "не верный токен"];
-    header('Content-type: application/json');
-    echo json_encode($datajson);
+
     $txt = "Не верный токен  для login_id" . $data['id'] . "token sql -" . $rez['user_token'] . " token post -" . $data['token'];
-    savelog($txt);
-    exit();
+      $main->logSave($txt,'token',log_path);
+      $main->echoJSON($datajson);
   }
 }
 if (isset($data['pname'])) {
@@ -205,6 +201,31 @@ function savelog($txt)
   file_put_contents($filename, $txt . PHP_EOL, FILE_APPEND);
 
 }
+function checkpwd($password,$user_login) {
+global $DB;
+    $hasher = password_hash($password, PASSWORD_DEFAULT);
+    $stored_hash = "*";
+
+        //if encryption is ON
+        $query="SELECT user_password from lift_users WHERE user_login = :name OR user_email = :name LIMIT 1;";
+        $stored_hash = $DB->single($query,array(':name'=>$user_login));
+
+        if(OLDHASH){
+            include("includes/PasswordHash.php");
+            $check = new PasswordHash(8, false);
+            return $check->CheckPassword($password, $stored_hash);
+        }
+
+        if ($hasher===$stored_hash) {
+            $return_value = TRUE;
+        }else{
+            $return_value = FALSE;
+        }
+        $stmt=null;
+        $dbh=null;
+        //if encryption is OFF
+
+    }
 
 // eold
 if (true) {

@@ -1,4 +1,6 @@
 <?php //build data array
+use database\PDODB;
+
 require_once("./include/session.php");
 require_once("./include/checksession.php");
 include("./include/ldisp_config.php");

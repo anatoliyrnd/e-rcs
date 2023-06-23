@@ -1,73 +1,52 @@
 <?php
-include("include/session.php");
-include("include/checksession.php");
-include("include/ldisp_config.php");
-include("include/function.php");
+require_once("./include/autoload.php");
+include_once("./include/ldisp_config.php");
 
- if (isset($user_id)) {
-  $nacl = nacl($user_id);
+use database\PDODB;
+use includes\main;
 
-  if ($nacl != $user_nacl) {
-    echo "Ошибка авторизации i_d <a href='/index.php'>На главную</a>";
-   exit;
-  }
- } else {
-   echo "invalid id";
-  exit;
- }
+$DB = new PDODB(db_host, DBPort, db_name, db_user, db_password);
+$main_function = new main($DB,TOKEN_TELEGRAM);
+$main_function->check_session();
+$main_function->check_user();
+$permission=$main_function->getUserPermission();
+/*
+ * 0-read call
+ * 1-edit_call
+ * 2-close_call
+ * 3-note_call
+ * 4-add_call_permission
+ * 5-edit_user_link
+ * 6-edit_obj_link
+ */
 
-
-DB::$dsn           = db_PDO;
-DB::$user          = db_user;
-DB::$pass          = db_password;
-
-$editobjlink       = '';
-$edituserlink      = '';
-$disppermission    = "false";
-$addcallpermission = false;
-$setting= false;
-if (isset($user_id)) {
-  $checkusr = (int) $user_id;
-  $q        = "SELECT `user_add_call`, `user_localadmin`,`user_edit_obj`, `user_edit_user`, `user_level`, `user_disppermission` FROM `lift_users` WHERE `user_id`=$checkusr LIMIT 1";
-
-  $userdata = DB::getRow($q);
-  
-  
-  if ($userdata['user_localadmin'] or $userdata['user_edit_obj']) {
+    //если админ или пользователю разрешено редктирование
+  ($permission[6])?$edit_obj_link = "<li><a href='/editobj.php' target='blank'><span>Управление базой адресов</span></a></li>":$edit_obj_link ="" ;
+    //если админ или пользователю разрешено редктирование
+ ($permission[5])?$edituserlink = "<li><a href='user_edit.php' target='blank'><span>Управление пользователями</span></a></li>":$edituserlink="";
+    //если диспетчер  или пользователю разрешено создание заявок
+($permission[4])?$add_call_link="<li name='clickMenu-newCall'><a href='#' class='new_call' ><span >Новая заявка-></span></a></li>":$add_call_link="";
+  //if ($userdata['user_localadmin'] or !$userdata['user_level']) {
     //если админ или пользователю разрешено редктирование 
-    $editobjlink = "<li><a href='/editobj.php' target='blank'><span>Управление базой адресов</span></a></li>";
-  }
-  if ($userdata['user_localadmin'] or $userdata['user_edit_user']) {
-    //если админ или пользователю разрешено редктирование 
-    $edituserlink = "<li><a href='user_edit.php' target='blank'><span>Управление пользователями</span></a></li>";
-  }
-  if ($userdata['user_disppermission'] or ($userdata['user_level'] == 3)) {
-    //если диспетчер  или пользователю разрешено редктирование 
-    $disppermission = "true";
-  }
-  if ($userdata['user_add_call'] or ($userdata['user_level'] == 3)) {
-    //если диспетчер  или пользователю разрешено создание заявок 
-    $addcallpermission = true;
-  }
-  if ($userdata['user_localadmin'] or !$userdata['user_level']) {
-    //если админ или пользователю разрешено редктирование 
-    $setting= true;
-  } 
+  //  $setting= true;
+ // }
+//  //если диспетчер  или пользователю разрешено редктирование
+ ////(!$userdata['user_disppermission'] or ($userdata['user_level'] == 3))?:$disppermission = "true";
   $stuser = null;
-}
+
 ?>
 <!DOCTYPE html>
 <html lang="ru">
-<!-- <?php echo $nacl . " - " . $user_id . "name " . $user_name . " - " . $user_level; ?> -->
+<!-- <?php //echo $nacl . " - " . $user_id . "name " . $user_name . " - " . $user_level; ?> -->
 
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=.8">
   <meta name="csrf-token" content="fz39nNuPLyVKzX2hFqOZOQp69sksn2UWrQsBgqmR">
-  <title>Диспетчер. Журнал заявок. - <?php echo $user_name; ?> </title>
+  <title>Диспетчер. Журнал заявок. - <?php echo $main_function->getUserName(); ?> </title>
   <meta name="description"
-    content="Электронный журнал заявок по ремнту лифтов ->Интерфейс диспетчера -><?php echo $user_name; ?>">
+    content="Электронный журнал заявок по ремнту лифтов ->Интерфейс диспетчера -><?php echo $main_function->getUserName(); ?>">
   <meta name="author" content="Zamotaev Anatoliy">
   <meta name="robots" contents="noindex">
   <link rel="icon" type="image/png" href="favicon.ico">
@@ -83,9 +62,9 @@ if (isset($user_id)) {
     
   </style>
   <script>
-   const nacl = "<?php echo $nacl; ?>";
-  const user_name = "<?php echo $user_name; ?>";
-  const user_id = "<?php echo $user_id; ?>";
+      const nacl = "<?php //echo $main_function->getUserNacl(); ?>";
+  const user_name = "<?php echo $main_function->getUserName(); ?>";
+  const user_id = "<?php echo $main_function->getUserId(); ?>";
   </script>
 </head>
 
@@ -96,11 +75,11 @@ if (isset($user_id)) {
         <div id="toggle_head"><span></span></div>
         <div id="menu"><span id="title">Управление</span>
           <ul>
-            <li name="clickMenu-newCall"><a href="#" class="new_call" ><span >Новая заявка-></span></a></li>
+            <?php echo $add_call_link; ?>
             <li name="clickMenu-openCalls"><a href="#"><span>Открытые заявки</span></a></li>
             <li name="clickMenu-closeCalls"><a href="#"><span>Недавно закрытые заявки</span></a></li>
             <hr>
-           <?php echo  $editobjlink;
+           <?php echo  $edit_obj_link;
            echo $edituserlink; ?>
             <hr>
             <?php  if ($setting){echo "<li><a href='./setting.php'><span>Настройки</span></a></li>";} ?>
@@ -150,9 +129,8 @@ if (isset($user_id)) {
   </script>
 
 <canvas id="glcanvas" width="0" height="0"></canvas>
-<script type="module" src="/js/disp.js?v2-004"></script>
+<script type="module" src="/js/disp.js?v2-005"></script>
 <div id="countdownBar" class="countdownBar hidden"></div>;
 </body>
 
 </html>
-<!-- <a target="_blank" href="https://icons8.com/icon/523/о-нас">О нас</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a> -->

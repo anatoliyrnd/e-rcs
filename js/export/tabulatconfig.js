@@ -109,7 +109,7 @@ const tablgeight = document.documentElement.clientHeight - 80;
 //функция создания экземпляра таблицы открытых заявок
 export let tableOpen = new Tabulator("#open_calls_table", {
   persistence: true,
-  ajaxURL: "/disp/calls.php?data=open",
+  ajaxURL: "/calls.php?data=open",
   footerElement: "<span id='info'></span>",
 
   height: tablgeight,
@@ -251,7 +251,7 @@ let columsdataClose = [
 //great close calls table
 export let tableClose = new Tabulator("#close_calls_table", {
   persistence: true,
-  ajaxURL: "/disp/calls.php?data=close",
+  ajaxURL: "/calls.php?data=close",
   footerElement: "<span id='info-close'></span>",
 
   height: tablgeight,

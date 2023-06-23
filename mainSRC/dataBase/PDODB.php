@@ -13,7 +13,7 @@
  * changes made Zamotaev Anatoliy Nikolaevich zamotaev@list.ru @ 2023
  */
 
-namespace database;
+namespace mainSRC\dataBase;
 const DBHost='localhost';
 const DBPort='3306';
 const DBName='tm';
@@ -26,37 +26,34 @@ use PDOException;
  * property PDO pdo PDO object
  * property PDOStatement sQuery PDOStatement
  * property PDOLog  logObject
+ *
  */
-class PDODB
+
+ class PDODB
 {
-    private $Host;
-    private $DBPort;
-    private $DBName;
-    private $DBUser;
-    private $DBPassword;
+    private string $Host;
+
+    private string $DBPort;
+    private string $DBName;
+    private string $DBUser;
+    private string $DBPassword;
     private $pdo;
     private $sQuery;
-    private $connectionStatus = false;
+    private bool $connectionStatus = false;
     private $logObject;
     private $parameters;
-    public $rowCount = 0;
-    public $columnCount = 0;
-    public $querycount = 0;
+    public int $rowCount = 0;
+    public int $columnCount = 0;
+    public  $querycount = 0;
 
 
-    private $retryAttempt = 0; // Количество неудачных попыток
+    private $retryAttempt = 0; // var for the number of failed attempts
     const AUTO_RECONNECT = true;
-    const RETRY_ATTEMPTS = 3; // Максимальное количество неудачных попыток
+    const RETRY_ATTEMPTS = 3; // max number of failed attempts
+     private static  $_instance;
 
-    /**
-     * DB constructor.
-     * @param $Host
-     * @param $DBPort
-     * @param $DBName
-     * @param $DBUser
-     * @param $DBPassword
-     */
-    public function __construct($Host, $DBPort, $DBName, $DBUser, $DBPassword)
+
+    private function __construct()
     {
         $this->logObject = new PDOLog();
         $this->Host = DBHost;
@@ -66,10 +63,25 @@ class PDODB
         $this->DBPassword = DBPassword;
         $this->parameters = array();
         $this->Connect();
+
     }
 
-
-    private function Connect()
+     /**
+      * @return PDODB
+      */
+     public static function getInstance()
+     {
+         //singleton get instance class DataBase  получить экземпляр класса работы с базай
+         if (self::$_instance === null) {
+             self::$_instance = new self();
+         }
+         return self::$_instance;
+     }
+     private function __clone() { }
+     private function __wakeup() {
+         //запрещаем клонирование объекта модификатором private
+     }
+    private  function Connect()
     {
         try {
             $dsn = 'mysql:';
@@ -215,7 +227,7 @@ class PDODB
      */
     public function inTransaction()
     {
-        return $this->pdo->inTransaction();
+        //return $this->pdo->inTransaction();
     }
 
     /**

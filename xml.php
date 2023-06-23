@@ -1,4 +1,7 @@
 <?php
+
+use database\PDODB;
+
 define("debug_xml",true); // если нужна отладочная информация то ставим в true
 $DATE_REPAIR=3;//срок ремонта из массива static_data.php
 if (strcasecmp($_SERVER['REQUEST_METHOD'], 'POST') != 0) {

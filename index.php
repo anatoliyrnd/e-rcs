@@ -1,6 +1,8 @@
 <?php
 //(C)Замотаев Анатолий Николаевич
-include("include/session.php");
+include("include/autoload.php");
+$main=new \mainSRC\main();
+$main->checkSession();
 $_SESSION['auth'] = md5(uniqid(microtime()));
 ?>
 

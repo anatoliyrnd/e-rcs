@@ -21,7 +21,7 @@ let adressData = {};
 {
   headMessage.innerHTML = "Загружаем основные конфигурационные данные";
 
-  const url = "/disp/loadconfig.php";
+  const url = "./loadconfig.php";
   fetchLoad(url, '{"action":"loadstartdate"}', start);
 }
 const svgstaff =
@@ -167,7 +167,7 @@ function start(result) {
     setTimeout(() => {
       headMessage.innerHTML = "Загружаем базу адресов";
       headLoader.hidden = false;
-      fetchLoad("disp/loadconfig.php", '{"action":"loadadress"}', startStep2);
+      fetchLoad("./loadconfig.php", '{"action":"loadadress"}', startStep2);
     }, 500);
   } else {
     headMessage.innerHTML =
@@ -271,6 +271,7 @@ function creatSelectCard(selectList, parent, button, length = 0) {
   let control = [];
   for (const key in selectList) {
     const element = selectList[key];
+    console.log(selectData[key]);
     let cardContent = cardCreat(parent, element);
     let select = new Select(key, "select");
     select.appendTo(cardContent, selectData[key], 0, function () {
@@ -655,7 +656,7 @@ function savecall(savedata) {
   saveDialog.innerHTML = spinerDialog;
 
   fetchLoad(
-    "/disp/save.php",
+    "/calls.php",
     JSON.stringify(Object.fromEntries(changeCall)),
     saveCallResult
   );
