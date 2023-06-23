@@ -1,36 +1,30 @@
 <?php //build data array
-require_once("../include/session.php");
-require_once("../include/checksession.php");
-include("../include/ldisp_config.php");
-include("../include/function.php");
-require_once("../include/PDO.class.php");
-if (isset($user_id)) {
 
-  if (nacl($user_id) != $user_nacl) {
-    echo "Ошибка авторизации";
-    exit;
-  }
-  $user_id = (int) $user_id;
-} else {
-  echo "Не известнай пользователь";
-  exit();
-}
+require_once ("../include/autoload.php");
+include("../include/ldisp_config.php");
+use database\PDODB;
+use includes\main;
+
+$DB   = new PDODB(db_host, DBPort, db_name, db_user, db_password);
+$main_function= new main($DB);
+$main_function->check_session();
+//require_once("../include/session.php");
+//require_once("../include/checksession.php");
+
+include("../include/function.php");
+//require_once("../include/PDO.class.php");
+
+
+ $main_function->check_user();
+ $user_id = (int)$main_function->getUserId();
+
 if (isset($_REQUEST['data'])) {
   $action = $_REQUEST['data'];
 } else {
-  echo "Не передан запрос";
-  exit();
+    $main_function->echojson(Array('status' => 'error', 'message' => 'Не передан запрос'));
 }
 $data = [];
-$DB   = new PDODB(db_host, DBPort, db_name, db_user, db_password);
-
 $date_close=time() - 86400;
-$userq     = "SELECT user_block, user_read_all_calls, user_localadmin, user_level FROM lift_users WHERE user_id=$user_id LIMIT 1";
-$user_data = $DB->row($userq);
-if ($user_data['user_block']) {
-  echo "Ваш  аккаунт заблокирован";
-  exit;
-}
 if ($action == "open") {
   if ($user_data['user_read_all_calls'] || $user_data['user_localadmin'] || $user_data['user_level'] == 3) {
     $callsQuery = "SELECT *  from lift_calls  WHERE (call_status = 0)  order by call_id desc;";
