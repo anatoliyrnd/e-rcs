@@ -1,8 +1,9 @@
 <?php
 //(C)Замотаев Анатолий Николаевич
-include("include/autoload.php");
+/*include("include/autoload.php");
 $main=new \mainSRC\main();
-$main->checkSession();
+$main->checkSession();*/
+session_start();
 $_SESSION['auth'] = md5(uniqid(microtime()));
 ?>
 
@@ -11,22 +12,15 @@ $_SESSION['auth'] = md5(uniqid(microtime()));
 <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="csrf-token" content="fz39nNuPLyVKzX2hFqOZOQp69sksn2UWrQsBgqmR" />
 <title>Журнал по учету заявок на ремонт лифтов.</title>
 <meta name="description" content="Электронный журнал заявок по ремнту лифтов ->" />
 <meta name="author" content="Zamotaev Anatoliy" />
-<script type="text/javascript" src="js/mobile-detect.min.js"></script>
-<link rel="stylesheet" href="./css/index.css?v1.002" /> 
+<script type="text/javascript" src="./js/mobile-detect.min.js"></script>
+<link rel="stylesheet" href="./css/index.css?v1.002" />
 <style>
   * {
     box-sizing: border-box;
   }
-
- 
-
-
-
-  
   /* =========================================
 Spinner
 ========================================= */
@@ -114,6 +108,7 @@ Spinner
 </head>
 
 <body>
+
     <div class="container">
         <div class="form">
             <div class="title shimmer">Safety House</div>

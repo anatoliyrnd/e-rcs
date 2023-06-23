@@ -30,6 +30,14 @@ if ($action_body){
             $action= new \mainSRC\calls\note();
             $action->addNote($input);
             break;
+        case 'loadStartData':
+            $action= new \mainSRC\loadStartData();
+            $action->configData();
+            break;
+        case 'loadAddress':
+            $action= new \mainSRC\loadStartData();
+            $action->loadAddress();
+            break;
         default:
             $action=new \mainSRC\main();
             $action->checkSession();

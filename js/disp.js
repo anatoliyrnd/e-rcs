@@ -21,8 +21,8 @@ let adressData = {};
 {
   headMessage.innerHTML = "Загружаем основные конфигурационные данные";
 
-  const url = "./loadconfig.php";
-  fetchLoad(url, '{"action":"loadstartdate"}', start);
+  const url = "./calls.php";
+  fetchLoad(url, '{"action":"loadStartData"}', start);
 }
 const svgstaff =
   '<span class="checkbox__checker"></span><span class="checkbox__txt-left">Да</span><span class="checkbox__txt-right">Нет</span><span class="checkbox__bg"><?xml version="1.0" ?><svg  viewBox="0 0 110 43.76" xmlns="http://www.w3.org/2000/svg"><path d="M88.256,43.76c12.188,0,21.88-9.796,21.88-21.88S100.247,0,88.256,0c-15.745,0-20.67,12.281-33.257,12.281,S38.16,0,21.731,0C9.622,0-0.149,9.796-0.149,21.88s9.672,21.88,21.88,21.88c17.519,0,20.67-13.384,33.263-13.384,S72.784,43.76,88.256,43.76z"/></svg><span>';
@@ -167,7 +167,7 @@ function start(result) {
     setTimeout(() => {
       headMessage.innerHTML = "Загружаем базу адресов";
       headLoader.hidden = false;
-      fetchLoad("./loadconfig.php", '{"action":"loadadress"}', startStep2);
+      fetchLoad("./calls.php", '{"action":"loadAddress"}', startStep2);
     }, 500);
   } else {
     headMessage.innerHTML =

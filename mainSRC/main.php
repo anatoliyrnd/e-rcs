@@ -55,12 +55,12 @@ class main
         exit();
     }
 
-    private function nacl($user_id): string
+    public function nacl($user_id): string
     {
         $query = "select last_login from lift_users where user_id = :user_id LIMIT 1";
         $user_hash = $this->DB->single($query, array("user_id" => $user_id));
-        $nacl = md5(AUTH_KEY . $user_hash);
-        return $nacl;
+        $auth_key=$this->DB->single("SELECT option_value FROM lift_options WHERE option_name='authorizationKey' LIMIT 1");
+        return md5($auth_key . $user_hash);
     }
 
     private function session()
@@ -88,9 +88,7 @@ class main
             $this->user_level = $_SESSION['user_level'];
             $this->user_nacl = $_SESSION['user_nacl'];
         } else {
-
-            $href = "../../../index.php";
-            header('Location: ' . $href);
+            header("Location: " . dirname($_SERVER['REQUEST_URI'], 2) . "../index.php");
             exit;
         }
     }
@@ -189,6 +187,10 @@ class main
         return $this->user_name;
     }
 
+    /**
+     * @param $index // порядковый номер метки времени для срока ремонта
+     * @return false|int возвращет время срока ремонта по порядковому номеру
+     */
     public function repairTimeUnix($index)
     {
         $arrTime = json_decode($this->DB->single("SELECT option_value FROM lift_options WHERE option_name='repair_time'"), true);
@@ -200,8 +202,10 @@ class main
 
     }
 
+
     /**
-     * @return PDODB
+     * @param $index
+     * @return mixed времени ремонта по его индексу
      */
     public function repairTime($index)
     {

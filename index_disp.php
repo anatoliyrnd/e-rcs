@@ -1,14 +1,12 @@
 <?php
-require_once("./include/autoload.php");
-include_once("./include/ldisp_config.php");
+include("include/autoload.php");
 
-use database\PDODB;
-use includes\main;
+use mainSRC\main;
 
-$DB = new PDODB(db_host, DBPort, db_name, db_user, db_password);
-$main_function = new main($DB,TOKEN_TELEGRAM);
-$main_function->check_session();
-$main_function->check_user();
+
+$main_function = new main();
+//$main_function->checkSession();
+$main_function->checkUser();
 $permission=$main_function->getUserPermission();
 /*
  * 0-read call
