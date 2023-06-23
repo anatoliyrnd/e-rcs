@@ -189,16 +189,11 @@ class main
 
     /**
      * @param $index // порядковый номер метки времени для срока ремонта
-     * @return false|int возвращет время срока ремонта по порядковому номеру
+     * @return false|int возвращет метку времени  срока ремонта по порядковому номеру
      */
     public function repairTimeUnix($index)
     {
-        $arrTime = json_decode($this->DB->single("SELECT option_value FROM lift_options WHERE option_name='repair_time'"), true);
-        if (empty($arrTime)) {
-            $this->logSave("error read repair time $index", 'main', "main");
-            return false;
-        }
-        return strtotime(array_keys($arrTime)[$index]);
+         return strtotime($index);
 
     }
 

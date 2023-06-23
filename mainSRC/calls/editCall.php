@@ -136,7 +136,7 @@ private $staff_telegram=0;
 
     }
     private function repairTimeSave($index){
-        $index_time       = (int) $index;
+        $index_time       =  $index;
         $repair_time_unix = $this->repairTimeUnix($index_time);// получим значение метки времени юникс
         $repair_time=$this->repairTime($index_time);//получем значение срока предполагаемого ремонта
         $this->history .= " <b>Cрок предполагаемого ремонта</b> - " . $repair_time;

@@ -5,19 +5,21 @@ const log_path="calls";
 class newCall extends main
 {
     private $status_text;
+    private $repair_time;
     private $inputData;
     private $add_call_allow;//разрешено добавлять заявки
     public function __construct($data)
     {
         parent::__construct();
 $this->inputData=$data;
+$this->repair_time=$data['repair_time'];
         $this->checkSession();
         $this->add_call_allow=$this->getUserPermission()[5];
     }
     public function newCallAdd(){
         if(!$this->checkDataIntegrity())$this->echoJSON(array("status"=>'error','message'=>$this->status_text));
         if(!$this->checkUserAlow())$this->echoJSON(array("status"=>'error','message'=>$this->status_text));
-        $this->inputData['repair_time'] = $this->repairTimeUnix($this->inputData['repair_time']);// по индексу получим метку времени
+        $this->inputData['repair_time'] = $this->repairTimeUnix($this->repair_time);// по индексу получим метку времени
 $details=$this->magicLower($this->inputData['details']);
 $this->inputData['details']=$details; //уберем капслок
         $this->inputData['user_name']=$this->getUserName();
