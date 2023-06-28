@@ -31,6 +31,13 @@ class main
         $this->echoJSON(array('status' => 'error', 'message' => 'Не передан ID заявки'));
     }
 
+    /**
+     * @description запись логов
+     * @param $text string  текст
+     * @param $type string of log (name file)
+     * @param $path string (папка с логами)
+     * @return void
+     */
     public function logSave($text, $type = "default_log", $path = null)
     {
         $this->logSave->logSave($text, $type, $path);
@@ -48,6 +55,11 @@ class main
         file_put_contents($path_debug . $file . ".txt", $text . PHP_EOL, FILE_APPEND);
     }
 
+    /**
+     * @description Вывод массива в JSON формате
+     * @param $data array
+     * @return void
+     */
     public function echoJSON($data)
     {
         header('Content-type: application/json');
@@ -55,6 +67,11 @@ class main
         exit();
     }
 
+    /**
+     * @description поглучение уникального авторизационного ключа пользователя
+     * @param $user_id int
+     * @return string
+     */
     public function nacl($user_id): string
     {
         $query = "select last_login from lift_users where user_id = :user_id LIMIT 1";
@@ -93,6 +110,10 @@ class main
         }
     }
 
+    /**
+     * проверка сесии пользователя
+     * @return void
+     */
     public function checkSession()
     {
         $this->session();
@@ -100,7 +121,7 @@ class main
     }
 
     /**
-     * @param $text
+     * @param $text string
      * @return array|mixed|string|string[]|null
      * @description возвращает отформатированный текст если при вводе текста был включен капслок
      */
@@ -118,6 +139,12 @@ class main
             }, $text);
     }
 
+    /**
+     * @description проверка пользователя
+     * @param $id int если не указать будет получен из массвиа Сессии
+     * @param $nacl string если не указать будет получен из массвиа Сессии
+     * @return bool если ошибка проверки то FALSE
+     */
     public function checkUser($id = null, $nacl = null)
     {
         $id = $id ?? $this->user_id;
@@ -125,6 +152,11 @@ class main
         return (($this->nacl($id) === $nacl));
     }
 
+    /**
+     * @description  возвращает массив уровней доступа пользоватиеля
+     * @param $user_id int если не указать будет получен из массива сессии
+     * @return array
+     */
     public function getUserPermission($user_id = NULL)
     {
         /*
@@ -172,6 +204,7 @@ class main
     }
 
     /**
+     * @description  получить id пользователя из текущей сессии
      * @return mixed
      */
     public function getUserId()
@@ -180,6 +213,7 @@ class main
     }
 
     /**
+     * @description  получить имя пользователя из текущей сессии
      * @return mixed
      */
     public function getUserName()
@@ -188,8 +222,7 @@ class main
     }
 
     /**
-     * @param $index // порядковый номер метки времени для срока ремонта
-     * @return false|int возвращет метку времени  срока ремонта по порядковому номеру
+     *  @return int возвращет метку времени  срока ремонта по порядковому номеру
      */
     public function repairTimeUnix($index)
     {
@@ -200,7 +233,7 @@ class main
 
     /**
      * @param $index
-     * @return mixed времени ремонта по его индексу
+     * @return string времени ремонта по его индексу
      */
     public function repairTime($index)
     {
@@ -213,6 +246,11 @@ class main
 
     }
 
+    /**
+     * @description  проверка минимальной длины строки
+     * @param $str string
+     * @return false|int если меньше заданной то возвращает минимальную длину, если больше то FALSE
+     */
     public function getMinValueIfShorter($str)
     {
         $min_length = $this->DB->single("SELECT option_value FROM lift_options WHERE option_name='min_length_text'");
@@ -223,6 +261,11 @@ class main
         }
 
     }
+
+    /**
+     * @description  возвращает полный урл с учетом типа протокола
+     * @return string
+     */
     public function getHostURL(){
         $protocol = (!empty($_SERVER['HTTPS']) && 'off' !== strtolower($_SERVER['HTTPS'])?"https://":"http://");
         return $protocol. $_SERVER["SERVER_NAME"];
