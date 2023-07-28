@@ -939,34 +939,31 @@ INSERT INTO `lift_object` (`id`, `object_name`, `home_id`, `timestamp`, `vis_obj
 
 -- --------------------------------------------------------
 
---
--- Структура таблицы `lift_options`
---
-
 CREATE TABLE `lift_options` (
-                                `id` int(11) NOT NULL,
-                                `option_name` varchar(255) NOT NULL DEFAULT '',
-                                `option_value` varchar(6000) NOT NULL DEFAULT '',
-                                `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
-                                `comment` text NOT NULL DEFAULT ' ' COMMENT 'Подробно о параметре'
+  `id` int(11) NOT NULL,
+  `option_name` varchar(255) NOT NULL DEFAULT '',
+  `option_value` varchar(6000) NOT NULL DEFAULT '',
+  `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
+  `comment` text NOT NULL DEFAULT ' ' COMMENT 'Подробно о параметре',
+  `change_allowed` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Разрешено редактирование',
+  `type` varchar(50) NOT NULL DEFAULT 'text' COMMENT 'тип значения'
 ) ENGINE=InnoDB AVG_ROW_LENGTH=16384 DEFAULT CHARSET=utf8mb3;
 
 --
 -- Дамп данных таблицы `lift_options`
 --
 
-INSERT INTO `lift_options` (`id`, `option_name`, `option_value`, `timestamp`, `comment`) VALUES
-                                                                                             (1, 'encrypted_passwords', 'yes', '2014-03-16 13:43:19', ' '),
-                                                                                             (2, 'newdatacall', 'no', '2021-12-31 15:00:00', ' '),
-                                                                                             (3, 'telegram_token', '', '2023-05-25 19:53:38', ' Ваш токен от телеграм бота'),
-                                                                                             (4, 'waiting_time', '600', '2023-05-29 17:37:34', 'Время в секундах ожидания сообщения на команду в телеграм'),
-                                                                                             (5, 'repair_time', '{\n  \"0\": \"не указан\",\n  \"+30 minutes\": \"30 мин\",\n  \"today 23:00\": \"Сегодня\",\n  \"today +1day 23:00\": \"Завтра\",\n  \"today +3day 23:00\": \"Три дня\",\n  \"today+7day\": \"7 дней\",\n  \"today+10day\": \"10 дней\",\n  \"today+15day\": \"15 дней\",\n  \"today+1month\": \"1 месяц\",\n  \"today+3month\": \"3 месяца\"\n}', '2023-06-01 16:05:40', 'Временные метки для сроков ремонта'),
-                                                                                             (6, 'min_length_text', '5', '2023-06-02 19:00:53', 'Минимальное количество символов для текста в заметка, решении, описании заявки'),
-                                                                                             (7, 'login_tries', '5', '2023-06-02 20:24:53', 'максимальное количество попыток авторизации'),
-                                                                                             (8, 'authorizationKey', 'yousecretkey', '2023-06-23 20:02:59', 'Уникальный ключ для авторизационного токена (любая комбинация символов и чисел) ');
+INSERT INTO `lift_options` (`id`, `option_name`, `option_value`, `timestamp`, `comment`, `change_allowed`, `type`) VALUES
+(1, 'encrypted_passwords', 'yes', '2014-03-16 13:43:19', ' ', 0, ' '),
+(2, 'newdatacall', 'no', '2021-12-31 15:00:00', ' ', 0, ' '),
+(3, 'telegram_token', '0', '2023-05-25 19:53:38', ' Телеграм токен', 1, ' text'),
+(4, 'waiting_time', '600', '2023-05-29 17:37:34', 'Время в секундах ожидания сообщения на команду в телеграм', 1, 'number'),
+(5, 'repair_time', '{\n  \"0\": \"не указан\",\n  \"+30 minutes\": \"30 мин\",\n  \"today 23:00\": \"Сегодня\",\n  \"today +1day 23:00\": \"Завтра\",\n  \"today +3day 23:00\": \"Три дня\",\n  \"today+7day\": \"7 дней\",\n  \"today+10day\": \"10 дней\",\n  \"today+15day\": \"15 дней\",\n  \"today+1month\": \"1 месяц\",\n  \"today+3month\": \"3 месяца\"\n}', '2023-06-01 16:05:40', 'Временные метки для сроков ремонта', 0, ' '),
+(6, 'min_length_text', '5', '2023-06-02 19:00:53', 'Минимальное количество символов для текста в заметка, решении, описании заявки', 1, 'number'),
+(7, 'login_tries', '5', '2023-06-02 20:24:53', 'максимальное количество попыток авторизации', 1, 'number'),
+(8, 'authorizationKey', 'yousecretkey', '2023-06-23 20:02:59', 'Уникальный ключ для авторизационного токена (любая комбинация символов и чисел) ', 1, ' text');
 
--- --------------------------------------------------------
-
+--
 --
 -- Структура таблицы `lift_street`
 --
@@ -1177,7 +1174,7 @@ CREATE TABLE `lift_users` (
 --
 
 INSERT INTO `lift_users` (`user_id`, `user_login`, `user_password`, `user_name`, `user_telegram`, `user_address`, `user_city`, `user_state`, `user_zip`, `user_country`, `user_phone`, `user_email`, `user_email2`, `user_company`, `user_new_read`, `user_im_icq`, `user_im_msn`, `user_im_yahoo`, `user_im_other`, `user_status`, `user_level`, `user_pending`, `user_date`, `last_login`, `last_ip`, `user_msg_send`, `user_msg_subject`, `user_protect_delete`, `user_protect_edit`, `user_hiden`, `user_localadmin`, `user_edit_obj`, `user_edit_user`, `user_disppermission`, `user_add_call`, `user_read_all_calls`, `user_block`, `user_token`, `webgl_info`) VALUES
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          (1, 'admin', '$2a$08$/edNGVivhSJWCv.XdvuuVulHzFh7BbeqSmmwkWexHLUoOgPBrXl9a', 'Замотаев Анатолий', 1401760365, '', '', '', '', 'Рос', '+79185049042', 'zamotaev@list.ru', 'someone@example.com', '', 0, '', '', '', '', 0, 0, 0, 0, 1687552918, '127.0.0.1', 0, 'New Message', 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 'c4622379bc5e6a357c94ec199109eeed', 'ANGLEIntelIntelRHDGraphics4000Direct3D11vs_5_0ps_5_0D3D11'),
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          (1, 'admin', '$2a$08$/edNGVivhSJWCv.XdvuuVulHzFh7BbeqSmmwkWexHLUoOgPBrXl9a', 'Замотаев Анатолий', 0, '', '', '', '', 'Рос', '+79185049042', 'zamotaev@list.ru', 'someone@example.com', '', 0, '', '', '', '', 0, 0, 0, 0, 1687552918, '127.0.0.1', 0, 'New Message', 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 'c4622379bc5e6a357c94ec199109eeed', 'ANGLEIntelIntelRHDGraphics4000Direct3D11vs_5_0ps_5_0D3D11'),
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           (2, 'disp1', '$2a$08$/edNGVivhSJWCv.XdvuuVulHzFh7BbeqSmmwkWexHLUoOgPBrXl9a', 'Диспетчер1', 0, '', '', '', '', '', '+71234567891', 'disp1@list.ru', '', 'лифтовая 1', 0, '', '', '', '', 1, 3, 0, 0, 1684426124, '127.0.0.1', 0, '', 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, '', 'ANGLEIntelIntelRHDGraphics4000Direct3D11vs_5_0ps_5_0D3D11'),
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           (3, 'meh1', '$2a$08$U0FU0FjFo7db5gSwVQAwcuYPm2J0YgNm68hRnSb4Y8j98j3tVZDtq', 'Иванов Иван', 0, '', '', '', '', '', '+71234567890', '', '', '', 0, '', '', '', '', 1, 2, 0, 0, 1684425686, '127.0.0.1', 0, '', 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, '9f58024cbebf0c074ac4db496d9a6445', 'ANGLEIntelIntelRHDGraphics4000Direct3D11vs_5_0ps_5_0D3D11'),
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           (5, 'meh2', '$2a$08$/edNGVivhSJWCv.XdvuuVulHzFh7BbeqSmmwkWexHLUoOgPBrXl9a', 'Петров Петр', 0, '', '', '', '', '', '+71234567892', '', '', '', 0, '', '', '', '', 1, 2, 0, 0, 1673367757, '192.168.0.100', 0, '', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', ' '),
