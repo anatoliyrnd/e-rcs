@@ -48,13 +48,36 @@ export class Select {
         this.elem.addEventListener("change", callback);
     }
 }
-
-class mainAddress {
+export class main{
     typeList = ["city", "street", "home", "object"];// название типа в общем массиве
     parentType = ["", "city_id", "street_id", "home_id"];//название ключа для ID родительского элемента
     typeId = 0;
     nextStep = null; // Функция для следующего шага (генерация адреса пошагова - вначале Город, затем улица, затем дом и лифт)
-    #currentList = null; //актуальный список объектов для текущего типа и родительского объекта
+    currentList = null; //актуальный список объектов для текущего типа и родительского объекта
+constructor(address){
+    this.addressList = address; //объект с полным перечнем всех адресов
+}
+    fullListFilter(parentId, typeId) {
+        let list = this.addressList.city;
+        if (parentId) {
+            //получим список всех дочерних элемнтов ссылающихся на родительский элемент c ParentId
+            let childrenType = this.typeList[typeId];
+            list = this.addressList[childrenType].filter(
+                (value) => value[this.parentType[typeId]] == parentId
+            );
+        }
+        return list;
+        //генерируем полный список с филтром по родительскому элементу
+        //console.log(list);
+    }
+    get typeList(){
+    return this.typeList
+    }
+    get parentType(){
+    return this.parentType
+    }
+}
+class mainAddress extends main{
 
     /**
      *  address select generation.
@@ -63,8 +86,9 @@ class mainAddress {
      * @param bodyModal {HTMLElement} link HTML element body for modal window
      * @param address {object} object with all address
      */
-    constructor(titleModal, bodyModal, address) {
-        this.addressList = address; //объект с полным перечнем всех адресов
+    constructor(titleModal, bodyModal,address) {
+        super (address);
+
         this.divTitleContainer = document.createElement("div");// контейнер для заголовка модалки
         this.divTitleContainer.classList.add("flex-cont-title");
         titleModal.append(this.divTitleContainer);
@@ -92,7 +116,7 @@ class mainAddress {
         return result;
     }
 
-    creatSerchInput(typeId, list, nextStepFunction) {
+    creatSearchInput(typeId, list, nextStepFunction) {
         /**
          * конфигурация поля ввода для поиска и вывода списка объектов
          * @param typeId {number} id type object address
@@ -101,7 +125,7 @@ class mainAddress {
          */
 
         this.typeId = typeId;
-        this.#currentList = list;
+        this.currentList = list;
         for (let i = 0; i < this.typeList.length; i++) {
             typeId <= i
                 ? (this.bread_crumbs[i].hidden = true)
@@ -125,7 +149,7 @@ class mainAddress {
         let serch = this.input.value;
         if (serch.length >= 1) time = 200;
         let type = this.input.dataset.type;
-        let list = this.#currentList;
+        let list = this.currentList;
         //let top = document.createElement("div");
         let typeId = this.getTypeId(type);
         if (!Array.isArray(list)) {
@@ -181,28 +205,29 @@ export class startAddressSelect extends mainAddress {
 
     city() {
         let filterList = this.fullListFilter(0, 0);
-        this.creatSerchInput(0, filterList, this.street);
+        this.creatSearchInput(0, filterList, this.street);
     }
 
     street() {
         //calback для генерации списка улиц по индексу выбраного города
         let parent = this.bread_crumbs[0].dataset.parentid;
         let filterList = this.fullListFilter(parent, 1);
-        this.creatSerchInput(1, filterList, this.home);
+        console.log(filterList)
+        this.creatSearchInput(1, filterList, this.home);
     }
 
     home() {
         // callback для генерации списка домов по индексу выбранной улицы
         let parent = this.bread_crumbs[1].dataset.parentid;
         let filterList = this.fullListFilter(parent, 2);
-        this.creatSerchInput(2, filterList, this.lift);
+        this.creatSearchInput(2, filterList, this.lift);
     }
 
     lift() {
         //callback для генерации списко лифтоа по индексу выбраного дома
         let parent = this.bread_crumbs[2].dataset.parentid;
         let filterList = this.fullListFilter(parent, 3);
-        this.creatSerchInput(3, filterList, this.checkAddress);
+        this.creatSearchInput(3, filterList, this.checkAddress);
     }
 
     checkAddress() {

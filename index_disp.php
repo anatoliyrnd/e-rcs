@@ -41,7 +41,6 @@ $permission=$main_function->getUserPermission();
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=.8">
-  <meta name="csrf-token" content="fz39nNuPLyVKzX2hFqOZOQp69sksn2UWrQsBgqmR">
   <title>Диспетчер. Журнал заявок. - <?php echo $main_function->getUserName(); ?> </title>
   <meta name="description"
     content="Электронный журнал заявок по ремнту лифтов ->Интерфейс диспетчера -><?php echo $main_function->getUserName(); ?>">

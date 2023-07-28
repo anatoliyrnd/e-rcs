@@ -9,7 +9,7 @@ class main
     /**
      * @var PDODB
      */
-    protected PDODB $DB;
+    public PDODB $DB;
     private $debug_path;
     private $user_id;
     private $user_name;
@@ -72,7 +72,7 @@ class main
      * @param $user_id int
      * @return string
      */
-    public function nacl($user_id): string
+    public function nacl($user_id)
     {
         $query = "select last_login from lift_users where user_id = :user_id LIMIT 1";
         $user_hash = $this->DB->single($query, array("user_id" => $user_id));
@@ -179,12 +179,13 @@ class main
         $add_call_permission = false;//5
         $edit_user_link = false;//6
         $edit_obj_link = false;//7
+        $user_local_admin=$userdata['user_localadmin'];//8 права администратора
         //если админ или пользователю разрешено редктирование  объектов
-        if ($userdata['user_localadmin'] || $userdata['user_edit_obj']) {
+        if ($user_local_admin || $userdata['user_edit_obj']) {
             $edit_obj_link = true;
         }
 //если админ или пользователю разрешено Управление пользователями
-        if ($userdata['user_localadmin'] || $userdata['user_edit_user']) {
+        if ($user_local_admin || $userdata['user_edit_user']) {
             $edit_user_link = true;
         }
 //если диспетчер  или пользователю разрешено редктирование заявок
@@ -193,14 +194,14 @@ class main
             $close_call = true;//2
         }
         // диспетчер  или пользователю разрешено редктирование заявок
-        if ($userdata['user_disppermission'] || $userdata['user_localadmin'] || ($userdata['user_level'] == 3)) {
+        if ($userdata['user_disppermission'] || $user_local_admin || ($userdata['user_level'] == 3)) {
             $read_all_calls = true;//0
         }
 //если диспетчер  или пользователю разрешено создание заявок
         if ($userdata['user_add_call'] || ($userdata['user_level'] == 3)) {
             $add_call_permission = true;
         }
-        return [$this->user_id, $read_all_calls, $edit_call, $close_call, $note_call, $add_call_permission, $edit_user_link, $edit_obj_link];
+        return [$this->user_id, $read_all_calls, $edit_call, $close_call, $note_call, $add_call_permission, $edit_user_link, $edit_obj_link,$user_local_admin];
     }
 
     /**
@@ -269,6 +270,20 @@ class main
     public function getHostURL(){
         $protocol = (!empty($_SERVER['HTTPS']) && 'off' !== strtolower($_SERVER['HTTPS'])?"https://":"http://");
         return $protocol. $_SERVER["SERVER_NAME"];
+
+    }
+    public function replaceArrayKey($array, $oldKey, $newKey){
+        //If the old key doesn't exist, we can't replace it...
+        if(!isset($array[$oldKey])){
+            return $array;
+        }
+        //Get a list of all keys in the array.
+        $arrayKeys = array_keys($array);
+        //Replace the key in our $arrayKeys array.
+        $oldKeyIndex = array_search($oldKey, $arrayKeys);
+        $arrayKeys[$oldKeyIndex] = $newKey;
+        //Combine them back into one array.
+       return   array_combine($arrayKeys, $array);
 
     }
 }
