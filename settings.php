@@ -36,6 +36,7 @@ $nacl=$main->nacl($user_id);
     </script>
 <script type="module" src="./js/setting.js"></script>
 <link rel="stylesheet" href="./css/setting.css" />
+    <link rel="stylesheet" href="./css/reset.css" />
 </head>
 <body>
 <h1>Страница настроек системы</h1>

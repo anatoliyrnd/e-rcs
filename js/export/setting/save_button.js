@@ -7,9 +7,9 @@ export class saveButton {
             return saveButton._instance;
         }
        this.#button = document.createElement('div');
-        this.#button.classList.add("button", "pulse")
+        this.#button.classList.add("button_save", "pulse")
         document.body.appendChild(this.#button);
-        this.#button.innerText = "сохранить";
+
         saveButton._instance = this;
         this.#button.addEventListener('click', this.save)
     }
@@ -18,10 +18,34 @@ hidden (){
 }
     display(){
             this.#button.classList.remove("hidden");
+            this.#button.classList.add("button_save", "pulse")
+            this.#button.addEventListener('click', this.save)
+
     }
+   set text(text){
+            this.#button.innerText=text;
+   }
+   disabled(){
+      this.#button.classList.remove("pulse") ;
+      this.#button.removeEventListener('click', this.save);
+   }
     save() {
         const savedResult = function (message) {
-            console.log(message)
+
+           const  button=new saveButton();
+            console.log(button)
+           if (message.status==="ok") {
+               button.text="Сохранено"}
+           else{
+               button.text="Ошибка";
+               console.error(message.message)
+           }
+           button.disabled();
+
+           setTimeout( ()=>{
+               const button=new saveButton();
+               button.hidden()
+           },4000)
         }
         let modified=document.querySelectorAll('[modified=true]');
         console.log(modified);

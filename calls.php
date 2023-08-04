@@ -36,7 +36,8 @@ if ($action_body){
             break;
         case 'loadAddress':
             $action= new \mainSRC\loadStartData();
-            $action->loadAddress();
+            $data=$action->loadAddress();
+            $action->echoJSON(array("status"=>"ok","message"=>$data));
             break;
         default:
             $action=new \mainSRC\main();

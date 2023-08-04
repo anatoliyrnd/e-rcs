@@ -6,13 +6,19 @@ class loadStartData extends main{
     {
         parent::__construct();
     }
-    public function loadAddress($read_All=false){
+
+    /**
+     * @param $read_All
+     * @return array
+     */
+    public function loadAddress($read_All=false)
+    {
         $this->checkSession();
         $this->checkUser();
-        $city_query="SELECT id, city_name  FROM lift_city WHERE vis_city=0 ORDER BY city_name ";
-        $street_query="SELECT id,street_name,city_id FROM lift_street WHERE vis_street=0  ORDER BY street_name ";
-        $home_query="SELECT id,home_name,street_id FROM lift_home WHERE vis_home=0 ORDER BY  home_name";
-        $lift_query= "SELECT id,object_name,home_id FROM lift_object WHERE vis_object=0 ORDER BY object_name";
+        $city_query="SELECT id, city_name  FROM lift_city WHERE vis=0 ORDER BY city_name ";
+        $street_query="SELECT id,street_name,city_id FROM lift_street WHERE vis=0  ORDER BY street_name ";
+        $home_query="SELECT id,home_name,street_id FROM lift_home WHERE vis=0 ORDER BY  home_name";
+        $lift_query= "SELECT id,object_name,home_id FROM lift_object WHERE vis=0 ORDER BY object_name";
         if ($read_All){
             $city_query="SELECT *  FROM lift_city WHERE 1 ORDER BY city_name ";
             $street_query="SELECT * FROM lift_street WHERE 1  ORDER BY street_name ";
@@ -27,9 +33,8 @@ class loadStartData extends main{
         $result['street'] = $street;
         $result["home"] = $home;
         $result['object'] = $lift;
-        $data['status'] = 'ok';
-        $data['message'] = $result;
-        $this->echoJSON($data);
+
+        return $result;
     }
     public function configData(){
         $this->checkSession();

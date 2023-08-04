@@ -132,14 +132,14 @@ INSERT INTO `lift_calls` (`call_id`, `call_first_name`, `call_last_name`, `call_
 CREATE TABLE `lift_city` (
                              `id` int(11) NOT NULL,
                              `city_name` varchar(256) NOT NULL,
-                             `vis_city` tinyint(1) NOT NULL DEFAULT 0
+                             `vis` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 --
 -- Дамп данных таблицы `lift_city`
 --
 
-INSERT INTO `lift_city` (`id`, `city_name`, `vis_city`) VALUES
+INSERT INTO `lift_city` (`id`, `city_name`, `vis`) VALUES
                                                             (1, 'г. Ростов-на-Дону', 0),
                                                             (2, 'г. Шахты3', 0);
 
@@ -297,14 +297,14 @@ CREATE TABLE `lift_home` (
                              `home_name` varchar(64) DEFAULT NULL,
                              `street_id` int(11) NOT NULL DEFAULT 0,
                              `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
-                             `vis_home` tinyint(1) NOT NULL DEFAULT 0
+                             `vis` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB AVG_ROW_LENGTH=16384 DEFAULT CHARSET=utf8mb3;
 
 --
 -- Дамп данных таблицы `lift_home`
 --
 
-INSERT INTO `lift_home` (`id`, `home_name`, `street_id`, `timestamp`, `vis_home`) VALUES
+INSERT INTO `lift_home` (`id`, `home_name`, `street_id`, `timestamp`, `vis`) VALUES
                                                                                       (1, '215', 42, '2022-08-01 18:03:57', 0),
                                                                                       (2, '1', 32, '2022-08-01 18:31:40', 1),
                                                                                       (3, '4/9', 59, '2022-08-26 15:53:01', 0),
@@ -544,7 +544,7 @@ CREATE TABLE `lift_object` (
                                `object_name` varchar(255) NOT NULL,
                                `home_id` int(11) NOT NULL,
                                `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
-                               `vis_object` tinyint(1) NOT NULL DEFAULT 0,
+                               `vis` tinyint(1) NOT NULL DEFAULT 0,
                                `abbreviated_name` mediumint(6) NOT NULL DEFAULT 0 COMMENT 'Сокращенное наименование лифта в SPult'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
@@ -552,7 +552,7 @@ CREATE TABLE `lift_object` (
 -- Дамп данных таблицы `lift_object`
 --
 
-INSERT INTO `lift_object` (`id`, `object_name`, `home_id`, `timestamp`, `vis_object`, `abbreviated_name`) VALUES
+INSERT INTO `lift_object` (`id`, `object_name`, `home_id`, `timestamp`, `vis`, `abbreviated_name`) VALUES
                                                                                                               (1, 'п.1 ', 1, '2022-08-26 15:50:36', 0, 0),
                                                                                                               (2, 'п.2 ', 1, '2022-08-26 15:50:47', 0, 0),
                                                                                                               (3, 'п.1 uh', 3, '2022-08-26 15:53:14', 0, 0),
@@ -973,14 +973,14 @@ CREATE TABLE `lift_street` (
                                `street_name` varchar(255) NOT NULL DEFAULT '',
                                `city_id` int(11) NOT NULL,
                                `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
-                               `vis_street` tinyint(1) NOT NULL DEFAULT 0
+                               `vis` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB AVG_ROW_LENGTH=16384 DEFAULT CHARSET=utf8mb3;
 
 --
 -- Дамп данных таблицы `lift_street`
 --
 
-INSERT INTO `lift_street` (`id`, `street_name`, `city_id`, `timestamp`, `vis_street`) VALUES
+INSERT INTO `lift_street` (`id`, `street_name`, `city_id`, `timestamp`, `vis`) VALUES
                                                                                           (1, 'Красноармейская ул.', 1, '2022-01-17 15:24:01', 1),
                                                                                           (5, 'Ворошиловский пр.', 1, '2022-01-17 16:04:55', 1),
                                                                                           (8, 'Таганрогская ул.', 1, '2022-01-17 16:07:01', 0),

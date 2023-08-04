@@ -193,7 +193,7 @@ class main
             $edit_call = true;//1
             $close_call = true;//2
         }
-        // диспетчер  или пользователю разрешено редктирование заявок
+        // диспетчер  или пользователю разрешено чтение всех заявок
         if ($userdata['user_disppermission'] || $user_local_admin || ($userdata['user_level'] == 3)) {
             $read_all_calls = true;//0
         }

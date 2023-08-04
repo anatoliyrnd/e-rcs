@@ -54,18 +54,21 @@ export class main{
     typeId = 0;
     nextStep = null; // Функция для следующего шага (генерация адреса пошагова - вначале Город, затем улица, затем дом и лифт)
     currentList = null; //актуальный список объектов для текущего типа и родительского объекта
+    addressList=[];
 constructor(address){
     this.addressList = address; //объект с полным перечнем всех адресов
 }
     fullListFilter(parentId, typeId) {
         let list = this.addressList.city;
+
         if (parentId) {
             //получим список всех дочерних элемнтов ссылающихся на родительский элемент c ParentId
             let childrenType = this.typeList[typeId];
             list = this.addressList[childrenType].filter(
-                (value) => value[this.parentType[typeId]] == parentId
+                (value) => value[this.parentType[typeId]] === parentId
             );
         }
+
         return list;
         //генерируем полный список с филтром по родительскому элементу
         //console.log(list);

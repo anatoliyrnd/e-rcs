@@ -7,7 +7,7 @@ function readyDOM() {
     const urlSetting=URI+"/get_setting.php";
     const tabsElement=document.getElementById("tabs");
     const divModal = document.getElementById("modal");
-    const modal = new dialog();
+   // const modal = new dialog();
     const tab2 = document.getElementById("users");
     tabsElement.addEventListener("click",clickSettings);
 function clickSettings(event){

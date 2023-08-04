@@ -1,110 +1,282 @@
+export class main{
+    #form ;
+    #idFormElement=1;
+    #id=1;
 
-export class dialog{
+    constructor(){
+
+    }
+    creatForm(parent) {
+        this.#form = document.createElement("form");
+        this.#form.classList.add("form-style")
+        this.#form.setAttribute("id", this.#id.toString())
+        const ul = document.createElement("ul")
+        this.#form.append(ul)
+        parent.append(this.#form)
+        this.#id++
+    }
+    get Form() {
+        return this.#form;
+    }
+    addElementFormEnd(element) {
+        console.log(element)
+        this.#form.insertAdjacentElement("beforeend", element);
+
+    }
+
+    addElementFormBegin(element) {
+
+        this.#form.insertAdjacentElement("afterbegin", element);
+    }
+
+    createElementForm(typeElement, name, description, value,dataNameAttribute=null,optionValue= {0:"не указан"},editable=true) {
+        const li = document.createElement("li")
+        const label = document.createElement("label")
+        label.setAttribute("for", "formElement" + this.#idFormElement)
+        label.innerText = name;
+        li.append(label)
+        let input;
+        if (typeElement === "textarea") {
+            input = document.createElement("textarea")
+            input.addEventListener("keyup",(e)=>{
+                //увеличим текстовое поле  ввысоту на всю ширину контента
+                e.target.style.height = "20px";
+                e.target.style.height = (e.target.scrollHeight)+"px";
+            })
+        } else if (typeElement === "select") {
+            input = document.createElement("select")
+
+            for (const key in optionValue){
+                const option=document.createElement("option");
+                option.value=key;
+                option.innerText=optionValue[key]
+                input.append(option)
+            }
+        } else {
+            input = document.createElement("input")
+            input.setAttribute("type", typeElement)
+            typeElement==="checkbox"?input.checked=value:null;
+
+        }
+        li.append(input)
+
+        if(dataNameAttribute)input.setAttribute("data-name",dataNameAttribute)
+        input.setAttribute("name", "formElement" + this.#idFormElement)
+        if (value) input.value = value;
+        const span = document.createElement("span")
+        span.innerText = description
+        li.append(span)
+        this.#idFormElement++;
+        return li
+    }
+
+}
+export class dialog extends main {
     title;
     #body;
     #save
     #close
     #dialog
     #clickCallback
+    #checkBoxId = 1
+
     constructor(parent) {
-        this.#dialog=document.createElement("dialog");
+        super();
+        if (dialog._instance) {
+            return dialog._instance;
+        }
+        this.#dialog = document.createElement("dialog");
         this.#dialog.classList.add("confirm");
-        const div_content=document.createElement("div");
+        const div_content = document.createElement("div");
         div_content.classList.add("content_dialog");
-        this.title=document.createElement("div");
+        this.title = document.createElement("div");
         this.title.classList.add("title_dialog");
-        this.#body=document.createElement("div");
+        this.#body = document.createElement("div");
         this.#body.classList.add("body_dialog");
         div_content.append(this.title);
         div_content.append(this.#body);
         this.#dialog.append(div_content);
-        const div_but=document.createElement("div");
+        const div_but = document.createElement("div");
         div_but.classList.add("modal_but");
-        this.#save=document.createElement("button");
-        this.#save.innerText="Сохранить";
-        this.#save.disable=true;
-        this.#save.setAttribute("id","save")
-        this.#close=document.createElement("button");
-        this.#close.innerText="Закрыть";
-        this.#close.setAttribute("id","close")
-        this.#close.addEventListener("click",()=>{this.#dialog.close();})
+        this.#save = document.createElement("button");
+        this.#save.innerText = "Сохранить";
+        this.#save.disable = true;
+        this.#save.setAttribute("id", "save")
+        this.#close = document.createElement("button");
+        this.#close.innerText = "Закрыть";
+        this.#close.setAttribute("id", "close")
+        this.#close.addEventListener("click", () => {
+            this.#dialog.close();
+        })
         div_but.append(this.#save);
         div_but.append(this.#close);
         this.#dialog.append(div_but);
         let parentElement = parent || document.getElementById("modal");
         parentElement.append(this.#dialog);
+        dialog._instance = this;
     }
-    showModal(){
+
+    showModal() {
         this.#dialog.showModal();
     }
-    set titleTxt(title){
-       this.title.innerText=title;
+
+    set titleTxt(title) {
+        this.title.innerText = title;
     }
-    set bodyHTML(body){
-        this.#body.insertAdjacentHTML("afterbegin",body);
+
+    get body() {
+        return this.#body;
     }
-    get modalId(){
+
+    get modalId() {
         return this.#dialog;
     }
-    clearDialog(){
-        this.title.innerText="";
-        this.#body.innerHTML="";
-        this.#save.removeEventListener("click",this.#clickCallback)
-    }
-    saveClick(func){
-        this.#clickCallback=func;
-        this.#save.addEventListener("click",this.#clickCallback)
+
+    clearDialog() {
+        this.title.innerText = "";
+        this.#body.innerHTML = "";
+        this.#save.removeEventListener("click", this.#clickCallback)
     }
 
-}
-export async function fetchDataServer(url, data, callback){
-            //Функция сохранения изменений
-        function translate(code) {
-            let rez = "Не известная ошибка ";
-            switch (code) {
-                case 404:
-                    rez = " - Страница не найдена! ";
-                    break;
-                case 403:
-                    rez = " - Доступ запрещен! ";
-                    break;
-                case 500:
-                    rez = " - Ошибка сервера! ";
-                    break;
-                case 502:
-                    rez = " - Ошибка шлюза! ";
-                    break;
-                case 429:
-                    rez = " - Слишком много запросов! ";
-                    break;
-            }
-            return rez;
+    setDataAttribute(data) {
+        this.removeAllDataAttributes(this.#save)
+        for (const key in data) {
+            let attributeName = "data-" + key;
+            this.#save.setAttribute(attributeName, data[key])
         }
-        brlabel: try {
-            console.log(JSON.stringify(data))
-            const response = await fetch(url, {
+    }
 
-                //передаем данные запроса в пост в теле json данных
-                method: "POST",
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(data),
-            });
-            if (!response.ok) {
-                let text = translate(response.status);
-                callback({ status: "error", message: response.status + text });
-                break brlabel; // стандартные сетевые ошибки не будем передавать в catch
-            }
-            const json = await response.json();
-            if (json.status === "ok") {
-                callback(json);
+    removeAllDataAttributes(element) {
+        for (const name of element.getAttributeNames()) {
+            if (name.startsWith('data-')) element.removeAttribute(name)
+        }
+
+    }
+
+    saveClick(func) {
+        this.#clickCallback = func;
+        this.#save.addEventListener("click", this.#clickCallback)
+    }
+
+
+
+
+
+
+    createInput(value, name = "unspecified", text = '', number = false, hidden = false,) {
+
+        const div = document.createElement("div")
+        div.classList.add("input-wrapper")
+        const label = document.createElement("label")
+        label.innerText = text
+        const input = document.createElement("input")
+        input.setAttribute("data-name", name)
+        div.append(label)
+        div.append(input)
+        if (number) input.addEventListener("keypress", validate)
+        if (hidden) input.hidden = true
+        input.value = value ? value : '';
+
+        function validate(event) {
+            let theEvent = event || window.event;
+            // Handle paste
+            let key;
+            if (theEvent.type === 'paste') {
+                key = event.clipboardData.getData('text/plain');
             } else {
-                callback({ status: "error", message: json.message });
+                // Handle key press
+                key = theEvent.keyCode || theEvent.which;
+                key = String.fromCharCode(key);
             }
-        } catch (err) {
-            // перехватит любую ошибку в блоке try: и в fetch, и в response.json
-           callback({ status: "error", message: "Глобальная ошибка!" + err });
+            let regex = /[0-9]|\./;
+            if (!regex.test(key)) {
+                theEvent.returnValue = false;
+                if (theEvent.preventDefault) theEvent.preventDefault();
+            }
         }
+
+        return div;
+    }
+
+    createCheckBox(type, name, check, text = "не указан", textChecked = "не указан") {
+
+        const checkBox = document.createElement("input")
+        const div = document.createElement("div")
+        div.classList.add("input-wrapper")
+        checkBox.setAttribute("type", "checkbox")
+        checkBox.setAttribute("id", "checkBox" + this.#checkBoxId)
+        checkBox.classList.add("checkbox");
+        checkBox.setAttribute("data-type", type)
+        checkBox.setAttribute("data-name", name)
+        checkBox.setAttribute("text", text)
+        checkBox.setAttribute("text-checked", textChecked)
+        check ? checkBox.checked = true : checkBox.checked = false;
+        div.append(checkBox)
+        checkBox.addEventListener("click", (e) => {
+            console.log(e.target.checked)
+        })
+        this.#checkBoxId++;
+        return div;
+    }
+    addAttribute(data,element,text=''){
+
+        for (const key in data) {
+            let attributeName="data-"+key;
+            element.setAttribute(attributeName,data[key])
+        }
+        if(text.length>=1){element.innerText=text}
+    }
+}
+
+export async function fetchDataServer(url, data, callback) {
+    //Функция сохранения изменений
+    function translate(code) {
+        let rez = "Не известная ошибка ";
+        switch (code) {
+            case 404:
+                rez = " - Страница не найдена! ";
+                break;
+            case 403:
+                rez = " - Доступ запрещен! ";
+                break;
+            case 500:
+                rez = " - Ошибка сервера! ";
+                break;
+            case 502:
+                rez = " - Ошибка шлюза! ";
+                break;
+            case 429:
+                rez = " - Слишком много запросов! ";
+                break;
+        }
+        return rez;
+    }
+
+    brlabel: try {
+        console.log(JSON.stringify(data))
+        const response = await fetch(url, {
+
+            //передаем данные запроса в пост в теле json данных
+            method: "POST",
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        });
+        if (!response.ok) {
+            let text = translate(response.status);
+            callback({status: "error", message: response.status + text});
+            break brlabel; // стандартные сетевые ошибки не будем передавать в catch
+        }
+        const json = await response.json();
+        if (json.status === "ok") {
+            callback(json);
+        } else {
+            callback({status: "error", message: json.message});
+        }
+    } catch (err) {
+        // перехватит любую ошибку в блоке try: и в fetch, и в response.json
+        callback({status: "error", message: "Глобальная ошибка!" + err});
+    }
 }
