@@ -58,6 +58,7 @@ export class main{
             typeElement==="checkbox"?input.checked=value:null;
 
         }
+        if(!editable)input.disabled=true;
         li.append(input)
 
         if(dataNameAttribute)input.setAttribute("data-name",dataNameAttribute)

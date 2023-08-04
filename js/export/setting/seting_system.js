@@ -173,7 +173,10 @@ let input=new Array()
             console.log(key)
            let index =description.display_order
              input[index]=this.dialog.createElementForm(description.type,description.text,description.description,value,key,{0:"не указан"},description.editable)
-this.dialog.addElementFormEnd(input[index])
+
+        }
+        for(const key in input){
+            this.dialog.addElementFormEnd(input[key])
         }
 this.dialog.showModal()
 

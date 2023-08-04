@@ -80,6 +80,7 @@ function list_users(){
     if(!$result_query_users = $main->DB->query( $query_users_info)) return false;
     foreach ($result_query_users as $key=>$value){
         $result_query_users[$key]['user_password']='';
+        $result_query_users[$key]['last_login']=date("d:m:Y H:m",$result_query_users[$key]['last_login']);
     }
     return $result_query_users ;
 }
