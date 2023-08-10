@@ -14,11 +14,7 @@
  */
 
 namespace mainSRC\dataBase;
-const DBHost='localhost';
-const DBPort='3306';
-const DBName='tm';
-const DBUser='root';
-const DBPassword='root';
+include_once ("./DBConfig.php");
 use PDO;
 use PDOException;
 
