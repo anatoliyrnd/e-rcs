@@ -237,7 +237,9 @@ use PDOException;
      * @param int $fetchMode
      * @return array|int|null
      */
-    public function query($query, $params = "", $fetchMode = PDO::FETCH_ASSOC)
+    public function query($query,
+                          $params = "",
+                          $fetchMode = PDO::FETCH_ASSOC)
     {
         $query = trim($query);
         $rawStatement = preg_split("/( |\r|\n)/", $query);

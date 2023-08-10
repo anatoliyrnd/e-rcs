@@ -1,7 +1,35 @@
 @charset "UTF-8";
 /* colors */
+/*notification start*/
+#toast {
+  visibility: hidden;
+  min-width: 250px;
+  margin-left: -200px;
+  background-color: white;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+  color: black;
+  text-align: center;
+  border-radius: 10px;
+  padding: 16px;
+  position: fixed;
+  z-index: 10000;
+  left: 50%;
+  bottom: 50%;
+  font-size: 16px;
+}
+
+#toast.show {
+  visibility: visible;
+  animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+/*notification ensd*/
 /* tab setting */
 /* breakpoints */
+dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
 /* selectors relative to radio inputs */
 * {
   box-sizing: border-box;
@@ -93,14 +121,6 @@ body h1 {
 }
 .tabs ul[menu] li[menu] label:hover svg, .tabs ul[menu] li[menu] label:focus svg, .tabs ul[menu] li[menu] label:active svg {
   fill: #bec5cf;
-}
-.tabs .users {
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
-  padding-top: 180px;
-  width: 800px;
-  height: 400px;
 }
 .tabs .slider {
   position: relative;
@@ -704,4 +724,104 @@ body h1 {
 
 .tree details[open] > summary::before {
   background-position: calc(-2 * var(--radius)) 0;
+}
+
+.users {
+  display: flex;
+  padding: 3px;
+  flex-wrap: wrap;
+  flex-direction: row;
+  align-content: space-around;
+  justify-content: flex-start;
+  border: 1px solid lightgray;
+  margin: 3px;
+  border-radius: 10px;
+  list-style-type: none;
+  align-items: center;
+}
+
+.users:hover {
+  transform: scale(0.995);
+}
+
+.users li {
+  margin: 0px;
+  cursor: pointer;
+}
+
+.users li:nth-child(1) {
+  flex-basis: 300px;
+}
+
+.users li:nth-child(2) {
+  flex-grow: 1;
+}
+
+.uiverse {
+  position: relative;
+  background: #ffffff;
+  color: #000;
+  padding: 2px;
+  margin: 20px 30px;
+  border-radius: 3px;
+  width: 20px;
+  height: 20px;
+  font-size: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  box-shadow: 0 10px 10px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.tooltip {
+  position: absolute;
+  text-wrap: nowrap;
+  top: 0;
+  font-size: 14px;
+  background: #ffffff;
+  color: #ffffff;
+  padding: 5px 8px;
+  border-radius: 5px;
+  box-shadow: 0 10px 10px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.tooltip::before {
+  position: absolute;
+  content: "";
+  height: 8px;
+  width: 8px;
+  background: #ffffff;
+  bottom: -3px;
+  left: 50%;
+  transform: translate(-50%) rotate(45deg);
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.uiverse:hover .tooltip {
+  top: -45px;
+  opacity: 0.8;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+svg:hover span,
+svg:hover .tooltip {
+  text-shadow: 0px -1px 0px rgba(0, 0, 0, 0.1);
+}
+
+.uiverse:hover,
+.uiverse:hover .tooltip,
+.uiverse:hover .tooltip::before {
+  background: linear-gradient(320deg, rgba(3, 77, 146, 0.815), rgba(0, 60, 255, 0.815));
+  color: #ffffff;
+}
+
+.userDescriptionIcon {
+  padding: 1px 5px;
 }/*# sourceMappingURL=setting.css.map */

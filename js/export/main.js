@@ -6,6 +6,7 @@ export class main{
     constructor(){
 
     }
+
     creatForm(parent) {
         this.#form = document.createElement("form");
         this.#form.classList.add("form-style")
@@ -19,8 +20,7 @@ export class main{
         return this.#form;
     }
     addElementFormEnd(element) {
-        console.log(element)
-        this.#form.insertAdjacentElement("beforeend", element);
+          this.#form.insertAdjacentElement("beforeend", element);
 
     }
 
@@ -70,6 +70,18 @@ export class main{
         this.#idFormElement++;
         return li
     }
+    readForm(){
+        let inputs=this.#form.querySelectorAll("input")
+        let data=new Object()
+
+        for (const inputsKey of inputs.keys()) {
+            let input=inputs[inputsKey];
+           let value=null;
+          input.getAttribute("type")==='checkbox'?value=input.checked:value=input.value
+            data[input.dataset.name]=value
+        }
+return data;
+    }
 
 }
 export class dialog extends main {
@@ -80,13 +92,14 @@ export class dialog extends main {
     #dialog
     #clickCallback
     #checkBoxId = 1
-
+toast
     constructor(parent) {
         super();
         if (dialog._instance) {
             return dialog._instance;
         }
         this.#dialog = document.createElement("dialog");
+
         this.#dialog.classList.add("confirm");
         const div_content = document.createElement("div");
         div_content.classList.add("content_dialog");
@@ -158,46 +171,32 @@ export class dialog extends main {
         this.#clickCallback = func;
         this.#save.addEventListener("click", this.#clickCallback)
     }
-
-
-
-
-
-
-    createInput(value, name = "unspecified", text = '', number = false, hidden = false,) {
-
-        const div = document.createElement("div")
-        div.classList.add("input-wrapper")
-        const label = document.createElement("label")
-        label.innerText = text
-        const input = document.createElement("input")
-        input.setAttribute("data-name", name)
-        div.append(label)
-        div.append(input)
-        if (number) input.addEventListener("keypress", validate)
-        if (hidden) input.hidden = true
-        input.value = value ? value : '';
-
-        function validate(event) {
-            let theEvent = event || window.event;
-            // Handle paste
-            let key;
-            if (theEvent.type === 'paste') {
-                key = event.clipboardData.getData('text/plain');
-            } else {
-                // Handle key press
-                key = theEvent.keyCode || theEvent.which;
-                key = String.fromCharCode(key);
-            }
-            let regex = /[0-9]|\./;
-            if (!regex.test(key)) {
-                theEvent.returnValue = false;
-                if (theEvent.preventDefault) theEvent.preventDefault();
-            }
+    toastShow(data) {
+let time=10000
+if (!this.toast){
+        this.toast=document.createElement("div")
+        this.toast.setAttribute("id","toast")
+        this.#body.insertAdjacentElement('afterend',this.toast)
         }
-
-        return div;
+        this.toast.className = "show";
+        data.status==='error'?this.toast.style.cssText="background:rgba(255, 0, 0, 0.24)":time=3000;
+        data.status==='warning'?this.toast.style.cssText="background:rgba(247, 255, 0, 0.24)":null;
+        data.status==='ok'?this.toast.style.cssText="background:rgba(0,255, 55, 0.24)":null;
+        data.status==='ok'?this.toast.status='ok':null;
+           this.toast.insertAdjacentHTML('beforeend',data.message+"<hr>" );
+        console.log(data.message)
+        setTimeout(()=>{
+            this.toast.classList.remove("show")
+            this.toast.status==='ok'?this.#dialog.close():null;
+this.toast.innerHTML='';
+            }, time);
     }
+
+
+
+
+
+
 
     createCheckBox(type, name, check, text = "не указан", textChecked = "не указан") {
 
@@ -280,4 +279,5 @@ export async function fetchDataServer(url, data, callback) {
         // перехватит любую ошибку в блоке try: и в fetch, и в response.json
         callback({status: "error", message: "Глобальная ошибка!" + err});
     }
+
 }

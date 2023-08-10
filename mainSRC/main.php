@@ -9,6 +9,7 @@ class main
     /**
      * @var PDODB
      */
+    const OLDHASH=true;
     public PDODB $DB;
     private $debug_path;
     private $user_id;
@@ -286,4 +287,5 @@ class main
        return   array_combine($arrayKeys, $array);
 
     }
+
 }

@@ -80,7 +80,7 @@ $nacl=$main->nacl($user_id);
             <span id="logSystem"></span></section>
     </div>
 </div>
-<div id="modal"></div>
+<div id="modal"><div id="toast">Не указанно</div></div>
 
 <script>
     </script>
