@@ -79,7 +79,7 @@ $permission=$main_function->getUserPermission();
            <?php echo  $edit_obj_link;
            echo $edituserlink; ?>
             <hr>
-            <?php  if ($setting){echo "<li><a href='./setting.php'><span>Настройки</span></a></li>";} ?>
+          <li><a href='./settings.php'><span>Настройки</span></a></li>
                <li><a href="#" id="help"><span>Помощь</span></a></li>
             <hr>
             <li><a href="index.php?e=loggeout"><span>Выйти</span></a></li>

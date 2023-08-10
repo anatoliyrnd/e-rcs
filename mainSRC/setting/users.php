@@ -74,11 +74,18 @@ return $result;
         $select=implode(", ",$check_key_array).",".implode(", ",$this->booleanData);
         $query_old_data="SELECT $select FROM lift_users WHERE user_id=:id"; //запрос на получение старых данных из базы по пользователю
        if($this->newUser){
-           $check_login=$this->DB->single("SELECT user_id FROM lift_users WHERE user_login=:ul LIMIT 1",array("ul"=> $this->data['user_login']));
-           if($check_login)$this->error[]="Пользователь с логином ".$this->data['user_login']." сущетвует";
+          $query_check_login="SELECT user_id FROM lift_users WHERE user_login=:ul LIMIT 1";
+          $data_query_check_login=array("ul"=> $this->data['user_login']);
        }else {
+           $check_user_protected=$this->DB->single("SELECT user_protect_edit FROM lift_users WHERE  user_id=:id LIMIT 1",array("id"=>$this->data['id']));
+           if( $check_user_protected)$this->error[]="Пользователь защещен от изменения";
+           $query_check_login="SELECT user_id FROM lift_users WHERE user_login=:ul AND user_id!=:id LIMIT 1";
+           $data_query_check_login=array("ul"=> $this->data['user_login'],"id"=>$this->data['id']);
            $oldValue = $this->DB->row($query_old_data, array("id" => $this->data['id']));// если редактируем пользователя то получим его предидущие значения
+
        }
+        $check_login=$this->DB->single($query_check_login,$data_query_check_login);
+        if($check_login)$this->error[]="Пользователь с логином ".$this->data['user_login']." сущетвует";
         foreach ( $check_key_array as $type_key) {
             if($this->userControl( $type_key) &&( $this->newUser || $oldValue[$type_key]!==$this->data[$type_key]  )) {
                 $this->result_message[]="изменение ".$this->nameLength[$type_key]." успешно , новое значение ".$this->data[$type_key] ;
