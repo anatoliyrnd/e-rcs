@@ -71,7 +71,7 @@ export class main{
         return li
     }
     readForm(){
-        let inputs=this.#form.querySelectorAll("input")
+        let inputs=this.#form.querySelectorAll("input,textarea")
         let data=new Object()
 
         for (const inputsKey of inputs.keys()) {

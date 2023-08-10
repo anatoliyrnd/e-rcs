@@ -39,6 +39,18 @@ export class setting_system {
         li.append(button);
         this.addAttribute(data, button)
         this.#settingForm.addElementFormEnd(li)
+        button.addEventListener("click",(e)=>{
+            let data=this.#settingForm.readForm();
+            data.userId = userId;
+            data.nacl = nacl;
+            data.action="setSettings";
+            
+            console.log(data);
+            fetchDataServer("set_setting.php",data,(event)=>{
+                console.log(event);
+                event.status==="ok"?window.location.reload(true):null
+            })
+        })
     }
 
     creatElementList(name, data, type, fullName) {

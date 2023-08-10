@@ -31,8 +31,8 @@ switch ($action) {
     case "addAddres":
         $result=addAddress();
         break;
-    case "editSettings":
-        echo ' ';
+    case "setSettings":
+        $result=setSettings();
         break;
     default:
         echo "    ";
@@ -42,4 +42,17 @@ switch ($action) {
 $main->echoJSON($result);
 //$main->echoJSON(array("status"=>"ok","message"=>$result));
 
+function setSettings(){
+    global $main,$input;
+    $message='';
+    $key_setting=array('login_tries'=>'number','waiting_time'=>"number",'min_length_text'=>'number', 'authorizationKey'=>'text','telegram_token'=>'text');
+    foreach ($key_setting as $index => $value) {
+        $value==='number'?$data=(int)$input[$index]:$data=(string)$input[$index];
+        $result = $main->DB->update("lift_options",array('option_value'=>$data),array("option_name"=>$index));
+        $result?$message.="$data изменен <br>":$message.="ОШИБКА при изменении $data<br> ";
+   }
+  return array("status"=>"ok","message"=>$message);
 
+
+    
+}

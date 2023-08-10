@@ -14,7 +14,7 @@ export const settingCallback ={
            for (const index in data.message) {
            setting.addRow(data.message[index])
        }
-           setting.addSave({nacl:nacl,userId:userId})
+           setting.addSave({nacl:nacl,userId:userId,action:"saveSettings"})
 
     },
 users: function(usersData)
