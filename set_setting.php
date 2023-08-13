@@ -8,8 +8,9 @@ $user_id=$input['userId']??0;
 $nacl=$input['nacl']??0;
 $action=$input['action']??false;
 $main = new mainSRC\main();
-$users= new \mainSRC\setting\users();
-$address_list=new \mainSRC\loadStartData();
+$users= new mainSRC\setting\users();
+$address=new mainSRC\setting\address();
+
 $main->checkSession();
 if (!$main->checkUser($user_id,$nacl)){
     $message=array("status"=>"error","message"=>"ошибка авторизации");
@@ -26,10 +27,10 @@ switch ($action) {
         $users->addUser($input);
         break;
     case "editAddress":
-        $result=editAddress();
+        $address->editAddress($input);
         break;
-    case "addAddres":
-        $result=addAddress();
+    case "addAddress":
+        $address->addAddress($input);
         break;
     case "setSettings":
         $result=setSettings();
@@ -42,6 +43,9 @@ switch ($action) {
 $main->echoJSON($result);
 //$main->echoJSON(array("status"=>"ok","message"=>$result));
 
+/**
+ * @return string[]
+ */
 function setSettings(){
     global $main,$input;
     $message='';

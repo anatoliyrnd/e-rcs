@@ -1,46 +1,6 @@
-disp/logs/2023-03-07type.txt
-disp/logs/2023-03-08save_php_error.txt
-disp/logs/2023-03-09save_php_error.txt
-include/logs/2023-03-06-7e72aaebfcca6cba2fc2c03f86433610.txt
-include/logs/2023-03-07-cbb593bb66bcb3d51ef8d5db2b13859a.txt
-include/logs/2023-03-08-ac59b12b074bdef6d13ad97a072a6241.txt
-include/logs/2023-03-09-553baae24d84e583356e141ad0cd575b.txt
-include/logs/2023-03-16-25ae1c9fe9b0c441a45473f01a8f5b9b.txt
-logs/2023-03-16XML parser error.txt
+
 xml_debug.txt
 somefile.txt
-js/export/src/scss/tabulator.css
-js/export/src/scss/tabulator.css.map
-js/export/src/scss/themes/tabulator_midnight.css
-js/export/src/scss/themes/tabulator_midnight.css.map
-js/export/src/scss/themes/tabulator_modern.css
-js/export/src/scss/themes/tabulator_modern.css.map
-js/export/src/scss/themes/tabulator_simple.css
-js/export/src/scss/themes/tabulator_simple.css.map
-js/export/src/scss/themes/tabulator_site.css
-js/export/src/scss/themes/tabulator_site.css.map
-js/export/src/scss/themes/bootstrap/functions4.css
-js/export/src/scss/themes/bootstrap/functions4.css.map
-js/export/src/scss/themes/bootstrap/functions5.css
-js/export/src/scss/themes/bootstrap/functions5.css.map
-js/export/src/scss/themes/bootstrap/tabulator_bootstrap3.css
-js/export/src/scss/themes/bootstrap/tabulator_bootstrap3.css.map
-js/export/src/scss/themes/bootstrap/tabulator_bootstrap4.css
-js/export/src/scss/themes/bootstrap/tabulator_bootstrap4.css.map
-js/export/src/scss/themes/bootstrap/tabulator_bootstrap5.css
-js/export/src/scss/themes/bootstrap/tabulator_bootstrap5.css.map
-js/export/src/scss/themes/bootstrap/variables3.css
-js/export/src/scss/themes/bootstrap/variables3.css.map
-js/export/src/scss/themes/materialize/tabulator_materialize.css
-js/export/src/scss/themes/materialize/tabulator_materialize.css.map
-js/export/src/scss/themes/materialize/variables.css
-js/export/src/scss/themes/materialize/variables.css.map
-js/export/src/scss/themes/semanticui/tabulator_semanticui.css
-js/export/src/scss/themes/semanticui/tabulator_semanticui.css.map
-js/export/src/scss/themes/semanticui/variables_table.css
-js/export/src/scss/themes/semanticui/variables_table.css.map
-js/export/src/scss/themes/semanticui/variables.css
-js/export/src/scss/themes/semanticui/variables.css.map
 test_setting.php
 disp/test.php
 settings/logs/2023-03-17deliteObjControl_php_error.txt
@@ -53,7 +13,6 @@ object/
 settings/optimization.php
 logs/loginerror03_23.txt
 include/ldisp_config.php
-
 testteleg.php
 disp/test.php
 .idea/sqldialects.xml
@@ -68,9 +27,6 @@ test.html
 =======
 >>>>>>> bet1.1
 .idea/inspectionProfiles/Project_Default.xml
-disp/logs/2023-04-11save_php_error.txt
-disp/logs/2023-04-12save_php_error.txt
-logs/loginerror04_23.txt
 help/dispetcher_short_instruction.mp4
 telega_bot — копия.php
 .gitignore
@@ -78,5 +34,6 @@ test.php
 note_images/
 note_thumb/
 logs
+debug
 address_list.php
 DBConfig.php

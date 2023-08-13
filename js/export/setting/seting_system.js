@@ -156,31 +156,35 @@ export class setting_system {
             parent: 0,
             full_name: ''
         }, true)
+        this.#divSettingAll.addEventListener("dblclick", this.editAddress)
         this.#divSettingAll.addEventListener("contextmenu", this.editAddress)
         this.#divSettingAll.dialog = this.dialog//добавим ссылку на диалоговое окно
     }
 
     editAddress(e) {
         //console.log(e.target.dataset)
+        e.preventDefault();
+        console.log(e);
+        if (e.toElement==='ul')return;
         const name = {city: "Название города", street: "Название улицы", home: "Номер дома", object: "Лифт"}
         let data = e.target.dataset
         const dialog = e.currentTarget.dialog
         let inputName;
-        e.preventDefault()
         dialog.showModal();
         dialog.clearDialog();
         dialog.creatForm(dialog.body)
 
         if (data.action === "add") {
             dialog.titleTxt = "Добавить  в " + data["full_name"];
-            dialog.setDataAttribute({action: "add", parent_id: data.parent, type: data.name})
-            const inputNew = dialog.createElementForm("text", name[data.type], 'Введите ' + name[data.type], null)
+            dialog.setDataAttribute({action: "addAddress", id: data.parent, type: data.type})
+            const inputNew = dialog.createElementForm("text", name[data.type], 'Введите ' + name[data.type],null,'name')
             dialog.addElementFormEnd(inputNew)
+           
         } else {
             let nameKey = data.type + "_name"
             dialog.titleTxt = data["full_name"];
             dialog.setDataAttribute({
-                action: "edit",
+                action: "editAddress",
                 type: data.type,
                 id: data.id,
                 oldValue: data[nameKey],
@@ -190,9 +194,21 @@ export class setting_system {
             dialog.addElementFormEnd(inputName)
             const hidden = dialog.createElementForm("checkbox", "Скрытие у диспетчера", "Поставьте галочку если объект НЕ должен показываться у диспетчера при выборе адреса", data.vis === "1", "vis")
             dialog.addElementFormEnd(hidden)
-            //const number=dialog.createElementForm("select","test ", "testovoe",null,"test")
-            //dialog.addElementFormEnd(number)
+        
         }
+        this.dialog.saveClick((e) => {//callback для клика по кнопки сохранить
+            let data = this.dialog.readForm();
+            data.action = e.target.dataset.action
+            data.type=e.target.dataset.type
+            data.userId = userId;
+            data.nacl = nacl;
+            data.id=e.target.dataset.id
+            console.log(data, JSON.stringify(data))
+            fetchDataServer('set_setting.php', data, (e) => {
+                console.log(this,e)
+                this.dialog.toastShow(e)
+            })
+        })
 //dialog.bodyHTML = dialog.getForm(form);
     }
 
