@@ -1,22 +1,14 @@
 <?php //build data array
-use database\PDODB;
+include("include/autoload.php");
+use mainSRC\main;
+$main = new mainSRC\main();
+$main->checkSession();
 
-require_once("./include/session.php");
-require_once("./include/checksession.php");
-include("./include/ldisp_config.php");
-include("./include/function.php");
-require_once("./include/PDO.class.php");
-if (isset($user_id)) {
-
-    if (nacl($user_id) != $user_nacl) {
+if (!$main->checkUser()) {
         echo "Ошибка авторизации";
         exit;
     }
-    $user_id = (int) $user_id;
-} else {
-    echo "Не известнай пользователь";
-    exit();
-}
+
 if (isset($_REQUEST['id'])) {
     $id = (int)$_REQUEST['id'];
 } else {
@@ -29,10 +21,8 @@ if (isset($_REQUEST['type'])) {
     $type="/note_images/";
 }
 $data = [];
-$DB   = new PDODB(db_host, DBPort, db_name, db_user, db_password);
-$image_name=$DB->single("SELECT  img_name FROM lift_notes WHERE note_id=? ",array($id));
+$image_name=$main->DB->single("SELECT  img_name FROM lift_notes WHERE note_id=? ",array($id));
 if ($image_name){
-
     $dir_image_note=$_SERVER['DOCUMENT_ROOT'] . $type;
     //echo "-".$dir_image_note.$image_name;
     $image = file_get_contents($dir_image_note.$image_name);
