@@ -168,6 +168,7 @@ class main
         * 5-add_call_permission
         * 6-edit_user_link
         * 7-edit_obj_link
+         * 8 админ
         */
         $user_id = $user_id ?? $this->user_id;
         $query = "SELECT `user_add_call`, `user_localadmin`,`user_edit_obj`, `user_read_all_calls`, `user_edit_user`, `user_level`, `user_disppermission` FROM `lift_users` WHERE `user_id`=:userId LIMIT 1";
@@ -180,7 +181,8 @@ class main
         $add_call_permission = false;//5
         $edit_user_link = false;//6
         $edit_obj_link = false;//7
-        $user_local_admin=$userdata['user_localadmin'];//8 права администратора
+        $user_local_admin=(bool)$userdata['user_localadmin'];//8 права администратора
+
         //если админ или пользователю разрешено редктирование  объектов
         if ($user_local_admin || $userdata['user_edit_obj']) {
             $edit_obj_link = true;

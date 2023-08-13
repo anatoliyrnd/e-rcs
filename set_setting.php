@@ -21,18 +21,24 @@ $result=array();
 sleep(1);
 switch ($action) {
     case "editUser":
+        if (!$main->getUserPermission()[6])$main->echoJSON(array('status'=>'error','message'=>'Недостаточно прав in users'));
        $users->editUser($input);
                break;
     case "addUser":
+        if (!$main->getUserPermission()[6])$main->echoJSON(array('status'=>'error','message'=>'Недостаточно прав in users'));
         $users->addUser($input);
         break;
     case "editAddress":
+        if (!$main->getUserPermission()[7])$main->echoJSON(array('status'=>'error','message'=>'Недостаточно прав in address'));
         $address->editAddress($input);
         break;
     case "addAddress":
+        if (!$main->getUserPermission()[7])$main->echoJSON(array('status'=>'error','message'=>'Недостаточно прав in address'));
         $address->addAddress($input);
         break;
     case "setSettings":
+        $permission=$main->getUserPermission($user_id);
+        if(!$permission[8]) $main->echoJSON(array('status'=>'error','message'=>'Недостаточно прав in params'));
         $result=setSettings();
         break;
     default:

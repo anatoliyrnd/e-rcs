@@ -18,10 +18,13 @@ $test=array();
 sleep(1);
 switch ($type) {
     case "setting":
-
+        $permission=$main->getUserPermission($user_id);
+        if(!$permission[8]) $main->echoJSON(array('status'=>'error','message'=>'Недостаточно прав in params'));
         $test=  EchoSettingParameters();
         break;
     case "address":
+        $permission=$main->getUserPermission($user_id);
+        if(!$permission[7]) $main->echoJSON(array('status'=>'error','message'=>'Недостаточно прав in address'));
         $test = $address_list->loadAddress(true);
         break;
     case "users":
