@@ -31,7 +31,6 @@ protected $return_data_calss;
             $call = [
                 'open_name' => $value['call_first_name'],
                 'date' => date("d.m.Y@H:i", $value['call_date']),
-
                 'close_name' => $value['call_last_name'],
                 'close_date' => date("d.m.Y@H:i", $value['call_date2']),
                 'id' => $value['call_id'],
@@ -43,7 +42,8 @@ protected $return_data_calss;
                 'group_id' => $value['call_group'],
                 'request_id' => $value['call_request'],
             ];
-            $staff_status_type = $this->key_staff_status_type[$value['call_staff_status']];
+
+            $staff_status_type = $this->key_staff_status_type[$value['call_staff_status']??0];
             if ($value['call_staff_date']) {
                 $call['staff_date'] = date("d.m.Y@H:i", $value['call_staff_date']) . " - " . $staff_status_type;
             } else {
@@ -52,7 +52,7 @@ protected $return_data_calss;
 
             if ($this->type_calls == "open") {
                 $call['type'] = "open";
-                $call['staff_status'] = (bool)$value['call_staff_status'];
+                $call['staff_status'] = (bool)$value['call_staff_status']??false;
             }
             if ($this->type_calls == "close") {
                 $call['type'] = "close";

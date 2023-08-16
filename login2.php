@@ -4,7 +4,8 @@ ob_start();
 include("include/autoload.php");
 use mainSRC\dataBase\PDODB;
 $main=new \mainSRC\main();
-const OLDHASH=true; //предидущая система хширования
+$users=new mainSRC\setting\users();
+const OLDHASH=false; //предидущая система хширования
 const log_path="authorisation";
 $DB = PDODB::getInstance();
 $is_valid  = false;
@@ -44,11 +45,11 @@ if (!isset($data['name']) and !isset($data['token'])) {
 
 $user_login = trim($data['name']);
 
-if ((iconv_strlen($user_login) < 4) and !isset($data['id'])) {
+if ((mb_strlen($user_login??'') < 4) and !isset($data['id'])) {
   $datajson = ['status' => 'error', 'message' => "Логин короткий"];
     $main->echoJSON($datajson);
 }
-if (iconv_strlen($data['token']) == 32 && $webgl) {
+if (mb_strlen($data['token']??'') == 32 && $webgl) {
   // если есть токен авторизации из локалного хранилища браузера  и данные webGL то проверим его на валидноть
 
   $query  = "select user_login, webgl_info, user_token, user_name, user_level,user_localadmin, user_block from lift_users WHERE user_id=:ID limit 1;";
@@ -85,7 +86,7 @@ if (isset($data['pname'])) {
   } else {
     $checkusing = "user_email";
   }
-    $is_valid      = checkpwd($user_password, $user_login,$checkusing);
+    $is_valid      = $users->checkpwd($user_password, $user_login,$checkusing);
 } else {
   if (!$is_valid) {
     $datajson = ['status' => 'error', 'message' => "Введите пароль"];
@@ -137,12 +138,10 @@ $link_cals = 'index_disp.php';
 $last_login = date(time());
 //echo $dateTime->format("Y-m-d h:i:s");
 
-if ($rez['user_level'] == '2' AND $data['mobile']!==Null) {
-  // пользователь в группе ответсвенный
-}
 
 
-if (iconv_strlen($data['token']) != 32) {
+
+if (mb_strlen($data['token']??'') !== 32) {
   // ели аторизовались не по токену то меняем его
 
   if (isset($data['autoLogin']) and $data['autoLogin']) {
@@ -170,28 +169,5 @@ function savelog($txt)
   file_put_contents($filename, $txt . PHP_EOL, FILE_APPEND);
 
 }
-function checkpwd($password,$user_login,$checkusing) {
-global $DB;
-    $hasher = password_hash($password, PASSWORD_DEFAULT);
-    $stored_hash = "*";
-
-        //if encryption is ON
-        $query="SELECT user_password from lift_users WHERE $checkusing = :name LIMIT 1;";
-        $stored_hash = $DB->single($query,array('name'=>$user_login));
-
-        if(OLDHASH){
-            include("includes/PasswordHash.php");
-            $check = new PasswordHash(8, false);
-            return $check->CheckPassword($password, $stored_hash);
-        }
-
-        if ($hasher===$stored_hash) {
-            return TRUE;
-        }else{
-            return FALSE;
-        }
-
-    }
-
 
 ?>

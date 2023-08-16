@@ -315,8 +315,8 @@ CREATE TABLE `lift_users` (
 --
 
 INSERT INTO `lift_users` (`user_id`, `user_login`, `user_password`, `user_name`, `user_telegram`, `user_address`, `user_city`, `user_state`, `user_zip`, `user_country`, `user_phone`, `user_email`, `user_email2`, `user_company`, `user_new_read`, `user_im_icq`, `user_im_msn`, `user_im_yahoo`, `user_im_other`, `user_status`, `user_level`, `user_pending`, `user_date`, `last_login`, `last_ip`, `user_msg_send`, `user_msg_subject`, `user_protect_delete`, `user_protect_edit`, `user_hiden`, `user_localadmin`, `user_edit_obj`, `user_edit_user`, `user_disppermission`, `user_add_call`, `user_read_all_calls`, `user_block`, `user_token`, `webgl_info`) VALUES
-(1, 'admin', '$2a$08$/edNGVivhSJWCv.XdvuuVulHzFh7BbeqSmmwkWexHLUoOgPBrXl9a', 'Фамилия Имя', 1401760365, '', '', '', '', 'Рос', '+7912345678', 'zamotaev@list.ru', 'someone@example.com', '', 0, '', '', '', '', 0, 0, 0, 0, 1691614640, '127.0.0.1', 0, 'New Message', 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, '', ''),
-(2, 'disp', '$2a$08$/edNGVivhSJWCv.XdvuuVulHzFh7BbeqSmmwkWexHLUoOgPBrXl9a', 'Диспетчер1', 0, '', '', '', '', '', '+71234567891', 'disp1@list.ru', '', 'лифтовая 1', 0, '', '', '', '', 1, 3, 0, 0, 1684426124, '127.0.0.1', 0, '', 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, '', '');
+(1, 'admin', '$2y$10$QO6yYMNijT8XrLzK9u5iLu4dYz5wKwjQYGS7suZBOXMXdML2WKEIy', 'Фамилия Имя', 1401760365, '', '', '', '', 'Рос', '+7912345678', 'zamotaev@list.ru', 'someone@example.com', '', 0, '', '', '', '', 0, 0, 0, 0, 1691614640, '127.0.0.1', 0, 'New Message', 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, '', ''),
+(2, 'disp', '$2y$10$QO6yYMNijT8XrLzK9u5iLu4dYz5wKwjQYGS7suZBOXMXdML2WKEIy', 'Диспетчер1', 0, '', '', '', '', '', '+71234567891', 'disp1@list.ru', '', 'лифтовая 1', 0, '', '', '', '', 1, 3, 0, 0, 1684426124, '127.0.0.1', 0, '', 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, '', '');
 
 -- --------------------------------------------------------
 

@@ -5,7 +5,7 @@ use mainSRC\main;
 
 
 $main_function = new main();
-//$main_function->checkSession();
+$main_function->checkSession();
 $main_function->checkUser();
 $permission=$main_function->getUserPermission();
 /*

@@ -89,7 +89,7 @@ return $result;
         foreach ( $check_key_array as $type_key) {
             if($this->userControl( $type_key) &&( $this->newUser || $oldValue[$type_key]!==$this->data[$type_key]  )) {
                 $this->result_message[]="изменение ".$this->nameLength[$type_key]." успешно , новое значение ".$this->data[$type_key] ;
-                $type_key=="user_password"? $save_data[$type_key] = $this->pwdHash->HashPassword($this->data[$type_key]):$save_data[$type_key] = $this->data[$type_key];
+                $type_key=="user_password"? $save_data[$type_key] =  password_hash($this->data[$type_key], PASSWORD_DEFAULT):$save_data[$type_key] = $this->data[$type_key];
             }
         }
         $key_result_message=array_key_last( $this->result_message)+1;
@@ -174,16 +174,12 @@ $this->saveUser();
         $stored_hash = $this->DB->single($query,array('name'=>$user_login));
 
         if(OLDHASH){
-            include("includes/PasswordHash.php");
+           // include("includes/PasswordHash.php");
+         //  return $this->pwdHash->CheckPassword($password, $stored_hash);
+        }else {
+            return  password_verify($password,  $stored_hash);
+    }
 
-            return $this->pwdHash->CheckPassword($password, $stored_hash);
-        }
-
-        if ($hasher===$stored_hash) {
-            return TRUE;
-        }else{
-            return FALSE;
-        }
 
     }
 

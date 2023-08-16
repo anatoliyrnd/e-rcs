@@ -73,8 +73,8 @@ use PDOException;
          }
          return self::$_instance;
      }
-     private function __clone() { }
-     private function __wakeup() {
+     public function __clone() { }
+     public function __wakeup() {
          //запрещаем клонирование объекта модификатором private
      }
     private  function Connect()
@@ -134,6 +134,7 @@ use PDOException;
 
     private function Init($query, $parameters = null, $driverOptions = array())
     {
+
         if (!$this->connectionStatus) {
             $this->Connect();
         }

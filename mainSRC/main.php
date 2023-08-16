@@ -18,6 +18,9 @@ class main
     private $user_nacl;
     protected array $key_staff_status_type = [" онлайн", " по телефону", " в телеграм"];
     protected $logSave;
+    protected array $repair_time_name=["не указан","30 мин","Сегодня","Завтра","Три дня","7 дней","10 дней","15 дней","1 месяц","3 месяца"];
+  protected array $repair_time=[ "0","+30 minutes" ,"today 23:00","today +1day 23:00","today +3day 23:00","today+7day","today+10day","today+15day", "today+1month","today+3month"];
+protected $repair_time_index;
 
     public function __construct()
     {
@@ -100,6 +103,7 @@ class main
 
     private function session_read()
     {
+
         if (isset($_SESSION['user_id'])) {
             $this->user_name = $_SESSION['user_name'];
             $this->user_id = (int)$_SESSION['user_id'];
@@ -172,6 +176,7 @@ class main
         */
         $user_id = $user_id ?? $this->user_id;
         $query = "SELECT `user_add_call`, `user_localadmin`,`user_edit_obj`, `user_read_all_calls`, `user_edit_user`, `user_level`, `user_disppermission` FROM `lift_users` WHERE `user_id`=:userId LIMIT 1";
+
         $userdata = $this->DB->row($query, array("userId" => $user_id));
 
         $read_all_calls = false; //1 разрешено чтение всех заявок
@@ -228,9 +233,10 @@ class main
     /**
      *  @return int возвращет метку времени  срока ремонта по порядковому номеру
      */
-    public function repairTimeUnix($index)
+    public function repairTimeUnix()
     {
-         return strtotime($index);
+
+         return strtotime($this->repair_time[$this->repair_time_index]);
 
     }
 
@@ -246,6 +252,7 @@ class main
             $this->logSave("error read repair time $index", 'main', "main");
             return false;
         }
+        var_dump($arrTime);
         return array_values($arrTime)[$index];
 
     }

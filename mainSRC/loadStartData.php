@@ -52,7 +52,7 @@ class loadStartData extends main{
         $this->echoJSON($data);
     }
     private function repairTimeArr(){
-        return json_decode($this->DB->single("SELECT option_value FROM lift_options WHERE option_name='repair_time'"), true);
+        return $this->repair_time_name;
 
     }
     private function queryarr($type = "0")

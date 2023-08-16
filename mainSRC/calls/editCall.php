@@ -136,10 +136,9 @@ private $staff_telegram=0;
 
     }
     private function repairTimeSave($index){
-        $index_time       =  $index;
-        $repair_time_unix = $this->repairTimeUnix($index_time);// получим значение метки времени юникс
-        $repair_time=$this->repairTime($index_time);//получем значение срока предполагаемого ремонта
-        $this->history .= " <b>Cрок предполагаемого ремонта</b> - " . $repair_time;
+        $this->repair_time_index       =  (int)$index;
+        $repair_time_unix = $this->repairTimeUnix();// получим значение метки времени юникс
+        $this->history .= " <b>Cрок предполагаемого ремонта</b> - " . $this->repair_time_name[$index];
         $this->query.= ", expected_repair_time=$repair_time_unix";
     }
    private function checkingNotClosed(){
