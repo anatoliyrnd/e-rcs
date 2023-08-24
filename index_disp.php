@@ -77,8 +77,8 @@ $permission=$main_function->getUserPermission();
             <li name="clickMenu-openCalls"><a href="#"><span>Открытые заявки</span></a></li>
             <li name="clickMenu-closeCalls"><a href="#"><span>Недавно закрытые заявки</span></a></li>
             <hr>
-           <?php echo  $edit_obj_link;
-           echo $edituserlink; ?>
+           <?php //echo  $edit_obj_link;
+          // echo $edituserlink; ?>
             <hr>
           <li><a href='./settings.php'><span>Настройки</span></a></li>
                <li><a href="#" id="help"><span>Помощь</span></a></li>

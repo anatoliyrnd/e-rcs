@@ -14,7 +14,6 @@ export function loadData(object,action,data){
            if(result.action==="loadConfig") {
                data.nav = result.message.nav;
                data.selectData = result.message;
-
            }
            if(result.action==="loadAddress"){
                data.addressData=result.message;
@@ -24,4 +23,14 @@ export function loadData(object,action,data){
              }
 
     })
+}
+export function hardWareInfo() {
+    const canvas = document.getElementById("glcanvas");
+    let gl = canvas.getContext("experimental-webgl");
+    let dbgRenderInfo = gl.getExtension("WEBGL_debug_renderer_info")
+    if (dbgRenderInfo != null) {
+        let info = gl.getParameter(dbgRenderInfo.UNMASKED_RENDERER_WEBGL);
+        return info;
+    }
+
 }

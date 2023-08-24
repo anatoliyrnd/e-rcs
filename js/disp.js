@@ -3,8 +3,7 @@ import {tableOpen, tableClose} from "./export/tabulatconfig.js";
 import {startAddressSelect, Select, timerCountDown} from "./export/addCall.js";
 import {main} from "./export/main.js";
 import {loadConfig} from "./export/disp/loadConfig.js";
-import {loadData} from "./export/disp/dispFunction.js";
-
+import {loadData, hardWareInfo} from "./export/disp/dispFunction.js";
 
 let webGL = hardWareInfo();
 const headMessage = document.getElementById("head_message");
@@ -12,7 +11,7 @@ const headLoader = document.getElementById("loader_head");
 const timeLoadDataDefoult = 20000
 let timeLoadData = timeLoadDataDefoult;// Интервал обновления данных
 let numErrorReload;// счетчик ошибок авторизации
-const actionLoadConfig=['loadStartData','loadAddress']
+const actionLoadConfig = ['loadStartData', 'loadAddress']
 //массив с конфигурационными данными
 const configData = {
     nav: [],
@@ -23,54 +22,45 @@ const configData = {
         staff: {},
         repair_time: {}
     },
-    addressData:{}
+    addressData: {}
 };
-
-
-
-
 let config = new loadConfig(headMessage, headLoader);
 setInterval(() => {
     loadConfig.fetchData("calls.php", {"action": "checkNewConfig"}, function (result) {
-        if(Number(result.message.force_reload)===1) document.location.reload(true);
+        if (Number(result.message.force_reload) === 1) document.location.reload(true);
         let action = Number(result.message.data_reload);
-        if(action)headMessageEcho('',20000)
-        if(action===1)loadData(config,actionLoadConfig[0],configData)
-        if(action===2)loadData(config,actionLoadConfig[1],configData)
-        if(action===3){
-            loadData(config,actionLoadConfig[0],configData);
-            loadData(config,actionLoadConfig[1],configData)
+        if (action) headMessageEcho('', 20000)
+        if (action === 1) loadData(config, actionLoadConfig[0], configData)
+        if (action === 2) loadData(config, actionLoadConfig[1], configData)
+        if (action === 3) {
+            loadData(config, actionLoadConfig[0], configData);
+            loadData(config, actionLoadConfig[1], configData)
         }
     })
 }, 100000)
 //наблюдатель за активацией начала загрузки конфигурационных данных или списка адресов
 let observerLoadData = new MutationObserver(header);
-observerLoadData.observe(headMessage, {attributes: true,subtree:true})
+observerLoadData.observe(headMessage, {attributes: true, subtree: true})
 
 function header(event) {
 
-    let loadingData=false; //flag наличия загрузки каких то данных конфигурации
-     event[0].target.parentNode.childNodes.forEach((element)=>{
-        if(element.nodeName!== "SPAN")return;
-        let loading=element.hasAttribute("loading")
-       if (loading) {
-           loadingData = true;
-
-       }
-
-
+    let loadingData = false; //flag наличия загрузки каких то данных конфигурации
+    event[0].target.parentNode.childNodes.forEach((element) => {
+        if (element.nodeName !== "SPAN") return;
+        let loading = element.hasAttribute("loading")
+        if (loading) {
+            loadingData = true;
+        }
     })
-    headLoader.hidden=!loadingData;
-     if(!loadingData){
+    headLoader.hidden = !loadingData;
+    if (!loadingData) {
 
-     }
+    }
 }
 
 {
-    loadData(config,actionLoadConfig[0],configData)//загрузим основную конфигурацию
-    loadData(config,actionLoadConfig[1],configData)//загрузим базу адресов
-
-
+    loadData(config, actionLoadConfig[0], configData)//загрузим основную конфигурацию
+    loadData(config, actionLoadConfig[1], configData)//загрузим базу адресов
     setTimeout(() => {
         document.getElementById("open_calls_table").hidden = false
     }, 1000);
@@ -79,10 +69,9 @@ const svgstaff =
     '<span class="checkbox__checker"></span><span class="checkbox__txt-left">Да</span><span class="checkbox__txt-right">Нет</span><span class="checkbox__bg"><?xml version="1.0" ?><svg  viewBox="0 0 110 43.76" xmlns="http://www.w3.org/2000/svg"><path d="M88.256,43.76c12.188,0,21.88-9.796,21.88-21.88S100.247,0,88.256,0c-15.745,0-20.67,12.281-33.257,12.281,S38.16,0,21.731,0C9.622,0-0.149,9.796-0.149,21.88s9.672,21.88,21.88,21.88c17.519,0,20.67-13.384,33.263-13.384,S72.784,43.76,88.256,43.76z"/></svg><span>';
 //global variabl
 const bar = document.getElementById("countdownBar");
-
 let changeCall = new Map(); // массив с внесенными изменениями
-let alertCapsUnblockAudio = true; // флаг возможности воспроизвести сообщение о включенном Капслок
-let alertENUnblockAudio = true; // флаг возможности воспроизвести сообщение об английской раскладке
+const alertCapsUnblockAudio = true; // флаг возможности воспроизвести сообщение о включенном Капслок
+const alertENUnblockAudio = true; // флаг возможности воспроизвести сообщение об английской раскладке
 const audioCapslock = new Audio("audio/capslock.mp3"); // файл с сообщением о фключенном капслок
 const audioENKeyboard = new Audio("audio/enkeybord.mp3"); // файл с сообщением об  английской раскладке
 const closeDialog = document.getElementById("close"); //кнопка закрытия модального окна
@@ -836,13 +825,3 @@ function catcherrorfetch(error) {
     //console.log(error);
 }
 
-function hardWareInfo() {
-    const canvas = document.getElementById("glcanvas");
-    let gl = canvas.getContext("experimental-webgl");
-    let dbgRenderInfo = gl.getExtension("WEBGL_debug_renderer_info")
-    if (dbgRenderInfo != null) {
-        let info = gl.getParameter(dbgRenderInfo.UNMASKED_RENDERER_WEBGL);
-        return info;
-    }
-
-}
