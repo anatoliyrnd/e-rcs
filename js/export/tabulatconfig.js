@@ -256,7 +256,7 @@ export let tableClose = new Tabulator("#close_calls_table", {
 
   height: tablgeight,
   layout: "fitColumns",
-  placeholder: "Нет данных для отображения. (Нет открытых заявок)",
+  placeholder: "Нет данных для отображения. (Нет закрытых заявок)",
   locale: true,
 
   //настройка столбцов таблицы

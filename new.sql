@@ -554,3 +554,9 @@ ALTER TABLE `users_description_row`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 INSERT INTO `lift_history` (`history_id`, `history_date`, `history_info`, `call_id`) VALUES
 (1, 1673726381, 'Диспетчер1 - внес(ла) следующие изменения: Предполагаемое время ремонта - 14.02.2023 . Ответственный уведомлен по телефону.  Назначен ответственный: Петров Петр . ', 1);
+--
+-- for DB v1.001
+--
+ALTER TABLE `lift_users` ADD `force_reload` BOOLEAN NOT NULL DEFAULT FALSE COMMENT 'Необходимость принудительного обновления страницы. ' AFTER `webgl_info`;
+INSERT INTO `lift_options`( `option_name`, `option_value`, `name`, `comment`, `change_allowed`, `type`) VALUES ('db_version','1.001','Версия структуры Базы','Текущая версия структуры Базы данных',0,'text');
+ALTER TABLE `lift_users` ADD `data_reload` TINYINT(255) NOT NULL DEFAULT FALSE COMMENT 'Флаг изменения конфигурационных данных 1-конфигурационные данные 2- База адресов' AFTER `force_reload`;

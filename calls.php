@@ -11,6 +11,7 @@ if ($action_get){
     $calls=$read_calls->getCalls($action_get,$period);
     $calls?$read_calls->echoJSON($calls):$read_calls->echoJSON(array('status'=>'error','message'=>'ошибка чтения данных'));
 }
+sleep(5);
 if ($action_body){
 
     switch ($action_body) {
@@ -37,8 +38,12 @@ if ($action_body){
         case 'loadAddress':
             $action= new \mainSRC\loadStartData();
             $data=$action->loadAddress();
-            $action->echoJSON(array("status"=>"ok","message"=>$data));
+            $action->echoJSON(array("status"=>"ok","action"=>"loadAddress","message"=>$data));
             break;
+            case 'checkNewConfig':
+           $action=new  \mainSRC\loadStartData();
+           $data=$action->checkDataUpdate();
+           $action->echoJSON(array("status"=>"ok","message"=>$data));
         default:
             $action=new \mainSRC\main();
             $action->checkSession();

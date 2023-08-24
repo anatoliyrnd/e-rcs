@@ -82,6 +82,64 @@ export class main{
         }
 return data;
     }
+    static test(txt){
+        return txt
+    }
+    static async  fetchData(url, data, callback){
+        //Функция сохранения изменений
+        function translate(code) {
+            let rez = "Не известная ошибка ";
+            switch (code) {
+                case 404:
+                    rez = " - Страница не найдена! ";
+                    break;
+                case 403:
+                    rez = " - Доступ запрещен! ";
+                    break;
+                case 500:
+                    rez = " - Ошибка сервера! ";
+                    break;
+                case 502:
+                    rez = " - Ошибка шлюза! ";
+                    break;
+                case 429:
+                    rez = " - Слишком много запросов! ";
+                    break;
+            }
+            return rez;
+        }
+
+        brlabel: try {
+            console.log(data)
+            console.log(JSON.stringify(data))
+            const response = await fetch(url, {
+
+                //передаем данные запроса в пост в теле json данных
+                method: "POST",
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            });
+            if (!response.ok) {
+                let text = translate(response.status);
+                callback({status: "error", message: response.status + text});
+                break brlabel; // стандартные сетевые ошибки не будем передавать в catch
+            }
+
+            const json = await response.json();
+            if (json.status === "ok") {
+                callback(json);
+            } else {
+                callback({status: "error", message: json.message});
+            }
+        } catch (err) {
+
+            // перехватит любую ошибку в блоке try: и в fetch, и в response.json
+            callback({status: "error", message: "Глобальная ошибка!" + err});
+        }
+    }
 
 }
 export class dialog extends main {
@@ -253,6 +311,7 @@ export async function fetchDataServer(url, data, callback) {
     }
 
     brlabel: try {
+        console.log(data)
         console.log(JSON.stringify(data))
         const response = await fetch(url, {
 
@@ -269,6 +328,7 @@ export async function fetchDataServer(url, data, callback) {
             callback({status: "error", message: response.status + text});
             break brlabel; // стандартные сетевые ошибки не будем передавать в catch
         }
+
         const json = await response.json();
         if (json.status === "ok") {
             callback(json);
@@ -276,6 +336,7 @@ export async function fetchDataServer(url, data, callback) {
             callback({status: "error", message: json.message});
         }
     } catch (err) {
+
         // перехватит любую ошибку в блоке try: и в fetch, и в response.json
         callback({status: "error", message: "Глобальная ошибка!" + err});
     }
