@@ -76,8 +76,9 @@ protected $repair_time_index;
      * @param $user_id int
      * @return string
      */
-    public function nacl($user_id)
+    public function nacl($user_id_in=null)
     {
+        $user_id=$user_id_in??$this->user_id;
         $query = "select last_login from lift_users where user_id = :user_id LIMIT 1";
         $user_hash = $this->DB->single($query, array("user_id" => $user_id));
         $auth_key=$this->DB->single("SELECT option_value FROM lift_options WHERE option_name='authorizationKey' LIMIT 1");

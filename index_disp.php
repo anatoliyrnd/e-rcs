@@ -59,9 +59,10 @@ $permission=$main_function->getUserPermission();
     
   </style>
   <script>
-      const nacl = "<?php //echo $main_function->getUserNacl(); ?>";
+       
   const user_name = "<?php echo $main_function->getUserName(); ?>";
-  const user_id = "<?php echo $main_function->getUserId(); ?>";
+  const user_id = "<?php echo $main_function->getUserId();?>";
+  const nacl = "<?php echo $main_function->nacl(false); ?>";
   </script>
 </head>
 
