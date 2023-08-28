@@ -23,12 +23,45 @@ export class main{
           this.#form.insertAdjacentElement("beforeend", element);
 
     }
-
+addElementAfterend(element){
+    this.#form.insertAdjacentElement("afterend", element);
+}
     addElementFormBegin(element) {
 
         this.#form.insertAdjacentElement("afterbegin", element);
     }
+createElementInput(typeElement,value,optionValue,editable){
+        let input
+    if(typeElement==='html'){
+        input=document.createElement('div')
+        input.innerHTML=value;
 
+    }
+    else if (typeElement === "textarea") {
+        input = document.createElement("textarea")
+        input.addEventListener("keyup",(e)=>{
+            //увеличим текстовое поле  ввысоту на всю ширину контента
+            e.target.style.height = "20px";
+            e.target.style.height = (e.target.scrollHeight)+"px";
+        })
+    } else if (typeElement === "select") {
+        input = document.createElement("select")
+
+        for (const key in optionValue){
+            const option=document.createElement("option");
+            option.value=key;
+            option.innerText=optionValue[key]
+            input.append(option)
+        }
+    } else {
+        input = document.createElement("input")
+        input.setAttribute("type", typeElement)
+        typeElement==="checkbox"?input.checked=value:null;
+
+    }
+    if(!editable)input.disabled=true;
+    return input
+}
     createElementForm(typeElement, name, description, value,dataNameAttribute=null,optionValue= {0:"не указан"},editable=true) {
         const li = document.createElement("li")
         const label = document.createElement("label")
@@ -36,29 +69,7 @@ export class main{
         label.innerText = name;
         li.append(label)
         let input;
-        if (typeElement === "textarea") {
-            input = document.createElement("textarea")
-            input.addEventListener("keyup",(e)=>{
-                //увеличим текстовое поле  ввысоту на всю ширину контента
-                e.target.style.height = "20px";
-                e.target.style.height = (e.target.scrollHeight)+"px";
-            })
-        } else if (typeElement === "select") {
-            input = document.createElement("select")
-
-            for (const key in optionValue){
-                const option=document.createElement("option");
-                option.value=key;
-                option.innerText=optionValue[key]
-                input.append(option)
-            }
-        } else {
-            input = document.createElement("input")
-            input.setAttribute("type", typeElement)
-            typeElement==="checkbox"?input.checked=value:null;
-
-        }
-        if(!editable)input.disabled=true;
+        input=this.createElementInput(typeElement,value,optionValue,editable)
         li.append(input)
 
         if(dataNameAttribute)input.setAttribute("data-name",dataNameAttribute)
@@ -71,11 +82,12 @@ export class main{
         return li
     }
     readForm(){
-        let inputs=this.#form.querySelectorAll("input,textarea")
+        let inputs=this.#form.querySelectorAll("input,textarea,select")
         let data=new Object()
 
         for (const inputsKey of inputs.keys()) {
             let input=inputs[inputsKey];
+
            let value=null;
           input.getAttribute("type")==='checkbox'?value=input.checked:value=input.value
             data[input.dataset.name]=value

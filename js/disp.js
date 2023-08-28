@@ -70,8 +70,8 @@ const svgstaff =
 //global variabl
 const bar = document.getElementById("countdownBar");
 let changeCall = new Map(); // массив с внесенными изменениями
-const alertCapsUnblockAudio = true; // флаг возможности воспроизвести сообщение о включенном Капслок
-const alertENUnblockAudio = true; // флаг возможности воспроизвести сообщение об английской раскладке
+let alertCapsUnblockAudio = true; // флаг возможности воспроизвести сообщение о включенном Капслок
+let alertENUnblockAudio = true; // флаг возможности воспроизвести сообщение об английской раскладке
 const audioCapslock = new Audio("audio/capslock.mp3"); // файл с сообщением о фключенном капслок
 const audioENKeyboard = new Audio("audio/enkeybord.mp3"); // файл с сообщением об  английской раскладке
 const closeDialog = document.getElementById("close"); //кнопка закрытия модального окна

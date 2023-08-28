@@ -8,7 +8,7 @@ export class setting_system {
     #divSettingAll;
     descriptionUserRow
     #settingForm
-
+#elements={};
     constructor(parentElement) {
         this.#divSettingAll = document.createElement("div");
         parentElement.append(this.#divSettingAll);
@@ -31,22 +31,30 @@ export class setting_system {
         //добавляет строку с названием и значением параметра настроек системы
     }
 
-    addSave(data) {
+    addSave(data,text,url,hidden=false,newWindow=false) {
         const li = document.createElement("li")
         const button = document.createElement('div');
         button.classList.add("button_save", "pulse")
-        button.innerText = "Сохранить"
+        button.innerText = text
         li.append(button);
         this.addAttribute(data, button)
         this.#settingForm.addElementFormEnd(li)
+      if(hidden)button.classList.add('hidden');
         button.addEventListener("click",(e)=>{
+            console.log(e)
             let data=this.#settingForm.readForm();
-            data.userId = userId;
-            data.nacl = nacl;
-            data.action="setSettings";
+            data.userId = e.target.dataset.userid;
+            data.nacl = e.target.dataset.nacl;
+            data.action=e.target.dataset.action;
             
             console.log(data);
-            fetchDataServer("set_setting.php",data,(event)=>{
+if(newWindow){
+    const urlReport = new URL(window.location.origin+'/'+url);
+    urlReport.search = new URLSearchParams(data);
+    window.open(urlReport,text);
+    return
+}
+            mainSetting.fetchData(url,data,(event)=>{
                 console.log(event);
                 event.status==="ok"?window.location.reload(true):null
             })
@@ -340,14 +348,54 @@ export class setting_system {
         }
 
     }
+report(data){
+    console.log(data)
+    this.addForm()
+    this.#elements.displaySelectUser = this.#settingForm.createElementForm('checkbox', 'Фильтр', 'Отобрать по ответсвенному',false,'filterStaff')
+    this.#settingForm.addElementFormEnd( this.#elements.displaySelectUser)
+    let option={};
+    data.select_responsible_person.forEach((item)=>{
+       option[item.user_id]=item.user_name;
+    })
 
+    this.#elements.selectUser=this.#settingForm.createElementForm('select','Ответственный','Выберите ответсвенного по которому хотите сделать отбор',false,'staff',option)
+    //this.#settingForm.addElementFormEnd(this.#elements.selectUser)
+
+    this.#elements.displaySelectUser.addEventListener('click',(event)=>{
+         event.target.checked?  this.#elements.displaySelectUser.insertAdjacentElement("afterend",this.#elements.selectUser):this.#elements.selectUser.remove()
+            })
+ const nowDate=new Date();
+    this.#elements.addressOptions=this.#settingForm.createElementForm('html','Адрес','Выбирите объект для отчета', "<select data-name='object'>"+data.addressList+"</select>")
+    this.#settingForm.addElementFormEnd(this.#elements.addressOptions)
+    this.#elements.startDate=this.#settingForm.createElementForm('date','Начальная дата','Искать начинаяя с этой даты',false,'startdate')
+    this.#settingForm.addElementFormEnd(this.#elements.startDate);
+    this.#elements.endDate=this.#settingForm.createElementForm('date','Конечная дата','Искать до этой даты включительно',false,'enddate')
+    this.#settingForm.addElementFormEnd(this.#elements.endDate);
+    this.#elements.startDate.addEventListener('input',checkDate)
+    this.#elements.endDate.addEventListener('input',checkDate)
+    this.#elements.endDate.value=nowDate.toISOString().split('T')[0];// поставим текущую дату
+    function checkDate(e){
+     let start=document.querySelectorAll('[data-name="startdate"]')[0];
+     let end=document.querySelectorAll('[data-name="enddate"]')[0];
+        const nowDate=new Date();
+        const minDate=1640995200;//01 Jan 2022
+        (Date.parse(end.value)> Date.now())?end.value=nowDate.toISOString().split('T')[0]:null;
+        (Date.parse(start.value)>Date.parse(end.value))?start.value=end.value:null;
+        const sendButton=document.querySelectorAll('[data-action="getReport"]')[0]
+        if(Date.parse(end.value)>minDate && Date.parse(start.value)>minDate){
+          sendButton.classList.remove('hidden')
+        }else{
+            sendButton.classList.add('hidden')
+        }
+    }
+    }
     activationSave() {
         this.setAttribute("modified", true);
         this.setAttribute("data-value", this.value)
+
         let button = new saveButton();
         button.display()
         button.text = "Сохранить"
-
     }
 
     generateBodyDialogAddressEdit(data, dialog) {

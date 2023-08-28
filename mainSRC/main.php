@@ -29,6 +29,15 @@ protected $repair_time_index;
         $this->logSave = new logSave();
     }
 
+    /**
+     * @return string
+     */
+    public function KeyStaffStatusType($id=0): string
+    {
+        if(!array_key_exists($id,$this->key_staff_status_type))return 'не известно';
+        return $this->key_staff_status_type[$id];
+    }
+
     protected function errorCallId()
     {
         $this->logSave('не передан id заявки', 'checkCallId', log_path);
@@ -76,15 +85,14 @@ protected $repair_time_index;
      * @param $user_id int
      * @return string
      */
-    public function nacl($user_id_in=null)
+    public function nacl($user_id_in='0')
     {
         $user_id=$user_id_in??$this->user_id;
-        $query = "select last_login from lift_users where user_id = :user_id LIMIT 1";
-        $user_hash = $this->DB->single($query, array("user_id" => $user_id));
+        $query = "SELECT last_login FROM lift_users WHERE user_id = :user_id LIMIT 1";
+        $user_hash =$this->DB->single($query,array("user_id" => $user_id));
         $auth_key=$this->DB->single("SELECT option_value FROM lift_options WHERE option_name='authorizationKey' LIMIT 1");
         return md5($auth_key . $user_hash);
     }
-
     private function session()
     {
         header("Content-type: text/html; charset=utf-8");
@@ -104,7 +112,6 @@ protected $repair_time_index;
 
     private function session_read()
     {
-
         if (isset($_SESSION['user_id'])) {
             $this->user_name = $_SESSION['user_name'];
             $this->user_id = (int)$_SESSION['user_id'];

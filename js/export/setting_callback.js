@@ -14,7 +14,7 @@ export const settingCallback ={
            for (const index in data.message) {
            setting.addRow(data.message[index])
        }
-           setting.addSave({nacl:nacl,userId:userId,action:"saveSettings"})
+           setting.addSave({nacl:nacl,userId:userId,action:"saveSettings"},"Сохранить","set_setting.php")
 
     },
 users: function(usersData)
@@ -45,7 +45,15 @@ let address=new setting_system(addressElement);
         address.echoAddress(data.message)
     },
     reportCall: function(data){
-
+const reportElement=document.getElementById('reportCall')
+        reportElement.innerHTML=''
+        if (data.status==='error'){
+            alert (data.message);
+            return false;
+        }
+        let report=new setting_system(reportElement);
+        report.report(data.message)
+        report.addSave({nacl:nacl,userId:userId,action:"getReport"},"Сформировать","report.php",true,true)
     },
     logSystem: function(data){
 

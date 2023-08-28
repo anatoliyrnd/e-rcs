@@ -33,8 +33,10 @@ switch ($type) {
     case "logs":
         echo '';
         break;
-    case "report":
-        echo ' ';
+    case "reportCall":
+        $report=new mainSRC\setting\reports();
+        $test=$report->mainForm();
+ 
         break;
     default:
         echo "    ";
