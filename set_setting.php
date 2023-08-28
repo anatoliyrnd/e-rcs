@@ -4,6 +4,7 @@ require_once("./include/autoload.php");
 $action=false;
 $inputJSON = file_get_contents('php://input');
 $input     = json_decode($inputJSON, TRUE);
+
 $user_id=$input['userId']??0;
 $nacl=$input['nacl']??0;
 $action=$input['action']??false;
@@ -13,11 +14,14 @@ $address=new mainSRC\setting\address();
 
 $main->checkSession();
 if (!$main->checkUser($user_id,$nacl)){
-    $message=array("status"=>"error","message"=>"ошибка авторизации");
+    $test=$main->nacl();
+    $message=array("status"=>"error","message"=>"ошибка авторизации $user_id , $nacl , $test ");
     $main->echoJSON($message);
     exit();
 }
+
 $result=array();
+
 sleep(1);
 switch ($action) {
     case "editUser":
@@ -36,11 +40,13 @@ switch ($action) {
         if (!$main->getUserPermission()[7])$main->echoJSON(array('status'=>'error','message'=>'Недостаточно прав in address'));
         $address->addAddress($input);
         break;
-    case "setSettings":
+    case "saveSettings":
         $permission=$main->getUserPermission($user_id);
         if(!$permission[8]) $main->echoJSON(array('status'=>'error','message'=>'Недостаточно прав in params'));
         $result=setSettings();
         break;
+        case "getReport":
+            $reports=$main;
     default:
         echo "    ";
 }
