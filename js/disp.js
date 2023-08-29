@@ -4,7 +4,21 @@ import {startAddressSelect, Select, timerCountDown} from "./export/addCall.js";
 import {main} from "./export/main.js";
 import {loadConfig} from "./export/disp/loadConfig.js";
 import {loadData, hardWareInfo} from "./export/disp/dispFunction.js";
+function runMemoryMeasurements() {
+    const interval = -Math.log(Math.random()) * 5 * 60 * 1000;
+    console.log(`Next measurement in ${Math.round(interval / 1000)} seconds.`);
+    setTimeout(measureMemory, interval);
+}
 
+async function measureMemory() {
+    const memorySample = await performance.measureUserAgentSpecificMemory();
+    console.log(memorySample);
+    runMemoryMeasurements();
+}
+
+if (crossOriginIsolated) {
+    runMemoryMeasurements();
+}
 let webGL = hardWareInfo();
 const headMessage = document.getElementById("head_message");
 const headLoader = document.getElementById("loader_head");
