@@ -104,7 +104,7 @@ if (!$is_valid) {
   $datajson        = ['status' => 'error', 'message' => 'не верное имя/пароль'];
   header('Content-type: application/json');
   echo json_encode($datajson);
-  savelog("не верный пароль или логин " . " - " . $user_login);
+  $main->logSave("не верный пароль или логин " . " - " . $user_login,'login',log_path);
   exit();
 }
 
