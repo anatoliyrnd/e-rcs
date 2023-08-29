@@ -560,3 +560,6 @@ INSERT INTO `lift_history` (`history_id`, `history_date`, `history_info`, `call_
 ALTER TABLE `lift_users` ADD `force_reload` BOOLEAN NOT NULL DEFAULT FALSE COMMENT 'Необходимость принудительного обновления страницы. ' AFTER `webgl_info`;
 INSERT INTO `lift_options`( `option_name`, `option_value`, `name`, `comment`, `change_allowed`, `type`) VALUES ('db_version','1.001','Версия структуры Базы','Текущая версия структуры Базы данных',0,'text');
 ALTER TABLE `lift_users` ADD `data_reload` TINYINT(255) NOT NULL DEFAULT FALSE COMMENT 'Флаг изменения конфигурационных данных 1-конфигурационные данные 2- База адресов' AFTER `force_reload`;
+--
+-- for DB v1.0.1.001
+--
