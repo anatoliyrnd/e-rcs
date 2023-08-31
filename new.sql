@@ -563,3 +563,7 @@ ALTER TABLE `lift_users` ADD `data_reload` TINYINT(255) NOT NULL DEFAULT FALSE C
 --
 -- for DB v1.0.1.001
 --
+UPDATE `lift_options` SET `option_value` = '1.0.1.001' WHERE `lift_options`.`id` = 10;
+INSERT INTO `lift_options` (`option_name`, `option_value`, `timestamp`, `name`, `comment`, `change_allowed`, `type`) VALUES ( 'city_default', 'г. Ростов-на-Дону', current_timestamp(), 'Город по умолчанию', ' Название города которое будет подставлено по умолчанию', '1', 'text'), ( 'city_separator', '#', current_timestamp(), 'Разделитель', ' Символ разделителя города от названия улицы', '1', 'text');
+INSERT INTO `lift_options` (`option_name`, `option_value`, `timestamp`, `name`, `comment`, `change_allowed`, `type`) VALUES ( 'spult_organization_name', 'dsbd', current_timestamp(), 'Имя организации', ' название организации в точности как в SPult ', '1', 'text');
+INSERT INTO `lift_options` (`option_name`, `option_value`, `timestamp`, `name`, `comment`, `change_allowed`, `type`) VALUES ('XML_add', '1', current_timestamp(), 'Разрешить вносить адрес', ' Разрешить вносить адрес в базу данных из SPult', '1', 'checkbox');

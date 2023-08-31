@@ -61,7 +61,8 @@ $main->echoJSON($result);
 function setSettings(){
     global $main,$input;
     $message='';
-    $key_setting=array('login_tries'=>'number','waiting_time'=>"number",'min_length_text'=>'number', 'authorizationKey'=>'text','telegram_token'=>'text');
+    $key_setting=array('login_tries'=>'number','waiting_time'=>"number",'min_length_text'=>'number', 'authorizationKey'=>'text','telegram_token'=>'text','XML_add'=>'number',
+'city_default'=>'text','city_separator'=>'text');
     foreach ($key_setting as $index => $value) {
         $value==='number'?$data=(int)$input[$index]:$data=(string)$input[$index];
         $result = $main->DB->update("lift_options",array('option_value'=>$data),array("option_name"=>$index));
@@ -69,6 +70,4 @@ function setSettings(){
    }
   return array("status"=>"ok","message"=>$message);
 
-
-    
 }

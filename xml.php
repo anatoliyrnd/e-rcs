@@ -1,6 +1,10 @@
 <?php
+include("include/autoload.php");
+$main=new mainSRC\main();
+const PATH='XML';
+const FILE='SPult';
 
-use database\PDODB;
+
 
 define("debug_xml",true); // если нужна отладочная информация то ставим в true
 $DATE_REPAIR=3;//срок ремонта из массива static_data.php
@@ -9,12 +13,17 @@ if (strcasecmp($_SERVER['REQUEST_METHOD'], 'POST') != 0) {
   //  header($_SERVER["SERVER_PROTOCOL"] . " 405 Method Not Allowed", true, 405);
   //  exit;
 }
-include("./include/ldisp_config.php");
-include("./include/function.php");
-include("./include/static_data.php");
-require_once("./include/PDO.class.php");
+//include("./include/ldisp_config.php");
+//include("./include/function.php");
+//include("./include/static_data.php");
+//require_once("./include/PDO.class.php");
 //Get the raw POST data from PHP's input stream.
 //This raw data should contain XML.
+$parameters=[];
+$XML_parameters=$main->DB->query("SELECT option_name,option_value FROM lift_options WHERE option_name='city_default' OR option_name='city_separator' OR option_name='spult_organization_name'");
+foreach ($XML_parameters as $XML_parameter) {
+    $parameters[$XML_parameter['option_name']]=$XML_parameter['option_value'];
+}
 $postData = trim(file_get_contents('php://input'));
 $file     = 'somefile.txt';
 //$city_id_default = 1;// id города по умолчанию, если не указан в названии улицы в spult
@@ -25,13 +34,14 @@ $xml = simplexml_load_string($postData);
 //Если XML не удалось проанализировать должным образом.
 if ($xml === false) {
     // 400 Bad Request error.
+    $log='';
     header($_SERVER["SERVER_PROTOCOL"] . " 400 Bad Request", true, 400);
     // подробную информацию об ошибке и завершим работу скрипта.
     foreach (libxml_get_errors() as $xmlError) {
         $log .= $xmlError->message . "\n";
     }
     $log = " Ошибка XML" . $log;
-    logsave($log, "XML parser error");
+    $main->logsave($log, FILE,PATH);
     exit;
 }
 $reader = new XMLReader();
@@ -39,7 +49,7 @@ $reader = new XMLReader();
 $doc = new DOMDocument;
 //
 if (!$reader->xml($postData)) {
-    logsave("Failed to open xml", "XML parser error");
+    $main->logsave("Failed to open xml", FILE,PATH);
     exit();
 }
 // reading xml data...
@@ -49,8 +59,8 @@ while ($reader->read()) {
         $node = simplexml_import_dom($doc->importNode($reader->expand(), true));
 
         $disp = $reader->getAttribute('Name');
-        if ($disp != "dsbd") { // укажите имя организации
-            //   die("Failed");
+        if ($disp != $parameters['spult_organization_name']) { // укажите имя организации
+               die("Failed");
         }
 
     }
@@ -76,13 +86,13 @@ while ($reader->read()) {
     }
 }
 $reader->close();
-file_put_contents($file, $address);
-$DB = new PDODB(db_host, DBPort, db_name, db_user, db_password);
+//file_put_contents($file, $address);
+
 $actionstatus = "";
-$city         = CITY_DEFAULT;
+$city         = $parameters['city_default'];
 $lift_id = 0;
 //проверим есть ли в стрке улицы разделитель названия города если есть определим его позицию
-$position = strpos($street, CITY_SEP);
+$position = strpos($street, $parameters['city_separator']);
 if ($position) {
     $city   = substr($street, $position + 1);
     $street = substr($street, 0, $position);
@@ -94,7 +104,7 @@ $qcheck  = "SELECT `id` FROM `lift_city` WHERE (REPLACE(REPLACE(`city_name`, ' '
 if (debug_xml) {
     debug_xml ("Запрос наличия города - ".$qcheck);
 }
-$city_id = $DB->single($qcheck,Array($city_name)); //проверим есть ли в базе город
+$city_id = $main->DB->single($qcheck,Array($city_name)); //проверим есть ли в базе город
 if ($city_id) {
     $city_log = $city . " уже есть в базе данных ";
 } else {
