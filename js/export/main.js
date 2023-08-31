@@ -56,7 +56,7 @@ createElementInput(typeElement,value,optionValue,editable){
     } else {
         input = document.createElement("input")
         input.setAttribute("type", typeElement)
-        typeElement==="checkbox"?input.checked=value:null;
+        typeElement==="checkbox"?input.checked=Number(value):null;
 
     }
     if(!editable)input.disabled=true;
