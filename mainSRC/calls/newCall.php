@@ -38,7 +38,7 @@ $this->inputData['details']=$details; //уберем капслок
     }
     private function  checkDataIntegrity(){
         $data_key = ["city", "street", "home", "object", "fullAdress", "group", "request", "repair_time", "department", "details"];
-        foreach ($data_key as $key => $value) {
+        foreach ($data_key as $value) {
             if (!isset($this->inputData[$value])) {
                 $log = " error new call  no " . $value . " -".print_r($this->inputData,true);
                 $this->logSave($log, "addCall",log_path);

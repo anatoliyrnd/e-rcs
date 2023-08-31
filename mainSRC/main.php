@@ -241,10 +241,10 @@ protected $repair_time_index;
     /**
      *  @return int возвращет метку времени  срока ремонта по порядковому номеру
      */
-    public function repairTimeUnix()
+    public function repairTimeUnix($i=null)
     {
-
-         return strtotime($this->repair_time[$this->repair_time_index]);
+         $index=$i??$this->repair_time_index;
+         return strtotime($this->repair_time[$index]);
 
     }
 
@@ -260,7 +260,7 @@ protected $repair_time_index;
             $this->logSave("error read repair time $index", 'main', "main");
             return false;
         }
-        var_dump($arrTime);
+
         return array_values($arrTime)[$index];
 
     }
