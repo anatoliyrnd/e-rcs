@@ -9,14 +9,14 @@ use const mainSRC\calls\name_file_close;
 
 const delete_action_query = "DELETE FROM `lift_telegram` WHERE id=:id_telegram";// запрос в базу для удаления записи последовательност команд телеграмм
 const query_check_userId = "SELECT  call_staff FROM lift_calls WHERE call_id=:call_id";// запрос в базу ID  ответственного
-class callCommands extends telegram
+class callCommands extends telegramAction
 {
     private $waiting_time;
     private $call_id;
     private $action;
     private $message;
     private $caption;// описание к переданной фото
-private $main;
+    private $main;
     private $id_telegram_expectation;
     private $closure;
 
@@ -25,14 +25,16 @@ private $main;
         parent::__construct();
         $this->waiting_time = $this->getParameterConfig('waiting_time');
         $this->closure = new closureCall();
-        $this->main=new main();
+        $this->main = new main();
     }
-public function readOpenCalls(){
-        $user_permissions=$this->main->getUserPermission($this->user_id);
-    $read_all=$user_permissions[1];
-    $close_all=$user_permissions[3];
-    $note_all=$user_permissions[4];
-        ($read_all)?$call_staff='':$call_staff="AND call_staff =$this->user_id";// если не разрешено смотреть все заявки, то добавим фильтр по ответственному
+
+    public function readOpenCalls()
+    {
+        $user_permissions = $this->main->getUserPermission($this->user_id);
+        $read_all = $user_permissions[1];
+        $close_all = $user_permissions[3];
+        $note_all = $user_permissions[4];
+        ($read_all) ? $call_staff = '' : $call_staff = "AND call_staff =$this->user_id";// если не разрешено смотреть все заявки, то добавим фильтр по ответственному
         $myquery = "SELECT call_id, call_date, call_adres, call_details, call_request, call_staff_status,call_staff from lift_calls WHERE (call_status = 0)  $call_staff;";
         $lift_calls = $this->DB->query($myquery);
         if (!$lift_calls) {
@@ -41,14 +43,14 @@ public function readOpenCalls(){
         foreach ($lift_calls as $call) { //начало цикла формирования заявок
             $call_id = $call['call_id'];
             $call_staff_status = $call['call_staff_status'];
-            $call_staff=(int)$call['call_staff'];
+            $call_staff = (int)$call['call_staff'];
             $call_details = $call['call_details'];
             $call_address = $call['call_adres'];
             $call_request = (int)$call['call_request']; //уровень заявки
             $call_date = date("Y-m-d H:i", $call['call_date']);
             ($call_request === 1) ? $alarm = "\xF0\x9F\x9A\xA8 \n" : $alarm = "\xF0\x9F\x8F\xA2\n";
             // ( $call_request==3)?$alarm="\xE2\x98\x95 \n":$alarm="\n";
-            if (!$call_staff_status && ($call_staff==$this->user_id)) {// Если отмечена как не переданна и пользователь является ответственным то измененяем состояние на переданна онлайн
+            if (!$call_staff_status && ($call_staff == $this->user_id)) {// Если отмечена как не переданна и пользователь является ответственным то измененяем состояние на переданна онлайн
                 $query_staff_date = "call_staff_date=" . strtotime(date('Y-m-d H:i:s ')) . ',';
                 $update_status = "UPDATE lift_calls SET  $query_staff_date call_staff_status=2 WHERE  call_id=$call_id;";
                 $this->DB->query($update_status);
@@ -56,33 +58,33 @@ public function readOpenCalls(){
                 $set_history = "Заявка по адресу - " . $call_address . " Отмечена прочитанной. Прочитана в Телеграм. "; //запись в журнал
                 $this->DB->query("INSERT INTO lift_history (history_date,history_info, call_id) VALUES( $history_date, '$set_history',  $call_id );");
             }
-            $close_but= array(
+            $close_but = array(
                 'text' => 'Закрыть',
                 'callback_data' => '{"id":"' . $call_id . '","action":"close"}'
             );
-            $note_but= array(
+            $note_but = array(
                 'text' => 'Заметка',
                 'callback_data' => '{"id":"' . $call_id . '","action":"note"}',
             );
-if(!$close_all && ($call_staff!==$this->user_id)){
-                $close_but=array();
+            if (!$close_all && ($call_staff !== $this->user_id)) {
+                $close_but = array();
             }
-            if(!$note_all && ($call_staff!==$this->user_id)){
-                $note_but=array();
+            if (!$note_all && ($call_staff !== $this->user_id)) {
+                $note_but = array();
             }
 
             $but = array('inline_keyboard' => array(
-                array( $close_but, $note_but
+                array($close_but, $note_but
 
                 ),
             ),
                 'one_time_keyboard' => TRUE,
             );
             $replay = json_encode($but);
-            $staff_name='';
-            if($call_staff!==$this->user_id){
-                $staff_name="\n Ответственный - ";
-                $staff_name.=$this->DB->single("SELECT user_name FROM lift_users WHERE user_id=$call_staff");
+            $staff_name = '';
+            if ($call_staff !== $this->user_id) {
+                $staff_name = "\n Ответственный - ";
+                $staff_name .= $this->DB->single("SELECT user_name FROM lift_users WHERE user_id=$call_staff");
 
             }
             $text_return = $alarm . "Дата:	$call_date \nАдрес: $call_address \nОписание: $call_details $staff_name \n \xF0\x9F\x91\x87 \n";
@@ -145,7 +147,7 @@ if(!$close_all && ($call_staff!==$this->user_id)){
         if ($this->photo) {
             $this->savePhoto();
         } else {
-           ($this->saveNote()) ? $this->setMessageTelegramSend("Заметка добавлена") : $this->setMessageTelegramSend("Произошла ошибка");
+            ($this->saveNote()) ? $this->setMessageTelegramSend("Заметка добавлена") : $this->setMessageTelegramSend("Произошла ошибка");
             $this->sendToTelegram();
             $this->DB->query(delete_action_query, array("id_telegram" => $this->id_telegram_expectation));
         }
@@ -311,11 +313,62 @@ if(!$close_all && ($call_staff!==$this->user_id)){
             return mkdir($dir, 0750, true);
         }
     }
+
     public function send_help()
     {
         $text = "Приветсвтую тебя \n Для того что бы отписать свой телеграм от получения новых заявок подай команду /stop \n Чтобы зарегестрировать твой телеграм отправь контактные данные \n Три точки в правом верхнем углу и выбрать  'Отправить свой телефон' затем нажать кнопочку - Поделиться контактом \n Для управления открытми заявками нажми ниже кнопочку 'Открытые заявки'\n(в разработке) Под каждой открытой заявкой кнопочки Закрыть и Заметка ( позваляют собственно выполнить все то что на них написано)  \n Не забывая что врежиме ЗАКРЫТЬ или ЗАМЕТКА любое сообщение отправленное боту будет как соответсвующее сообщение по команде (закрытие  - как решение по заявке, Заметке - как добавление текстовой заметке к заявке) Если команду выполнять не надо, нажми кнопочку ОТМЕНА\n Удачи! \n  (C) Zamotaev A.N. https://e-rcs.ru";
-        $this->setMessageTelegramSend( $text);
+        $this->setMessageTelegramSend($text);
         $this->sendToTelegram();
 
+    }
+    public function unsubscribe()
+    {
+        /**
+         * отписка от получения сообщений в телеграмм
+         */
+        $user_id = $this->telegram_id_check();
+        if (!$user_id) {
+            $this->setMessageTelegramSend('Вы не подписаны на новые заявки');
+            $this->sendToTelegram();
+            return false;
+        }
+        $my_query = "UPDATE lift_users SET user_telegram = 0 WHERE  user_id = '$user_id';";
+        $res = $this->DB->query($my_query);
+        if ($res) {
+            $this->setMessageTelegramSend('Ваш Телеграм ID удален из нашей базы. Вы больше не сможите получать уведомления. Для повторной подписки отправьте свой телефон через меню чата (... -> "Отправить свой телефон"');
+            $this->sendToTelegram();
+            return true;
+        }
+    }
+
+    public function subscribe()
+    {
+        /**
+         * подписка на новые заявки в телеграмм
+         *
+         */
+
+        if ($this->telegram_id_check()) {
+            $this->setMessageTelegramSend('Ваш ID уже внесен в нашу базу для отписки от сообщений о новых заявках отправьте команду /del или /stop');
+            $this->sendToTelegram();
+            return false;
+        }
+        $this->setMessageTelegramSend("sub-");
+        $this->sendToTelegram();
+        $telegram_phone=$this->phone_number;
+        if ($telegram_phone) {
+            $query_phone = "SELECT user_id FROM lift_users WHERE user_phone=$telegram_phone LIMIT 1;";
+            $user_id = $this->DB->single($query_phone); //;
+            if ($user_id) {
+                $myquery = "UPDATE lift_users SET user_telegram = ? WHERE  user_id = $user_id;";
+                $res = $this->DB->query($myquery, array($this->chat_id));
+                $res ? $text_return = "Ваш ID добавлен в базу,и активированна функция отправки сообщений в телеграмм" : $text_return = "Произошла ошибка при записи в базу";
+            } else {
+                $text_return = "Вош номер телефона не найден в базе  ";
+            }
+            $this->setMessageTelegramSend($text_return);
+            $this->sendToTelegram();
+
+        }
     }
 }

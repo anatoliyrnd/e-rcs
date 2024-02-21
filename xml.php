@@ -1,10 +1,12 @@
 <?php
 include("include/autoload.php");
 $main=new mainSRC\main();
+$add_call=new \mainSRC\calls\addCall();
 const PATH='XML';
 const FILE='SPult';
 const CHECK_ORGANIZATION=true;
 const debug_xml = false; // если нужна отладочная информация то ставим в true
+
 $DATE_REPAIR=3;//срок ремонта из массива
 if (strcasecmp($_SERVER['REQUEST_METHOD'], 'POST') != 0) {
     //If it isn't, send back a 405 Method Not Allowed header.

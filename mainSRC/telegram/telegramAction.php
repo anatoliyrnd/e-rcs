@@ -3,13 +3,14 @@
 namespace mainSRC\telegram;
 const query_check_userId = "SELECT  call_staff FROM lift_calls WHERE call_id=:Id LIMIT 1";
 use mainSRC\logSave;
+
 use mainSRC\main;
 class telegramAction extends telegram {
     private $time;
     private $action_text;
     public function __construct(){
      parent::__construct();
-        $this->mainLog=new logSave();
+        $this->mainLog = new logSave();
         $this->time=$this->getParameterConfig('waiting_time')/60;
     }
     public function actin_keyboard(){
@@ -116,6 +117,9 @@ class telegramAction extends telegram {
             $this->request(0, array('chat_id' => $this->chat_id, 'message_id' => $this->message_id));
         }
     }
+
+
+
 
 
 }
