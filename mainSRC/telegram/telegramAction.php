@@ -1,9 +1,9 @@
 <?php
 
 namespace mainSRC\telegram;
-const query_check_userId = "SELECT  call_staff FROM lift_calls WHERE call_id=:Id LIMIT 1";
+const query_check_userId = "SELECT  call_staff FROM lift_calls WHERE call_id=:? LIMIT 1";
 use mainSRC\logSave;
-
+use Exception;
 use mainSRC\main;
 class telegramAction extends telegram {
     private $time;
@@ -18,40 +18,46 @@ class telegramAction extends telegram {
     }
 
     protected function actionSend(){
-        $call_id=$this->call_back_id;
-        $staff_id = $this->DB->single(query_check_userId,array("Id"=>$call_id));
-        if ($staff_id != $this->user_id) {
-            $this->mainLog->logSave("staff - $staff_id != user" . $this->user_id, "action_call","telegram");
-            $this->message_telegram_send='Произошла непредвиденная ошибка. Id пользователя не привязан к данной заявке';
-            $this->sendToTelegram();
+
+        try {
+            $call_id = $this->call_back_id;
+            $staff_id = $this->DB->single(query_check_userId, array($call_id));
+                if ($staff_id != $this->user_id) {
+                $this->mainLog->logSave("staff - $staff_id != user" . $this->user_id, "action_call", "telegram");
+                $this->setMessageTelegramSend('Произошла непредвиденная ошибка. Id пользователя не привязан к данной заявке') ;
+                $this->sendToTelegram();
+                exit();
+            }
+            $current_timestamp = strtotime("now");
+            $query_search_telegram_action = "SELECT id FROM lift_telegram WHERE user_id=$this->user_id ";
+            //проверим есть ли для пользователя ожидания сообщения
+            $check = $this->DB->single($query_search_telegram_action);
+
+            if ($check) {
+                // если есть то изменим на текущую
+                $query_telegram_expectation = "UPDATE lift_telegram SET call_id=:callId, time=$current_timestamp, action='$this->call_back_action' WHERE id=$check";
+            } else {
+                $query_telegram_expectation = "INSERT INTO `lift_telegram`  SET user_id=$this->user_id, call_id=:callId, time=$current_timestamp, action='$this->call_back_action' ";
+            }
+
+            $address = $this->message_text;
+            $add_telegram_action = $this->DB->query($query_telegram_expectation, array("callId" => $call_id));
+            if ($add_telegram_action) {
+                $temp = $address . $this->action_text;
+            } else {
+                $this->mainLog->logSave("SQL Error $query_telegram_expectation , callId => $call_id", "action_call", "telegram");
+                $temp = "Произошла ошибка попробуйте повторить запрос позднее";
+            }
+            $arr_delete_message = array('chat_id' => $this->chat_id, 'message_id' => "$this->message_id");
+            $this->setMessageTelegramSend($temp);
+            $answer = $this->sendToTelegram();
+            //$this->debug(json_encode($answer), "answer");
+            if (isset($answer['ok']) and $answer['ok'] == 1) {
+                $this->request(0, $arr_delete_message);
+            }
+        } catch (Exception $e){
+
             exit();
-        }
-        $current_timestamp = strtotime("now");
-        $query_search_telegram_action = "SELECT id FROM lift_telegram WHERE user_id=$this->user_id ";
-        //проверим есть ли для пользователя ожидания сообщения
-        $check = $this->DB->single($query_search_telegram_action);
-
-        if ($check) {
-            // если есть то изменим на текущую
-            $query_telegram_expectation = "UPDATE lift_telegram SET call_id=:callId, time=$current_timestamp, action='$this->call_back_action' WHERE id=$check";
-        } else {
-            $query_telegram_expectation = "INSERT INTO `lift_telegram`  SET user_id=$this->user_id, call_id=:callId, time=$current_timestamp, action='$this->call_back_action' ";
-        }
-
-        $address = $this->message_text;
-        $add_telegram_action = $this->DB->query($query_telegram_expectation, array("callId" => $call_id));
-        if ($add_telegram_action) {
-            $temp = $address . $this->action_text;
-        } else {
-            $this->mainLog->logSave("SQL Error $query_telegram_expectation , callId => $call_id", "action_call","telegram");
-            $temp = "Произошла ошибка попробуйте повторить запрос позднее";
-        }
-        $arr_delete_message = array('chat_id' => $this->chat_id, 'message_id' => "$this->message_id");
-        $this->setMessageTelegramSend($temp);
-        $answer = $this->sendToTelegram();
-        //$this->debug(json_encode($answer), "answer");
-        if (isset($answer['ok']) and $answer['ok'] == 1) {
-            $this->request(0, $arr_delete_message);
         }
     }
     public function action_call()
@@ -62,8 +68,10 @@ class telegramAction extends telegram {
          *method deleteMessage - удалить сообщение (array('chat_id' => $chat_id,'message_id' => "$message_id")
          */
       $this->request(0,array('chat_id' => $this->chat_id,'message_id' => "$this->message_id"));
+
       switch ($this->call_back_action) {
            case "note":
+
                $this->action_text = "Отправьте в ответ сообщение с текстом заметки или фотографию в течении $this->time мин.";
                $this->actionSend();
                break;

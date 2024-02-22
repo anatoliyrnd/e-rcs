@@ -1,4 +1,7 @@
 <?php
+
+use mainSRC\main;
+
 require_once("./include/autoload.php");
 //exit();
 const command_re_send = false;
@@ -6,9 +9,10 @@ const command_re_send = false;
 $telegram_cmd = new mainSRC\telegram\callCommands;
 header('Content-Type: text/html; charset=utf-8'); // на всякий случай досообщим PHP, что все в кодировке UTF-8
 $time_start = microtime(true);
-
 $data = file_get_contents('php://input'); // весь ввод перенаправляем в $data
+//(new main)->debug(print_r($data, true), '_test', 'telegram');exit();
 $data = json_decode($data, true); // декодируем json-закодированные-текстовые данные в PHP-массив
+
 
 if (isset($data['callback_query']))
 {
@@ -24,7 +28,9 @@ if (isset($data['callback_query']))
 
     if (isset($data['callback_query']['data']))
     {
+
         $telegram_cmd->action_call();
+
         // $action = $data_keyboard['action'];
         /*switch ($action) {
              case "note":
@@ -85,7 +91,7 @@ else if (!empty($data['message']['text']) || !empty($data['message']['photo']) |
             $telegram_cmd->send_help();
             break;
         case 'открытыезаявки':
-            $telegram_cmd->setMessageTelegramSend("open calls");
+            $telegram_cmd->setMessageTelegramSend("Открытые заявки");
             $telegram_cmd->sendToTelegram();
             $telegram_cmd->readOpenCalls();
             break;

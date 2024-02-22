@@ -5,7 +5,7 @@ namespace mainSRC\telegram;
 use mainSRC\dataBase\PDODB;
 use mainSRC\logSave;
 use mainSRC\main;
-
+use Exception;
 class telegram
 {
     /**
@@ -87,20 +87,25 @@ class telegram
      */
     public function request($method_id, $data = array())
     {
-        $curl = curl_init();
-        $method_list = ['deleteMessage', 'answerCallbackQuery'];
-        $method = $method_list[$method_id];
+        try {
+            $curl = curl_init();
+            $method_list = ['deleteMessage', 'answerCallbackQuery'];
+            $method = $method_list[$method_id];
 //method deleteMessage - удалить сообщение (array('chat_id' => $chat_id,'message_id' => "$message_id")
 //answerCallbackQuery -подтвердить получение обратного вызова от кнопки (array('callback_query_id'      => $queri_id,'text'     => $chat_id)
-        curl_setopt($curl, CURLOPT_URL, 'https://api.telegram.org/bot' . $this->telegram_token . '/' . $method);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'POST');
-        curl_setopt($curl, CURLOPT_POST, true);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
-        $resolve = json_decode(curl_exec($curl), true);
-        curl_close($curl);
-        (new main)->debug(print_r($resolve, true), '_request', 'telegram');
-        return $resolve;
+            curl_setopt($curl, CURLOPT_URL, 'https://api.telegram.org/bot' . $this->telegram_token . '/' . $method);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'POST');
+            curl_setopt($curl, CURLOPT_POST, true);
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+            $resolve = json_decode(curl_exec($curl), true);
+            curl_close($curl);
+            (new main)->debug(print_r($resolve, true), '_request', 'telegram');
+            return $resolve;
+        }catch (Exception $e){
+            $this->setMessageTelegramSend($e->getMessage() );
+            $this->sendToTelegram();
+        }
     }
 
     public function sendHelp()
@@ -149,8 +154,8 @@ class telegram
             $this->log_save->logSave("Ошибка данных телеграм пустое значение", "error_data", "telegram");
             return false;
         }
-        $this->chat_id = isset($data['message']['chat']['id']) ? $data['message']['chat']['id'] : 0;
-        $this->message_id = isset ($data['message']['message_id']) ? $data['message']['message_id'] : 0;
+        $this->chat_id = $data['message']['chat']['id'] ?? 0;
+        $this->message_id = $data['message']['message_id'] ??  0;
         $this->telegram_id_check($this->chat_id);
         $this->message_text = $data['message']['text'] ?? '';
         if (array_key_exists('photo', $data['message'])) {
