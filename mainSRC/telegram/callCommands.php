@@ -24,65 +24,71 @@ class callCommands extends telegramAction
     {
         parent::__construct();
         $this->waiting_time = $this->getParameterConfig('waiting_time');
-        $this->closure = new closureCall();
-        $this->main = new main();
+        $this->closure      = new closureCall();
+        $this->main         = new main();
     }
 
     public function readOpenCalls()
     {
         $user_permissions = $this->main->getUserPermission($this->user_id);
-        $read_all = $user_permissions[1];
-        $close_all = $user_permissions[3];
-        $note_all = $user_permissions[4];
+        $read_all         = $user_permissions[1];
+        $close_all        = $user_permissions[3];
+        $note_all         = $user_permissions[4];
         ($read_all) ? $call_staff = '' : $call_staff = "AND call_staff =$this->user_id";// если не разрешено смотреть все заявки, то добавим фильтр по ответственному
-        $myquery = "SELECT call_id, call_date, call_adres, call_details, call_request, call_staff_status,call_staff from lift_calls WHERE (call_status = 0)  $call_staff;";
+        $myquery    = "SELECT call_id, call_date, call_adres, call_details, call_request, call_staff_status,call_staff from lift_calls WHERE (call_status = 0)  $call_staff;";
         $lift_calls = $this->DB->query($myquery);
-        if (!$lift_calls) {
+        if (!$lift_calls)
+        {
             return "У тебя нет открытых заявок! \xF0\x9F\x91\x8D";
         }
-        foreach ($lift_calls as $call) { //начало цикла формирования заявок
-            $call_id = $call['call_id'];
+        foreach ($lift_calls as $call)
+        { //начало цикла формирования заявок
+            $call_id           = $call['call_id'];
             $call_staff_status = $call['call_staff_status'];
-            $call_staff = (int)$call['call_staff'];
-            $call_details = $call['call_details'];
-            $call_address = $call['call_adres'];
-            $call_request = (int)$call['call_request']; //уровень заявки
-            $call_date = date("Y-m-d H:i", $call['call_date']);
+            $call_staff        = (int)$call['call_staff'];
+            $call_details      = $call['call_details'];
+            $call_address      = $call['call_adres'];
+            $call_request      = (int)$call['call_request']; //уровень заявки
+            $call_date         = date("Y-m-d H:i", $call['call_date']);
             ($call_request === 1) ? $alarm = "\xF0\x9F\x9A\xA8 \n" : $alarm = "\xF0\x9F\x8F\xA2\n";
             // ( $call_request==3)?$alarm="\xE2\x98\x95 \n":$alarm="\n";
-            if (!$call_staff_status && ($call_staff == $this->user_id)) {// Если отмечена как не переданна и пользователь является ответственным то измененяем состояние на переданна онлайн
+            if (!$call_staff_status && ($call_staff == $this->user_id))
+            {// Если отмечена как не переданна и пользователь является ответственным то измененяем состояние на переданна онлайн
                 $query_staff_date = "call_staff_date=" . strtotime(date('Y-m-d H:i:s ')) . ',';
-                $update_status = "UPDATE lift_calls SET  $query_staff_date call_staff_status=2 WHERE  call_id=$call_id;";
+                $update_status    = "UPDATE lift_calls SET  $query_staff_date call_staff_status=2 WHERE  call_id=$call_id;";
                 $this->DB->query($update_status);
                 $history_date = strtotime(date('Y-m-d H:i:s '));
-                $set_history = "Заявка по адресу - " . $call_address . " Отмечена прочитанной. Прочитана в Телеграм. "; //запись в журнал
+                $set_history  = "Заявка по адресу - " . $call_address . " Отмечена прочитанной. Прочитана в Телеграм. "; //запись в журнал
                 $this->DB->query("INSERT INTO lift_history (history_date,history_info, call_id) VALUES( $history_date, '$set_history',  $call_id );");
             }
             $close_but = array(
                 'text' => 'Закрыть',
                 'callback_data' => '{"id":"' . $call_id . '","action":"close"}'
             );
-            $note_but = array(
+            $note_but  = array(
                 'text' => 'Заметка',
                 'callback_data' => '{"id":"' . $call_id . '","action":"note"}',
             );
-            if (!$close_all && ($call_staff !== $this->user_id)) {
+            if (!$close_all && ($call_staff !== $this->user_id))
+            {
                 $close_but = array();
             }
-            if (!$note_all && ($call_staff !== $this->user_id)) {
+            if (!$note_all && ($call_staff !== $this->user_id))
+            {
                 $note_but = array();
             }
 
-            $but = array('inline_keyboard' => array(
+            $but        = array('inline_keyboard' => array(
                 array($close_but, $note_but
 
                 ),
             ),
                 'one_time_keyboard' => TRUE,
             );
-            $replay = json_encode($but);
+            $replay     = json_encode($but);
             $staff_name = '';
-            if ($call_staff !== $this->user_id) {
+            if ($call_staff !== $this->user_id)
+            {
                 $staff_name = "\n Ответственный - ";
                 $staff_name .= $this->DB->single("SELECT user_name FROM lift_users WHERE user_id=$call_staff");
 
@@ -96,57 +102,73 @@ class callCommands extends telegramAction
     public function check_action()
     {
         //проверка наличия активных действий и ожидаения сообщения
-        if (!$this->user_id) {
+        if (!$this->user_id)
+        {
             return false;
         }
 
-        $current_timestamp = strtotime("now");
+        $current_timestamp            = strtotime("now");
         $query_search_telegram_action = "SELECT id,user_id,call_id,time ,action FROM lift_telegram WHERE user_id=$this->user_id ";
         //проверим есть ли для пользователя ожидания сообщения
-        $query_telegram_expectation = $this->DB->row($query_search_telegram_action);
-        $this->call_id = $query_telegram_expectation['call_id'];
-        $this->action = $query_telegram_expectation['action'];
-        $this->message = $this->message_text ?? ' ';// если нет текста, то создадим пустую строку
+        $query_telegram_expectation    = $this->DB->row($query_search_telegram_action);
+        $this->call_id                 = $query_telegram_expectation['call_id'];
+        $this->action                  = $query_telegram_expectation['action'];
+        $this->message                 = $this->message_text ?? ' ';// если нет текста, то создадим пустую строку
         $this->id_telegram_expectation = $query_telegram_expectation['id'];
         // $delete_action_query = "DELETE FROM `lift_telegram` WHERE id=$this->id_telegram_expectation";// запрос в базу для удаления записи последовательност команд телеграмм
-        if ($query_telegram_expectation) {
-            if (($query_telegram_expectation['time'] + $this->waiting_time) < $current_timestamp) {
+        if ($query_telegram_expectation)
+        {
+            if (($query_telegram_expectation['time'] + $this->waiting_time) < $current_timestamp)
+            {
                 $this->DB->query(delete_action_query, array("id_telegram" => $this->id_telegram_expectation));
                 $this->setMessageTelegramSend("Время ожидания ответа от Вас истекло.");
                 $this->sendToTelegram();
                 return false;
-            } else {
+            }
+            else
+            {
                 //проверим не закрыта ли заявка
                 $this->closure->setCallId($this->call_id);
-                if ($this->closure->checkCallClosed()) {
+                if ($this->closure->checkCallClosed())
+                {
                     $this->DB->query(delete_action_query, array("id_telegram" => $this->id_telegram_expectation));
                     $this->setMessageTelegramSend("Заявка уже была закрыта ранее.");
                     $this->sendToTelegram();
                     return false;
                 }
-                if ($this->action === 'note') {
+                if ($this->action === 'note')
+                {
                     $this->addNote();
-                } else if ($this->action === 'close') {
+                }
+                else if ($this->action === 'close')
+                {
                     // call closed
-                    if ($this->closeCall()) {
+                    if ($this->closeCall())
+                    {
                         return true;
-                    } else {
+                    }
+                    else
+                    {
                         $this->DB->query(delete_action_query, array("id_telegram" => $this->id_telegram_expectation));
                         return false;
                     }
                 }
             }
-        } else {
+        }
+        else
+        {
             return false;
         }
     }
 
     protected function addNote()
-
     {
-        if ($this->photo) {
+        if ($this->photo)
+        {
             $this->savePhoto();
-        } else {
+        }
+        else
+        {
             ($this->saveNote()) ? $this->setMessageTelegramSend("Заметка добавлена") : $this->setMessageTelegramSend("Произошла ошибка");
             $this->sendToTelegram();
             $this->DB->query(delete_action_query, array("id_telegram" => $this->id_telegram_expectation));
@@ -155,18 +177,22 @@ class callCommands extends telegramAction
 
     protected function savePhoto()
     {
-        if (isset($this->message_photo['caption'])) {
+        if (isset($this->message_photo['caption']))
+        {
             $this->caption = $this->message_photo['caption'];// получим описание к фото если есть
             unset($this->message_photo['caption']);//удалим из массива описание к фото
         }
-        $file_id = array_pop($this->message_photo);
+        $file_id    = array_pop($this->message_photo);
         $path_query = json_decode($this->getPhotoPath($file_id['file_id']));// получаем file_path
-        if ($path_query->ok) {
+        if ($path_query->ok)
+        {
             $path = $path_query->result->file_path;
             $this->setMessageTelegramSend("Получаем картинку ");
             $this->sendToTelegram();
             $this->save_img_note($path, $this->call_id, $this->caption);
-        } else {
+        }
+        else
+        {
             $this->log_save->logSave(json_encode($path_query), "getImg", "telegram");
             $this->setMessageTelegramSend("произошла ошибка получения изображения");
             $this->sendToTelegram();
@@ -177,12 +203,14 @@ class callCommands extends telegramAction
     {
         //Закрыть заявку
         $user_allow = $this->checkUserPermission();
-        if (!$user_allow) {
+        if (!$user_allow)
+        {
             return false;
         }
         $this->closureSetParameters();
         $solution = $this->main->magicLower($this->message);
-        if (iconv_strlen($solution) < 5) {
+        if (iconv_strlen($solution) < 5)
+        {
             $this->setMessageTelegramSend("Число символов в решении по заявке менее 5. Заявка не закрыта");
             $this->sendToTelegram();
             return false;
@@ -190,17 +218,20 @@ class callCommands extends telegramAction
         $this->closure->setSolution($solution);
         $this->closure->setApprovalClosure(true);
         $result_closure = $this->closure->closureCall();
-        if ($result_closure) {
-            $text = "Заявка закрыта ";
+        if ($result_closure)
+        {
+            $text                   = "Заявка закрыта ";
             $result_archive_history = $this->closure->addHistoryArchive();
-            $result_archive_note = $this->closure->addNoteArchive();
+            $result_archive_note    = $this->closure->addNoteArchive();
             $result_archive_history ? $history = " " : $history = " , но была ошибка истории ";
             $result_archive_note ? $note = " " : $note = ", но была ошибка заметок";
             $text .= $history . $note;
             $this->setMessageTelegramSend($text);
             $this->sendToTelegram();
             return true;
-        } else {
+        }
+        else
+        {
             $log = " SC-1 call close $result_closure ";
             $this->log_save->logsave($log, name_file_close, "telegram");
             $this->setMessageTelegramSend("Произошла ошибка ");
@@ -212,10 +243,12 @@ class callCommands extends telegramAction
 
     protected function closureSetParameters()
     {
-        if (empty($this->closure->getCallId())) {
+        if (empty($this->closure->getCallId()))
+        {
             $this->closure->setCallId($this->call_id);
         }
-        if (empty($this->closure->getClosedUserName())) {
+        if (empty($this->closure->getClosedUserName()))
+        {
             $this->closure->setClosedUserName($this->user_name);
         }
     }
@@ -223,8 +256,9 @@ class callCommands extends telegramAction
     protected function checkUserPermission()
     {
         $user_permission = $this->main->getUserPermission($this->user_id)[2];
-        $staff_id = (int)$this->DB->single(query_check_userId, array("call_id" => $this->call_id));//вернет true если пользователь является ответственным
-        if (!$user_permission && ($staff_id !== (int)$this->user_id)) {
+        $staff_id        = (int)$this->DB->single(query_check_userId, array("call_id" => $this->call_id));//вернет true если пользователь является ответственным
+        if (!$user_permission && ($staff_id !== (int)$this->user_id))
+        {
             $this->setMessageTelegramSend('Произошла непредвиденная ошибка. Среди Ваших заявок не найдена данная открытая заявка');
             $this->sendToTelegram();
             $this->DB->query(delete_action_query, array("id_telegram" => $this->id_telegram_expectation));
@@ -237,8 +271,9 @@ class callCommands extends telegramAction
     {
         $image_name = null;
         $path_parts = pathinfo($path);
-        $extension = $path_parts['extension'];//расширение
-        if (!preg_match('/(jpg|jpeg|png|gif)/', $extension)) {
+        $extension  = $path_parts['extension'];//расширение
+        if (!preg_match('/(jpg|jpeg|png|gif)/', $extension))
+        {
             $this->setMessageTelegramSend("Разрешены файлы формата jpg|jpeg|png|gif ");
             return false;
         }
@@ -246,21 +281,25 @@ class callCommands extends telegramAction
         $url = "https://api.telegram.org/file/bot" . $this->telegram_token . "/$path";
         //file_put_contents("img.png", file_get_contents($url));
         //return false;
-        $temp = tempnam("temp", "img");
+        $temp     = tempnam("temp", "img");
         $fileName = "$temp.$extension";
         file_put_contents($fileName, file_get_contents($url));
-        try {
+        try
+        {
             $img = new Imagick($fileName);
 
-            $size_width = $img->getImageWidth();
+            $size_width  = $img->getImageWidth();
             $size_height = $img->getImageHeight();
-            $image_name = $call_id . "note_img" . rand(10, 2000) . ".$extension";
-            if ($size_height > 720 || $size_width > 1280) {
+            $image_name  = $call_id . "note_img" . rand(10, 2000) . ".$extension";
+            if ($size_height > 720 || $size_width > 1280)
+            {
                 $img->thumbnailImage(1280, 720, true);
-            } else {
+            }
+            else
+            {
                 $img->thumbnailImage(($size_width - 10), ($size_height - 10), true);
             }
-            $dir_image_note = $_SERVER['DOCUMENT_ROOT'] . "/note_images";
+            $dir_image_note       = $_SERVER['DOCUMENT_ROOT'] . "/note_images";
             $dir_image_note_thumb = $_SERVER['DOCUMENT_ROOT'] . "/note_thumb";
 
             $this->check_directory($dir_image_note);
@@ -269,18 +308,24 @@ class callCommands extends telegramAction
             $image_big = $img->writeImage($dir_image_note . "/" . $image_name);// сохраним крупное изображение
             $img->thumbnailImage(100, 100, TRUE);
             $image_thumb = $img->writeImage($dir_image_note_thumb . "/" . $image_name);
-            if (!$image_big || !$image_thumb) {
+            if (!$image_big || !$image_thumb)
+            {
                 $this->log_save->logSave("ошибка записи изображения", "imgSave", "telegram");
             }
-        } catch (\ImagickException $e) {
+        }
+        catch (\ImagickException $e)
+        {
             $this->log_save->logSave("error  $e ", "imagick", "telegram");
         }
         $error = '';
-        if ($img->clear()) {
+        if ($img->clear())
+        {
             //chmod($fileName, 0770);
             unlink($fileName);
             unlink($temp);
-        } else {
+        }
+        else
+        {
             $error = "С некоторыми ошибками";
         }
 
@@ -291,25 +336,27 @@ class callCommands extends telegramAction
     private function saveNote($message_save = null, $call_id_save = null, $file_name = null)
     {
 
-        $message = $message_save ?? $this->message;
-        $call_id = $call_id_save ?? $this->call_id;
-        $telegram = "t-" . $this->chat_id;
+        $message           = $message_save ?? $this->message;
+        $call_id           = $call_id_save ?? $this->call_id;
+        $telegram          = "t-" . $this->chat_id;
         $current_timestamp = strtotime("now");
-        $type = 1;
-        $title = "Заметка";
-        if ($file_name) {
-            $type = 2;
-            $title = "Изображение";
+        $type              = 1;
+        $title             = "Заметка";
+        if ($file_name)
+        {
+            $type      = 2;
+            $title     = "Изображение";
             $file_name = " , img_name='" . $file_name . "'";
         }
         $query_telegram_action = "INSERT INTO `lift_notes` SET note_post_ip=:telegram, note_post_user=$this->user_id, note_title='$title',note_body=:text, note_relation=$call_id , note_type=$type ,note_post_date=$current_timestamp $file_name";
-        $add_note = $this->DB->query($query_telegram_action, array("telegram" => $telegram, "text" => $message));
+        $add_note              = $this->DB->query($query_telegram_action, array("telegram" => $telegram, "text" => $message));
         return $add_note;
     }
 
     private function check_directory($dir)
     {
-        if (!is_dir($dir)) {
+        if (!is_dir($dir))
+        {
             return mkdir($dir, 0750, true);
         }
     }
@@ -327,14 +374,16 @@ class callCommands extends telegramAction
          * отписка от получения сообщений в телеграмм
          */
         $user_id = $this->telegram_id_check();
-        if (!$user_id) {
+        if (!$user_id)
+        {
             $this->setMessageTelegramSend('Вы не подписаны на новые заявки');
             $this->sendToTelegram();
             return false;
         }
         $my_query = "UPDATE lift_users SET user_telegram = 0 WHERE  user_id = '$user_id';";
-        $res = $this->DB->query($my_query);
-        if ($res) {
+        $res      = $this->DB->query($my_query);
+        if ($res)
+        {
             $this->setMessageTelegramSend('Ваш Телеграм ID удален из нашей базы. Вы больше не сможите получать уведомления. Для повторной подписки отправьте свой телефон через меню чата (... -> "Отправить свой телефон"');
             $this->sendToTelegram();
             return true;
@@ -348,22 +397,27 @@ class callCommands extends telegramAction
          *
          */
 
-        if ($this->telegram_id_check()) {
+        if ($this->telegram_id_check())
+        {
             $this->setMessageTelegramSend('Ваш ID уже внесен в нашу базу для отписки от сообщений о новых заявках отправьте команду /del или /stop');
             $this->sendToTelegram();
             return false;
         }
         $this->setMessageTelegramSend("sub-");
         $this->sendToTelegram();
-        $telegram_phone=$this->phone_number;
-        if ($telegram_phone) {
+        $telegram_phone = $this->phone_number;
+        if ($telegram_phone)
+        {
             $query_phone = "SELECT user_id FROM lift_users WHERE user_phone=$telegram_phone LIMIT 1;";
-            $user_id = $this->DB->single($query_phone); //;
-            if ($user_id) {
+            $user_id     = $this->DB->single($query_phone); //;
+            if ($user_id)
+            {
                 $myquery = "UPDATE lift_users SET user_telegram = ? WHERE  user_id = $user_id;";
-                $res = $this->DB->query($myquery, array($this->chat_id));
+                $res     = $this->DB->query($myquery, array($this->chat_id));
                 $res ? $text_return = "Ваш ID добавлен в базу,и активированна функция отправки сообщений в телеграмм" : $text_return = "Произошла ошибка при записи в базу";
-            } else {
+            }
+            else
+            {
                 $text_return = "Вош номер телефона не найден в базе  ";
             }
             $this->setMessageTelegramSend($text_return);
